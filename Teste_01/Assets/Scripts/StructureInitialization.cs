@@ -29,7 +29,7 @@ public class StructureInitialization : MonoBehaviour
     //public static GameObject first;
     //public static float scale;
 
-    // Start is called before the first frame update
+    // Start is called before the first frame update.
     void Start()
     {
         n_mol = 13;
@@ -56,7 +56,10 @@ public class StructureInitialization : MonoBehaviour
     {
         string path = "Assets/Resources/Inputs/13_teste_bestCoordinates.txt";
 
-        //Read the text from directly from the test.txt file
+        // 1HJM input file.
+        //string path = "Assets/Resources/Inputs/104_1HJM.txt";
+
+        // Read the text directly from the TXT file.
         StreamReader reader = new StreamReader(path);
         string full_text = reader.ReadToEnd();
         string[] words = full_text.Split(new char[] { ' ', '\t', '\r' });
