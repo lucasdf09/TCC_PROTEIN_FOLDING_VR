@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour
     public Text score_text;
     public Text parameters_text;
 
-
     private static GameObject target;
     private GameObject[] particles;
     private int n_mol;

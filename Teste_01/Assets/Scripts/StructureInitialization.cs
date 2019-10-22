@@ -10,12 +10,12 @@ using System.Globalization;
 public class StructureInitialization : MonoBehaviour
 {
     public static int n_mol;
-    public GameObject molecule;
-    public GameObject bond;
-    public GameObject first;
-    public Transform molecules;
-    public Transform bonds;
-    public Transform first_ref;
+    public GameObject molecule;                 // Residue Prefab refernce.
+    public GameObject bond;                     // Bond Prefab reference.
+    public GameObject first;                    // First Prefab reference.
+    public Transform molecules;                 // Instatitated Prefab reference.
+    public Transform bonds;                     // Instatitated Prefab reference.
+    public Transform first_ref;                 // Instatitated Prefab reference.
     public static GameObject[] mol_structure;
     public static GameObject[] bond_structure;
     public static GameObject first_mol;
@@ -116,6 +116,7 @@ public class StructureInitialization : MonoBehaviour
         for (var i = 0; i < n_mol; i++)
         {
             mol_structure[i] = Instantiate(molecule, mol_coords[i], Quaternion.identity, molecules);
+            mol_structure[i].name = "Residue" + i.ToString();
         }
     }
 
@@ -129,6 +130,7 @@ public class StructureInitialization : MonoBehaviour
             bond_rotations[i] = Quaternion.FromToRotation(Vector3.down, mol_coords[i+1] - mol_coords[i]);
 
             bond_structure[i] = Instantiate(bond, bond_coords[i], bond_rotations[i], bonds);
+            bond_structure[i].name = "Bond" + i.ToString();
         }
 
         for (var i = 0; i < n_mol -1; i++)
