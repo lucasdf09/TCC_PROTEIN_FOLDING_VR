@@ -30,6 +30,12 @@ public class PlayerController : MonoBehaviour
     private float rg_h;
     private float rg_p;
 
+    private static Color orange_color;
+    private bool moved;
+
+    private Vector3[] res_variation;
+    private Vector3[] bond_variation;
+
     void Start()
     {
         target = StructureInitialization.mol_structure[1];
@@ -45,12 +51,29 @@ public class PlayerController : MonoBehaviour
         duration = 1.0f;
         //movement = new Vector3 (0.0f, 0.0f, 0.0f);
         delta = 0.01f;
-
         score = 0.0f;
         sequence = StructureInitialization.sequence;
+        orange_color = new Color(1.0f, 0.64f, 0.0f);
+        moved = false;
+
         initializeParameters();
         setScoreText();
         setParametersText();
+
+        // Debug stuff
+        res_variation = new Vector3[n_mol];
+        bond_variation = new Vector3[n_mol - 1];
+       
+        for (var i = 0; i < n_mol - 1; i++)
+        {
+            Debug.Log("ResiduePos[" + i + "]: " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+        }
+
+        for (var i = 0; i < n_mol - 1; i++)
+        {
+            Debug.Log("BondPos[" + i + "]: " + StructureInitialization.bond_structure[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+            Debug.Log("BondCoords[" + i + "]: " + StructureInitialization.bond_coords[i].ToString("F8"));
+        }
     }
 
     void Update()
@@ -77,6 +100,24 @@ public class PlayerController : MonoBehaviour
             }
             else if (Input.GetKeyDown("return"))
             {
+
+                for (var i = 0; i < n_mol; i++)
+                {
+                    Debug.Log("ResiduePos[" + i + "]: " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+                    Debug.Log("ResidueCoords[" + i + "]: " + StructureInitialization.mol_coords[i].ToString("F8"));
+                    res_variation[i] = particles[i].GetComponent<Rigidbody>().transform.position - StructureInitialization.mol_coords[i];
+                    Debug.Log("Residue Var[" + i + "]: " + res_variation[i].ToString("F8"));
+                }
+
+                for (var i = 0; i < n_mol - 1; i++)
+                {
+                    Debug.Log("BondPos[" + i + "]: " + StructureInitialization.bond_structure[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+                    Debug.Log("BondCoords[" + i + "]: " + StructureInitialization.bond_coords[i].ToString("F8"));
+                    bond_variation[i] = StructureInitialization.bond_structure[i].GetComponent<Rigidbody>().transform.position - StructureInitialization.bond_coords[i];
+                    Debug.Log("Bond Var[" + i + "]: " + bond_variation[i].ToString("F8"));
+
+                }
+
                 print("ENTER key was pressed");
                 color_aux = mol_colors[mol_count];
                 color_aux.a = 0.1f;
@@ -137,54 +178,72 @@ public class PlayerController : MonoBehaviour
 
             blinkResidue(target.GetComponent<Renderer>(), color_aux);
         }
+        refreshScoreboard();
     }
 
     
     private void FixedUpdate()
     {
+        
         if (move_mode)
         {
             if (Input.GetKey("w"))
             {
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 movement.y += delta;
+                moved = true;
             }
             else if (Input.GetKey("s"))
             {
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 movement.y -= delta;
+                moved = true;
             }
             if (Input.GetKey("d"))
             {
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 movement.x += delta;
+                moved = true;
             }
             else if (Input.GetKey("a"))
             {
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 movement.x -= delta;
+                moved = true;
             }
             if (Input.GetKey("e"))
             {
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 movement.z += delta;
+                moved = true;
             }
             else if (Input.GetKey("q"))
             {
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 movement.z -= delta;
+                moved = true;
             }
 
-            target.GetComponent<Rigidbody>().transform.position = movement;
-
-            
+            if (moved)
+            {
+                target.GetComponent<Rigidbody>().transform.position = movement;
+                moved = false;
+            }
+      
             calculatePotentialEnergy();
             calculateRg();
+
+
             // A good score must be a positive value.
-            score = best_energy - potential_energy;
+            /*
+            if (Mathf.Approximately(best_energy, potential_energy))
+                score = 0.0f;
+            else
+                score = best_energy - potential_energy;
+            */
+
             setScoreText();
             setParametersText();
-            
         }
     }
     
@@ -200,6 +259,14 @@ public class PlayerController : MonoBehaviour
         calculatePotentialEnergy();
         best_energy = potential_energy;
         calculateRg();
+    }
+
+    void refreshScoreboard()
+    {
+        calculatePotentialEnergy();
+        calculateRg();
+        setScoreText();
+        setParametersText();
     }
 
     void calculatePotentialEnergy()
@@ -307,8 +374,21 @@ public class PlayerController : MonoBehaviour
 
     void setScoreText()
     {
+        // A good score must be a positive value.
+        score = best_energy - potential_energy;
+        if (Mathf.Approximately(score, Mathf.Epsilon))
+        {
+            score = 0.0f;
+            score_text.color = Color.white;
+        }
+        else
+        {
+            // Conditional expression. Orange if score is negative, green if score is positive.
+            score_text.color = Mathf.Sign(score) < 0 ? orange_color : Color.green;
+        }
         score_text.text = "Score: " + score.ToString();
     }
+
 
     void setParametersText()
     {

@@ -50,7 +50,7 @@ public class StructureInitialization : MonoBehaviour
     }
 
     //Reads the input file.
-    static void readInput()
+    void readInput()
     {
 
         string path = "Assets/Resources/Inputs/13_teste_bestCoordinates.txt";
@@ -67,7 +67,7 @@ public class StructureInitialization : MonoBehaviour
 
         for (var i = 0; i < words.Length; i++)
         {
-            Debug.Log("words[" + i + "] = " + words[i]);
+        //    Debug.Log("words[" + i + "] = " + words[i]);
         }
 
         n_mol = int.Parse(words[Array.IndexOf(words, "Molecules") + 2]);
@@ -102,10 +102,6 @@ public class StructureInitialization : MonoBehaviour
             Debug.Log("ResidueCoord: " + $"<{coord}>");
         }
         */
-        for (var i = 0; i < n_mol; i++)
-        {
-            Debug.Log("ResidueCoord[" + i + "]: " + $"<{mol_coords[i]}>");
-        }
 
         reader.Close();
     }
@@ -118,6 +114,11 @@ public class StructureInitialization : MonoBehaviour
             mol_structure[i] = Instantiate(molecule, mol_coords[i], Quaternion.identity, molecules);
             mol_structure[i].name = "Residue" + i.ToString();
         }
+
+        for (var i = 0; i < n_mol; i++)
+        {
+            Debug.Log("ResidueCoord[" + i + "]: " + mol_coords[i].ToString("F8"));
+        }
     }
 
     // Initializes bonds position.
@@ -127,18 +128,18 @@ public class StructureInitialization : MonoBehaviour
         {
             // Define the mean position between a residue and its neighbour to place the bond coordinates.
             bond_coords[i] = (mol_coords[i] + mol_coords[i + 1]) / 2;
-            bond_rotations[i] = Quaternion.FromToRotation(Vector3.down, mol_coords[i+1] - mol_coords[i]);
+            bond_rotations[i] = Quaternion.FromToRotation(Vector3.down, mol_coords[i + 1] - mol_coords[i]);
 
             bond_structure[i] = Instantiate(bond, bond_coords[i], bond_rotations[i], bonds);
             bond_structure[i].name = "Bond" + i.ToString();
         }
 
-        for (var i = 0; i < n_mol -1; i++)
+        for (var i = 0; i < n_mol - 1; i++)
         {
-            Debug.Log("BondCoord[" + i + "]: " + $"<{bond_coords[i]}>");
+        //    Debug.Log("BondCoord[" + i + "]: " + $"<{bond_coords[i]}>");
         }
     }
-
+    
 
     void asignResiduesJoints()
     {
