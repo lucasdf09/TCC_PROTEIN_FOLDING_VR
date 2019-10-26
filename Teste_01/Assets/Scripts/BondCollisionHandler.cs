@@ -18,6 +18,7 @@ public class BondCollisionHandler : MonoBehaviour
         Physics.IgnoreCollision(residues[index].GetComponent<Collider>(), GetComponent<Collider>());  
     }
 
+    /*
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log(gameObject.name + " Enter: " + other.name);
@@ -32,4 +33,5 @@ public class BondCollisionHandler : MonoBehaviour
     {
         Debug.Log(gameObject.name + " Exit: " + other.name);
     }
+    */
 }

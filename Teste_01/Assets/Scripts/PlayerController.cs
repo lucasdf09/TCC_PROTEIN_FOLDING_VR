@@ -49,7 +49,6 @@ public class PlayerController : MonoBehaviour
         }
         color_end = Color.yellow;
         duration = 1.0f;
-        //movement = new Vector3 (0.0f, 0.0f, 0.0f);
         delta = 0.01f;
         score = 0.0f;
         sequence = StructureInitialization.sequence;
@@ -115,7 +114,6 @@ public class PlayerController : MonoBehaviour
                     Debug.Log("BondCoords[" + i + "]: " + StructureInitialization.bond_coords[i].ToString("F8"));
                     bond_variation[i] = StructureInitialization.bond_structure[i].GetComponent<Rigidbody>().transform.position - StructureInitialization.bond_coords[i];
                     Debug.Log("Bond Var[" + i + "]: " + bond_variation[i].ToString("F8"));
-
                 }
 
                 print("ENTER key was pressed");
@@ -178,7 +176,7 @@ public class PlayerController : MonoBehaviour
 
             blinkResidue(target.GetComponent<Renderer>(), color_aux);
         }
-        refreshScoreboard();
+        // refreshScoreboard();
     }
 
     
