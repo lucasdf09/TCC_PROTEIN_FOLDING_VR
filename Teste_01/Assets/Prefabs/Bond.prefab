@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5159324655348854471}
   - component: {fileID: 5159324655348854468}
   - component: {fileID: 8290909414608665977}
+  - component: {fileID: -4400457960871940103}
   m_Layer: 0
   m_Name: Bond
   m_TagString: Untagged
@@ -68,6 +69,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -205,3 +207,15 @@ ConfigurableJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
+--- !u!114 &-4400457960871940103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5159324655348854469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2737a62d8ecf5e2419ea1127c21ad755, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

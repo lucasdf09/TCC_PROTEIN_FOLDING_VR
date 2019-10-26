@@ -10,12 +10,12 @@ using System.Globalization;
 public class StructureInitialization : MonoBehaviour
 {
     public static int n_mol;
-    public GameObject molecule;
-    public GameObject bond;
-    public GameObject first;
-    public Transform molecules;
-    public Transform bonds;
-    public Transform first_ref;
+    public GameObject molecule;                 // Residue Prefab refernce.
+    public GameObject bond;                     // Bond Prefab reference.
+    public GameObject first;                    // First Prefab reference.
+    public Transform molecules;                 // Instatitated Prefab reference.
+    public Transform bonds;                     // Instatitated Prefab reference.
+    public Transform first_ref;                 // Instatitated Prefab reference.
     public static GameObject[] mol_structure;
     public static GameObject[] bond_structure;
     public static GameObject first_mol;
@@ -32,17 +32,14 @@ public class StructureInitialization : MonoBehaviour
     // Start is called before the first frame update.
     void Start()
     {
-        n_mol = 13;
+        readInput();
         mol_structure = new GameObject[n_mol];
         bond_structure = new GameObject[n_mol - 1];
-        mol_coords = new Vector3[n_mol];
         bond_coords = new Vector3[n_mol - 1];
         bond_rotations = new Quaternion[n_mol - 1];
         PlayerController.select_mode = false;
         PlayerController.move_mode = false;
         //scale = 10.0f;
-        //sequence = new char[num_residues];
-        readString();
         initializeResidues();
         initializeBonds();
         asignResiduesJoints();
@@ -52,23 +49,41 @@ public class StructureInitialization : MonoBehaviour
         PlayerController.select_mode = true;
     }
 
-    static void readString()
+    //Reads the input file.
+    void readInput()
     {
+
         string path = "Assets/Resources/Inputs/13_teste_bestCoordinates.txt";
 
         // 1HJM input file.
         //string path = "Assets/Resources/Inputs/104_1HJM.txt";
 
-        // Read the text directly from the TXT file.
+        // Loads all the TXT input file to "words[]".
         StreamReader reader = new StreamReader(path);
         string full_text = reader.ReadToEnd();
-        string[] words = full_text.Split(new char[] { ' ', '\t', '\r' });
+        
+        // Split the words in the input between the ' ', '\t', '\r', '\n' characters, removing them from the resulting Array.
+        string[] words = full_text.Split(new char[] { ' ', '\t', '\r', '\n' } , StringSplitOptions.RemoveEmptyEntries);
+
+        for (var i = 0; i < words.Length; i++)
+        {
+        //    Debug.Log("words[" + i + "] = " + words[i]);
+        }
+
+        n_mol = int.Parse(words[Array.IndexOf(words, "Molecules") + 2]);
+        Debug.Log("n_mol (Molecules) : " + n_mol);
+
+        sequence = words[Array.IndexOf(words, "Sequence") + 2];
+        Debug.Log("Sequence: " + sequence);
+
 
         pos_offset.x = float.Parse(words[1], CultureInfo.InvariantCulture.NumberFormat);
         pos_offset.y = float.Parse(words[2], CultureInfo.InvariantCulture.NumberFormat);
         pos_offset.z = float.Parse(words[3], CultureInfo.InvariantCulture.NumberFormat);
 
         Debug.Log("Position offset: " + $"<{pos_offset}>");
+
+        mol_coords = new Vector3[n_mol];
 
         for (var i = 0; i < n_mol * 4; i += 4)
         {
@@ -81,57 +96,54 @@ public class StructureInitialization : MonoBehaviour
             mol_coords[j].z = float.Parse(words[i + 3], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.z;
         }
 
-        sequence = words[n_mol * 4 + 3];
-
-        Debug.Log("Sequence: " + sequence);
-
-        for (var i = 0; i < n_mol; i++)
-        {
-            Debug.Log("Sequence[" + i + "]: " + $"<{sequence[i]}>");
-        }
         /*
         foreach (var coord in residueCoords)
         {
             Debug.Log("ResidueCoord: " + $"<{coord}>");
         }
         */
-        for (var i = 0; i < n_mol; i++)
-        {
-            Debug.Log("ResidueCoord[" + i + "]: " + $"<{mol_coords[i]}>");
-        }
 
         reader.Close();
     }
 
+    // Initializes residues position.
     void initializeResidues()
     {
         for (var i = 0; i < n_mol; i++)
         {
-            // Initialize the residue position
             mol_structure[i] = Instantiate(molecule, mol_coords[i], Quaternion.identity, molecules);
+            mol_structure[i].name = "Residue" + i.ToString();
+        }
+
+        for (var i = 0; i < n_mol; i++)
+        {
+            Debug.Log("ResidueCoord[" + i + "]: " + mol_coords[i].ToString("F8"));
         }
     }
 
+    // Initializes bonds position.
     void initializeBonds()
     {
         for (var i = 0; i < n_mol - 1; i++)
         {
-            // Defines the mean position between a residue and its neighbour to place the bond coordinates.
+            // Define the mean position between a residue and its neighbour to place the bond coordinates.
             bond_coords[i] = (mol_coords[i] + mol_coords[i + 1]) / 2;
-            bond_rotations[i] = Quaternion.FromToRotation(Vector3.down, mol_coords[i+1] - mol_coords[i]);
+            bond_rotations[i] = Quaternion.FromToRotation(Vector3.down, mol_coords[i + 1] - mol_coords[i]);
 
             bond_structure[i] = Instantiate(bond, bond_coords[i], bond_rotations[i], bonds);
+            bond_structure[i].name = "Bond" + i.ToString();
         }
 
-        for (var i = 0; i < n_mol -1; i++)
+        for (var i = 0; i < n_mol - 1; i++)
         {
-            Debug.Log("BondCoord[" + i + "]: " + $"<{bond_coords[i]}>");
+        //    Debug.Log("BondCoord[" + i + "]: " + $"<{bond_coords[i]}>");
         }
     }
+    
 
     void asignResiduesJoints()
     {
-        // The first residue ([0]) is conneced to the world.
+        // The first residue ([0]) is conneced to the world origin coordinate.
         // The other residues are connected to the bond that precede them.
         for(var i = 1; i < n_mol; i++)
         {
