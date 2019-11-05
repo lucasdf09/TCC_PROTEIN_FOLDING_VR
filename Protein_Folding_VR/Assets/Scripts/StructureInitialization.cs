@@ -10,16 +10,16 @@ using System.Globalization;
 public class StructureInitialization : MonoBehaviour
 {
     public static int n_mol;
-    public GameObject molecule;                 // Residue Prefab refernce.
+    public GameObject residue;                 // Residue Prefab refernce.
     public GameObject bond;                     // Bond Prefab reference.
     public GameObject first;                    // First Prefab reference.
-    public Transform molecules;                 // Instatitated Prefab reference.
+    public Transform residues;                 // Instatitated Prefab reference.
     public Transform bonds;                     // Instatitated Prefab reference.
     public Transform first_ref;                 // Instatitated Prefab reference.
-    public static GameObject[] mol_structure;
+    public static GameObject[] res_structure;
     public static GameObject[] bond_structure;
     public static GameObject first_mol;
-    public static Vector3[] mol_coords;
+    public static Vector3[] res_coords;
     public static Vector3[] bond_coords;
     public static Quaternion[] bond_rotations;
     public static Vector3 pos_offset;
@@ -29,18 +29,14 @@ public class StructureInitialization : MonoBehaviour
     //public static GameObject first;
     //public static float scale;
 
-    public GameObject CubeTest;
+    //public GameObject CubeTest;
 
     // Start is called before the first frame update.
     void Start()
     {
-        CubeTest.GetComponent<Renderer>().material.color = Color.red;
-
         readInput();
 
-        CubeTest.GetComponent<Renderer>().material.color = Color.blue;
-
-        mol_structure = new GameObject[n_mol];
+        res_structure = new GameObject[n_mol];
         bond_structure = new GameObject[n_mol - 1];
         bond_coords = new Vector3[n_mol - 1];
         bond_rotations = new Quaternion[n_mol - 1];
@@ -90,7 +86,7 @@ public class StructureInitialization : MonoBehaviour
 
         Debug.Log("Position offset: " + $"<{pos_offset}>");
 
-        mol_coords = new Vector3[n_mol];
+        res_coords = new Vector3[n_mol];
 
         for (var i = 0; i < n_mol * 4; i += 4)
         {
@@ -98,9 +94,9 @@ public class StructureInitialization : MonoBehaviour
             //residueCoords[j].x = (float.Parse(words[i+1], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.x) * scale;
             //residueCoords[j].y = (float.Parse(words[i+2], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.y) * scale;
             //residueCoords[j].z = (float.Parse(words[i+3], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.z) * scale;
-            mol_coords[j].x = float.Parse(words[i + 1], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.x;
-            mol_coords[j].y = float.Parse(words[i + 2], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.y;
-            mol_coords[j].z = float.Parse(words[i + 3], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.z;
+            res_coords[j].x = float.Parse(words[i + 1], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.x;
+            res_coords[j].y = float.Parse(words[i + 2], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.y;
+            res_coords[j].z = float.Parse(words[i + 3], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.z;
         }
 
         /*
@@ -118,8 +114,8 @@ public class StructureInitialization : MonoBehaviour
     {
         for (var i = 0; i < n_mol; i++)
         {
-            mol_structure[i] = Instantiate(molecule, mol_coords[i], Quaternion.identity, molecules);
-            mol_structure[i].name = "Residue" + i.ToString();
+            res_structure[i] = Instantiate(residue, res_coords[i], Quaternion.identity, residues);
+            res_structure[i].name = "Residue" + i.ToString();
         }
 
         /*
@@ -136,8 +132,8 @@ public class StructureInitialization : MonoBehaviour
         for (var i = 0; i < n_mol - 1; i++)
         {
             // Define the mean position between a residue and its neighbour to place the bond coordinates.
-            bond_coords[i] = (mol_coords[i] + mol_coords[i + 1]) / 2;
-            bond_rotations[i] = Quaternion.FromToRotation(Vector3.down, mol_coords[i + 1] - mol_coords[i]);
+            bond_coords[i] = (res_coords[i] + res_coords[i + 1]) / 2;
+            bond_rotations[i] = Quaternion.FromToRotation(Vector3.down, res_coords[i + 1] - res_coords[i]);
 
             bond_structure[i] = Instantiate(bond, bond_coords[i], bond_rotations[i], bonds);
             bond_structure[i].name = "Bond" + i.ToString();
@@ -158,14 +154,14 @@ public class StructureInitialization : MonoBehaviour
         // The other residues are connected to the bond that precede them.
         for(var i = 1; i < n_mol; i++)
         {
-            mol_structure[i].GetComponent<FixedJoint>().connectedBody = bond_structure[i - 1].GetComponent<Rigidbody>();
+            res_structure[i].GetComponent<FixedJoint>().connectedBody = bond_structure[i - 1].GetComponent<Rigidbody>();
         }   
     }
 
     void asignBondsJoints()
     {
         // The first bond is connected to the first residue.
-        bond_structure[0].GetComponent<ConfigurableJoint>().connectedBody = mol_structure[0].GetComponent<Rigidbody>();
+        bond_structure[0].GetComponent<ConfigurableJoint>().connectedBody = res_structure[0].GetComponent<Rigidbody>();
 
         // The other bonds are connected to the bond that precede them.
         for (var i = 1; i < n_mol - 1; i++)
@@ -181,18 +177,18 @@ public class StructureInitialization : MonoBehaviour
             if (sequence[i] == 'A')
             {
                 // Initialize the hydrophobic residue color
-                mol_structure[i].GetComponent<Renderer>().material.color = Color.red; 
+                res_structure[i].GetComponent<Renderer>().material.color = Color.red; 
             }
             else
             {
                 // Initialize the polar residue color
-                mol_structure[i].GetComponent<Renderer>().material.color = Color.blue;
+                res_structure[i].GetComponent<Renderer>().material.color = Color.blue;
             }
         }
     }
 
     void markFirstResidue()
     {
-        first_mol = Instantiate(first, mol_coords[0], Quaternion.identity, first_ref);
+        first_mol = Instantiate(first, res_coords[0], Quaternion.identity, first_ref);
     }
 }

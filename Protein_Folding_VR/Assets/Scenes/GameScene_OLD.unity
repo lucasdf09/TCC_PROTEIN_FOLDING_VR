@@ -165,7 +165,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &135656090
 Transform:
   m_ObjectHideFlags: 0
@@ -373,10 +373,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: GvrEventSystem
       objectReference: {fileID: 0}
-    - target: {fileID: 761381335, guid: 463285ecd6702471a909ba810832bf0e, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 766346198, guid: 463285ecd6702471a909ba810832bf0e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -515,10 +511,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d28a0982063644c88a017b9095d508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  residue: {fileID: 7276934163371051112, guid: 94037107e2d465e47b47b3a466aa8c16, type: 3}
+  molecule: {fileID: 7276934163371051112, guid: 94037107e2d465e47b47b3a466aa8c16,
+    type: 3}
   bond: {fileID: 5159324655348854469, guid: 3e1e735df3d3bda4db4d77721153d116, type: 3}
   first: {fileID: 2885262329452536539, guid: 4af571de2eaf33b4a8010650613e2bc5, type: 3}
-  residues: {fileID: 1433928752}
+  molecules: {fileID: 1433928752}
   bonds: {fileID: 19362696}
   first_ref: {fileID: 2026899908}
 --- !u!4 &406531370

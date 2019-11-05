@@ -10,7 +10,7 @@ public class BondCollisionHandler : MonoBehaviour
 
     void Start()
     {
-        residues = StructureInitialization.mol_structure;
+        residues = StructureInitialization.res_structure;
         bonds = StructureInitialization.bond_structure;
         // Get the index of the current object in the Bonds array.
         index = System.Array.IndexOf(bonds, gameObject);

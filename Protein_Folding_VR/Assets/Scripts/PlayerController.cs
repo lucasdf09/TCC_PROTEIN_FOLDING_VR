@@ -38,8 +38,8 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        target = StructureInitialization.mol_structure[1];
-        particles = StructureInitialization.mol_structure;
+        target = StructureInitialization.res_structure[1];
+        particles = StructureInitialization.res_structure;
         n_mol = StructureInitialization.n_mol;
         mol_count = 1;
         mol_colors = new Color[n_mol];
