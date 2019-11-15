@@ -59,6 +59,8 @@ public class PlayerController : MonoBehaviour
         setScoreText();
         setParametersText();
 
+        //calculateDistance();
+
         /* Debug stuff
         res_variation = new Vector3[n_mol];
         bond_variation = new Vector3[n_mol - 1];
@@ -74,6 +76,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("BondCoords[" + i + "]: " + StructureInitialization.bond_coords[i].ToString("F8"));
         }
         */
+
     }
 
     void Update()
@@ -126,6 +129,7 @@ public class PlayerController : MonoBehaviour
                 print("Select mode: " + select_mode);
                 print("Move mode: " + move_mode);
                 movement = target.GetComponent<Rigidbody>().transform.position;
+                //calculateDistance();
             }
 
             blinkResidue(target.GetComponent<Renderer>(), color_end);
@@ -397,5 +401,20 @@ public class PlayerController : MonoBehaviour
         string r_h = "Rg H: " + rg_h.ToString();
         string r_p = "Rg P: " + rg_p.ToString();
         parameters_text.text = p_energy + "\n" + rg_a + "\n" + r_h + "\n" + r_p;
+    }
+
+    void calculateDistance()
+    {
+        float distance; 
+
+        for(var i = 0; i < n_mol - 1; i++)
+        {
+            distance = Vector3.Distance(particles[i].transform.position, particles[i + 1].transform.position);
+            //distance = Vector3.Distance(particles[i].GetComponent<Transform>().transform.position, particles[i + 1].GetComponent<Transform>().transform.position);
+            Debug.Log("Bond " + i.ToString() + " = " + distance.ToString("F8"));
+            //Debug.Log(particles[i].GetComponent<Transform>().transform.position.ToString("F8"));
+            //Debug.Log(particles[i].transform.position.ToString("F8"));
+
+        }
     }
 }

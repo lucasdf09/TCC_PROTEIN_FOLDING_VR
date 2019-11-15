@@ -190,5 +190,6 @@ public class StructureInitialization : MonoBehaviour
     void markFirstResidue()
     {
         first_mol = Instantiate(first, res_coords[0], Quaternion.identity, first_ref);
+        first_mol.name = "First0";
     }
 }
