@@ -9,11 +9,14 @@ public class JoystickScript : MonoBehaviour
 
     public Text joystickText;
 
+    private List<string> list;
+
     // Start is called before the first frame update
     void Start()
     {
         joystickRead = "Starting!";
         setJoystickText(joystickRead);
+        list = new List<string> { "Fire1", "Fire2", "Fire3", "Jump", "A", "B", "C", "D", "Submit", "Cancel" };
     }
 
     // Update is called once per frame
@@ -64,22 +67,44 @@ public class JoystickScript : MonoBehaviour
             else if (Input.GetKey(KeyCode.JoystickButton1))
                 setJoystickText("JoystickButton1");
             else if (Input.GetKey(KeyCode.Escape))
-            {
                 setJoystickText("Escape");
-            }
-                
+
         }
         else
         {
-            if (Input.GetAxis("Horizontal") != 0)
-                setJoystickText("H " + Input.GetAxis("Horizontal").ToString());
+            if (Input.GetAxisRaw("Horizontal") != 0)
+                setJoystickText("H " + Input.GetAxisRaw("Horizontal").ToString());
 
-            if (Input.GetAxis("Vertical") != 0)
-                setJoystickText("V " + Input.GetAxis("Vertical").ToString());
+            if (Input.GetAxisRaw("Vertical") != 0)
+                setJoystickText("V " + Input.GetAxisRaw("Vertical").ToString());
 
-            if (Input.GetAxis("Z-axis") != 0)
-                setJoystickText("Z " + Input.GetAxis("Z-axis").ToString());       
-        }     
+            if (Input.GetAxisRaw("Z-axis") != 0)
+                setJoystickText("Z " + Input.GetAxisRaw("Z-axis").ToString());
+
+            if (Input.GetButton("Fire1"))
+                setJoystickText("Fire1");
+
+        } 
+        
+         /*
+        if (Input.GetAxisRaw("Horizontal") != 0)
+            setJoystickText("H " + Input.GetAxisRaw("Horizontal").ToString());
+
+        if (Input.GetAxisRaw("Vertical") != 0)
+            setJoystickText("V " + Input.GetAxisRaw("Vertical").ToString());
+
+        if (Input.GetAxisRaw("Z-axis") != 0)
+            setJoystickText("Z " + Input.GetAxisRaw("Z-axis").ToString());
+
+        foreach (var item in list)
+            testJoystick(item);
+        */
+    }
+
+    void testJoystick(string input)
+    {
+        if (Input.GetButton(input))
+            setJoystickText(input);
     }
 
     void setJoystickText (string printText)
