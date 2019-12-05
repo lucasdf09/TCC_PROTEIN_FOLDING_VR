@@ -10,16 +10,19 @@ public class PlayerController : MonoBehaviour
     public static bool move_mode;
     public Text score_text;
     public Text parameters_text;
+    public static GameObject target;
+    public static Color target_color;
+    public static Color color_aux;
+    public static Vector3 movement;
 
-    private static GameObject target;
     private GameObject[] particles;
     private int n_mol;
     private int mol_count;
     private Color[] mol_colors;
     private Color color_end;
-    private Color color_aux;
+    //private Color color_aux;
     private float duration;
-    private Vector3 movement;
+    //private Vector3 movement;
     private float delta;
     private string sequence;
 
@@ -38,7 +41,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        target = StructureInitialization.res_structure[1];
+        //target = StructureInitialization.res_structure[1];
         particles = StructureInitialization.res_structure;
         n_mol = StructureInitialization.n_mol;
         mol_count = 1;
@@ -82,6 +85,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         if (select_mode) {
+        /*
             if (Input.GetKeyDown("left"))
             {
                 print("LEFT key was pressed");
@@ -103,7 +107,7 @@ public class PlayerController : MonoBehaviour
             }
             else if (Input.GetKeyDown("return"))
             {
-                /*
+                
                 for (var i = 0; i < n_mol; i++)
                 {
                     Debug.Log("ResiduePos[" + i + "]: " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
@@ -119,7 +123,6 @@ public class PlayerController : MonoBehaviour
                     bond_variation[i] = StructureInitialization.bond_structure[i].GetComponent<Rigidbody>().transform.position - StructureInitialization.bond_coords[i];
                     Debug.Log("Bond Var[" + i + "]: " + bond_variation[i].ToString("F8"));
                 }
-                */
 
                 print("ENTER key was pressed");
                 color_aux = mol_colors[mol_count];
@@ -131,45 +134,15 @@ public class PlayerController : MonoBehaviour
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 //calculateDistance();
             }
-
-            blinkResidue(target.GetComponent<Renderer>(), color_end);
+        */
+            if (target != null)
+            {
+                blinkResidue(target.GetComponent<Renderer>(), target_color, color_end);
+            }
         }
         else if (move_mode)
         {
-            /*
-            if (Input.GetKey("w"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.y += delta;
-            }
-            else if (Input.GetKey("s"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.y -= delta;
-            }
-            if (Input.GetKey("d"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.x += delta;
-            }
-            else if (Input.GetKey("a"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.x -= delta;
-            }
-            if (Input.GetKey("e"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.z += delta;
-            }
-            else if (Input.GetKey("q"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.z -= delta;
-            }
-
-            target.GetComponent<Rigidbody>().transform.position = movement;
-            */
+            // Put movement input here?
 
             if (Input.GetKeyDown("return"))
             {
@@ -180,7 +153,7 @@ public class PlayerController : MonoBehaviour
                 print("Move mode: " + move_mode);
             }
 
-            blinkResidue(target.GetComponent<Renderer>(), color_aux);
+            blinkResidue(target.GetComponent<Renderer>(), target_color, color_aux);
         }
         // refreshScoreboard();
     }
@@ -252,10 +225,10 @@ public class PlayerController : MonoBehaviour
     }
     
 
-    void blinkResidue(Renderer rend, Color color_blink)
+    void blinkResidue(Renderer rend, Color target_color, Color color_blink)
     {
         float lerp = Mathf.PingPong(Time.time, duration) / duration;
-        rend.material.color = Color.Lerp(mol_colors[mol_count], color_blink, lerp);
+        rend.material.color = Color.Lerp(target_color, color_blink, lerp);
     }
 
     void initializeParameters()

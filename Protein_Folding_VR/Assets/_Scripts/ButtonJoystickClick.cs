@@ -4,25 +4,19 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-public class ClickButton : MonoBehaviour
+public class ButtonJoystickClick : MonoBehaviour
 {
 
-    private bool gazed_at;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        gazed_at = false;
-    }
+    private bool gazed_at = false;
 
     // Update is called once per frame
     void Update()
     {
-        if (gazed_at && Input.GetButton("B"))
+        if (gazed_at && Input.GetButtonDown("Fire1"))
         {
             Debug.Log("Gazed TRUE");
-            ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerClickHandler);
             gazed_at = false;
+            ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerClickHandler);
         }
     }
 

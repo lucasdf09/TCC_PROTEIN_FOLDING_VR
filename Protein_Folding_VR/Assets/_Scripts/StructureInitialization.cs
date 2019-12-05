@@ -105,11 +105,6 @@ public class StructureInitialization : MonoBehaviour
         */
     }
 
-    void readJsonInput()
-    {
-
-    }
-
     void loadInput(string read_data)
     {
         // Split the words in the input between the ' ', '\t', '\r', '\n' characters, removing them from the resulting Array.
