@@ -491,6 +491,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   score_text: {fileID: 1639268989}
   parameters_text: {fileID: 1786986323}
+  reticle_pointer: {fileID: 1206973355}
 --- !u!114 &406531372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -750,6 +751,12 @@ PrefabInstance:
 --- !u!4 &1206973354 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 482300, guid: 60270cf52a5e94998a5a335989159738,
+    type: 3}
+  m_PrefabInstance: {fileID: 1206973353}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1206973355 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 171526, guid: 60270cf52a5e94998a5a335989159738,
     type: 3}
   m_PrefabInstance: {fileID: 1206973353}
   m_PrefabAsset: {fileID: 0}

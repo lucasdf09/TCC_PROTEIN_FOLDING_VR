@@ -5,16 +5,20 @@ using UnityEngine.EventSystems;
 
 public class SelectResidueOnGaze : MonoBehaviour
 {
+    /*
+    public PlayerController player_controler;
+
     private bool gazed_at = false;
     //private Color res_color;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        player_controler = FindObjectOfType<PlayerController>();
     }
 
     // Update is called once per frame
+
     void Update()
     {
         if (gazed_at && Input.GetButtonDown("Fire1"))
@@ -25,32 +29,40 @@ public class SelectResidueOnGaze : MonoBehaviour
         }
     }
 
-    public void pointerClick()
+    public void pointerClickDown()
     {
-        Debug.Log("CLICK key was pressed");
+        Debug.Log("SELECT: CLICK key was pressed");
         PlayerController.color_aux = PlayerController.target_color;
-        PlayerController.color_aux.a = 0.1f;
+        PlayerController.color_aux.a = 0.1f;    
+        PlayerController.movement = PlayerController.target.GetComponent<Rigidbody>().transform.position;
+        player_controler.setReticlePointer(false);
+        gazed_at = false;
+
         PlayerController.select_mode = false;
         PlayerController.move_mode = true;
         Debug.Log("Select mode: " + PlayerController.select_mode);
         Debug.Log("Move mode: " + PlayerController.move_mode);
-        PlayerController.movement = PlayerController.target.GetComponent<Rigidbody>().transform.position;
-
-        reticle_pointer.SetActive(false);
     }
+    */
 
     public void pointerEnter()
     {
-        gazed_at = true;
+        //gazed_at = true;
         //res_color = gameObject.GetComponent<Renderer>().material.color;
         PlayerController.target_color = gameObject.GetComponent<Renderer>().material.color;
         PlayerController.target = gameObject;
+        Debug.Log("Pointer ENTER");
     }
 
     public void pointerExit()
     {
-        gazed_at = false;
-        PlayerController.target.GetComponent<Renderer>().material.color = PlayerController.target_color;
-        PlayerController.target = null;
+        //gazed_at = false;     
+        //PlayerController.target.GetComponent<Renderer>().material.color = PlayerController.target_color;
+        if (PlayerController.select_mode)
+        {
+            PlayerController.target.GetComponent<Renderer>().material.color = PlayerController.target_color;
+            PlayerController.target = null;
+        }   
+        Debug.Log("Pointer EXIT");
     }
 }

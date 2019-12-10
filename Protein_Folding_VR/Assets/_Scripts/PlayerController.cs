@@ -1,15 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
-    public static bool select_mode;
-    public static bool move_mode;
     public Text score_text;
     public Text parameters_text;
+    public GameObject reticle_pointer;
+
+    public static bool select_mode;
+    public static bool move_mode;
     public static GameObject target;
     public static Color target_color;
     public static Color color_aux;
@@ -41,7 +43,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        //target = StructureInitialization.res_structure[1];
+        target = null;
         particles = StructureInitialization.res_structure;
         n_mol = StructureInitialization.n_mol;
         mol_count = 1;
@@ -85,7 +87,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         if (select_mode) {
-        /*
+            /*
             if (Input.GetKeyDown("left"))
             {
                 print("LEFT key was pressed");
@@ -105,9 +107,30 @@ public class PlayerController : MonoBehaviour
                     target = particles[++mol_count];
                 }              
             }
-            else if (Input.GetKeyDown("return"))
+            */
+
+            if (target != null && Input.GetButtonDown("Fire1"))
             {
+                //Debug.Log("CLICK EVENT!");
+                //ExecuteEvents.Execute(target, new PointerEventData(EventSystem.current), ExecuteEvents.pointerClickHandler);
+
+                Debug.Log("SELECT: CLICK key was pressed");
+                color_aux = target_color;
+                color_aux.a = 0.1f;
+                movement = target.GetComponent<Rigidbody>().transform.position;
                 
+                //setReticlePointer(false);
+                //gazed_at = false;
+
+                select_mode = false;
+                move_mode = true;
+                Debug.Log("Select mode: " + PlayerController.select_mode);
+                Debug.Log("Move mode: " + PlayerController.move_mode);
+
+                reticle_pointer.SetActive(false);
+
+                /*
+                 * Debug stuff.
                 for (var i = 0; i < n_mol; i++)
                 {
                     Debug.Log("ResiduePos[" + i + "]: " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
@@ -122,9 +145,10 @@ public class PlayerController : MonoBehaviour
                     Debug.Log("BondCoords[" + i + "]: " + StructureInitialization.bond_coords[i].ToString("F8"));
                     bond_variation[i] = StructureInitialization.bond_structure[i].GetComponent<Rigidbody>().transform.position - StructureInitialization.bond_coords[i];
                     Debug.Log("Bond Var[" + i + "]: " + bond_variation[i].ToString("F8"));
-                }
+                }       
+                calculateDistance();
 
-                print("ENTER key was pressed");
+                print("SELECT: CLICK pressed");
                 color_aux = mol_colors[mol_count];
                 color_aux.a = 0.1f;
                 select_mode = false;
@@ -132,9 +156,9 @@ public class PlayerController : MonoBehaviour
                 print("Select mode: " + select_mode);
                 print("Move mode: " + move_mode);
                 movement = target.GetComponent<Rigidbody>().transform.position;
-                //calculateDistance();
+                */
             }
-        */
+
             if (target != null)
             {
                 blinkResidue(target.GetComponent<Renderer>(), target_color, color_end);
@@ -142,18 +166,25 @@ public class PlayerController : MonoBehaviour
         }
         else if (move_mode)
         {
+            blinkResidue(target.GetComponent<Renderer>(), target_color, color_aux);
+
             // Put movement input here?
 
-            if (Input.GetKeyDown("return"))
+            //if (Input.GetKeyDown("return"))
+
+            if (Input.GetButtonDown("Fire1"))
             {
-                print("ENTER key was pressed");
+                print("MOVE: CLICK key was pressed");
+                target.GetComponent<Renderer>().material.color = target_color;
+                target = null;
+                reticle_pointer.SetActive(true);
+                //setReticlePointer(true);
+
                 select_mode = true;
                 move_mode = false;
                 print("Select mode: " + select_mode);
                 print("Move mode: " + move_mode);
             }
-
-            blinkResidue(target.GetComponent<Renderer>(), target_color, color_aux);
         }
         // refreshScoreboard();
     }
@@ -389,5 +420,10 @@ public class PlayerController : MonoBehaviour
             //Debug.Log(particles[i].transform.position.ToString("F8"));
 
         }
+    }
+
+    public void setReticlePointer(bool state)
+    {
+        reticle_pointer.SetActive(state);
     }
 }
