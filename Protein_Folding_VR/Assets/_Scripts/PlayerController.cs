@@ -9,22 +9,25 @@ public class PlayerController : MonoBehaviour
     public Text score_text;
     public Text parameters_text;
     public GameObject reticle_pointer;
+    //public GameObject main_camera;
+    public GameObject camera_pivot;
+    public float rotation_angle;
+    public float zoom_factor;
+    public float fov_min;
+    public float fov_max;
+    public float zoom_smooth;
 
     public static bool select_mode;
     public static bool move_mode;
     public static GameObject target;
     public static Color target_color;
-    public static Color color_aux;
-    public static Vector3 movement;
 
     private GameObject[] particles;
     private int n_mol;
-    private int mol_count;
-    private Color[] mol_colors;
     private Color color_end;
-    //private Color color_aux;
-    private float duration;
-    //private Vector3 movement;
+    private Color color_aux;
+    private float blink_duration;
+    private Vector3 movement;
     private float delta;
     private string sequence;
 
@@ -35,25 +38,20 @@ public class PlayerController : MonoBehaviour
     private float rg_h;
     private float rg_p;
 
-    private static Color orange_color;
+    private Color orange_color;
     private bool moved;
 
     private Vector3[] res_variation;
     private Vector3[] bond_variation;
+
 
     void Start()
     {
         target = null;
         particles = StructureInitialization.res_structure;
         n_mol = StructureInitialization.n_mol;
-        mol_count = 1;
-        mol_colors = new Color[n_mol];
-        for (var i = 0; i < n_mol; i++)
-        {
-            mol_colors[i] = particles[i].GetComponent<Renderer>().material.color;
-        }
         color_end = Color.yellow;
-        duration = 1.0f;
+        blink_duration = 1.0f;
         delta = 0.01f;
         score = 0.0f;
         sequence = StructureInitialization.sequence;
@@ -84,44 +82,30 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    void Update()
+    private void Update()
     {
         if (select_mode) {
-            /*
-            if (Input.GetKeyDown("left"))
+
+            /*** Camera movement 
+
+            if (Input.GetAxis("Horizontal") != 0)
             {
-                print("LEFT key was pressed");
-                if (mol_count > 1)
-                {
-                    target.GetComponent<Renderer>().material.color = mol_colors[mol_count];
-                    target = particles[--mol_count];
-                }
-                
+                transform.RotateAround(camera_pivot.transform.position, transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
+                //transform.RotateAround(camera_pivot.transform.position, main_camera.transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
             }
-            else if (Input.GetKeyDown("right"))
+            if (Input.GetAxis("Vertical") != 0)
             {
-                print("RIGHT key was pressed");
-                if (mol_count < n_mol - 1)
-                {
-                    target.GetComponent<Renderer>().material.color = mol_colors[mol_count];
-                    target = particles[++mol_count];
-                }              
+                transform.RotateAround(camera_pivot.transform.position, transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
+               // transform.RotateAround(camera_pivot.transform.position, main_camera.transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
             }
-            */
+            ***/
 
             if (target != null && Input.GetButtonDown("Fire1"))
             {
-                //Debug.Log("CLICK EVENT!");
-                //ExecuteEvents.Execute(target, new PointerEventData(EventSystem.current), ExecuteEvents.pointerClickHandler);
-
                 Debug.Log("SELECT: CLICK key was pressed");
                 color_aux = target_color;
                 color_aux.a = 0.1f;
                 movement = target.GetComponent<Rigidbody>().transform.position;
-                
-                //setReticlePointer(false);
-                //gazed_at = false;
-
                 select_mode = false;
                 move_mode = true;
                 Debug.Log("Select mode: " + PlayerController.select_mode);
@@ -147,15 +131,6 @@ public class PlayerController : MonoBehaviour
                     Debug.Log("Bond Var[" + i + "]: " + bond_variation[i].ToString("F8"));
                 }       
                 calculateDistance();
-
-                print("SELECT: CLICK pressed");
-                color_aux = mol_colors[mol_count];
-                color_aux.a = 0.1f;
-                select_mode = false;
-                move_mode = true;
-                print("Select mode: " + select_mode);
-                print("Move mode: " + move_mode);
-                movement = target.GetComponent<Rigidbody>().transform.position;
                 */
             }
 
@@ -178,7 +153,6 @@ public class PlayerController : MonoBehaviour
                 target.GetComponent<Renderer>().material.color = target_color;
                 target = null;
                 reticle_pointer.SetActive(true);
-                //setReticlePointer(true);
 
                 select_mode = true;
                 move_mode = false;
@@ -189,7 +163,47 @@ public class PlayerController : MonoBehaviour
         // refreshScoreboard();
     }
 
-    
+    private void LateUpdate()
+    {
+        if (select_mode)
+        {
+            /*** Camera movement ***/
+
+            if (Input.GetAxis("Horizontal") != 0)
+            {
+                transform.RotateAround(camera_pivot.transform.position, transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
+                //transform.RotateAround(camera_pivot.transform.position, Camera.main.transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
+                //transform.Rotate(0.0f, 0.0f, rotation_angle * 2 * Time.deltaTime * -Input.GetAxis("Horizontal"));
+            }
+            if (Input.GetAxis("Vertical") != 0)
+            {
+                transform.RotateAround(camera_pivot.transform.position, transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
+                //transform.RotateAround(camera_pivot.transform.position, Camera.main.transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
+            }
+            if (Input.GetKey("i"))
+            {
+                transform.Translate(new Vector3(0,0,1) * Time.deltaTime * zoom_smooth);
+                //cameraZoom(-1);
+            }
+            else if (Input.GetKey("o"))
+            {
+                transform.Translate(new Vector3(0, 0, -1) * Time.deltaTime * zoom_smooth);
+                //cameraZoom(1);
+            }
+
+        }
+    }
+
+    // Like an image zoom.
+    private void cameraZoom(float signal)
+    {
+        float fov = Camera.main.fieldOfView;
+        fov += zoom_factor * signal;
+        fov = Mathf.Clamp(fov, fov_min, fov_max);
+        //Camera.main.fieldOfView = fov;
+        Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, fov, Time.deltaTime * zoom_smooth);
+    }
+
     private void FixedUpdate()
     {
         
@@ -258,7 +272,7 @@ public class PlayerController : MonoBehaviour
 
     void blinkResidue(Renderer rend, Color target_color, Color color_blink)
     {
-        float lerp = Mathf.PingPong(Time.time, duration) / duration;
+        float lerp = Mathf.PingPong(Time.time, blink_duration) / blink_duration;
         rend.material.color = Color.Lerp(target_color, color_blink, lerp);
     }
 
@@ -396,7 +410,6 @@ public class PlayerController : MonoBehaviour
         }
         score_text.text = "Score: " + score.ToString();
     }
-
 
     void setParametersText()
     {
