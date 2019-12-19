@@ -27,13 +27,6 @@ public class StructureInitialization : MonoBehaviour
     public static Vector3 pos_offset;
     public static string sequence;
 
-    //public static bool select_mode;
-    //public static bool move_mode;
-    //public static GameObject first;
-    //public static float scale;
-
-    //public GameObject CubeTest;
-
     // Start is called before the first frame update.
     void Start()
     {
@@ -66,7 +59,7 @@ public class StructureInitialization : MonoBehaviour
     string readTxtInput(string file_name)
     {
         // Loads the a file path in a special location that can be accessed in the application.
-        // For More information, search for "Streaming Assets".
+        // More information: search for "Streaming Assets".
         //string file_path = Path.Combine(Application.streamingAssetsPath, file_name);
 
         var file_path = Application.streamingAssetsPath + file_name;
