@@ -9,7 +9,6 @@ public class PlayerController : MonoBehaviour
     public Text score_text;
     public Text parameters_text;
     public GameObject reticle_pointer;
-    //public GameObject main_camera;
     public GameObject camera_pivot;
     public float rotation_angle;
     public float zoom_factor;
@@ -37,6 +36,7 @@ public class PlayerController : MonoBehaviour
     private float rg_all;
     private float rg_h;
     private float rg_p;
+    private Vector3 center_mass;
 
     private Color orange_color;
     private bool moved;
@@ -61,6 +61,8 @@ public class PlayerController : MonoBehaviour
         initializeParameters();
         setScoreText();
         setParametersText();
+
+        setCameraPivot();
 
         //calculateDistance();
 
@@ -153,6 +155,7 @@ public class PlayerController : MonoBehaviour
                 target.GetComponent<Renderer>().material.color = target_color;
                 target = null;
                 reticle_pointer.SetActive(true);
+                setCameraPivot();
 
                 select_mode = true;
                 move_mode = false;
@@ -392,6 +395,8 @@ public class PlayerController : MonoBehaviour
         rg_all = Mathf.Sqrt(rg_all / n_mol);
         rg_h = Mathf.Sqrt(rg_h / h);
         rg_p = Mathf.Sqrt(rg_p / p);
+
+        center_mass = avg;
     }
 
     void setScoreText()
@@ -431,12 +436,22 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Bond " + i.ToString() + " = " + distance.ToString("F8"));
             //Debug.Log(particles[i].GetComponent<Transform>().transform.position.ToString("F8"));
             //Debug.Log(particles[i].transform.position.ToString("F8"));
-
         }
     }
 
-    public void setReticlePointer(bool state)
+    void setCameraPivot()
     {
-        reticle_pointer.SetActive(state);
+        Vector3 avg = new Vector3(0.0f, 0.0f, 0.0f);
+
+        for (var i = 0; i < n_mol; i++)
+        {
+            avg += particles[i].transform.position;
+        }
+
+        center_mass = avg / n_mol;
+
+        Debug.Log("Center Mass: " + center_mass);
+
+        camera_pivot.transform.position = center_mass;
     }
 }
