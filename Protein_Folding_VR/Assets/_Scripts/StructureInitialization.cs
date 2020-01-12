@@ -52,7 +52,9 @@ public class StructureInitialization : MonoBehaviour
         asignBondsJoints();
         asignResidueColor();
         markFirstResidue();
-        PlayerController.select_mode = true;        
+        PlayerController.select_mode = true;
+        //
+        gameObject.GetComponent<SaveHandler>().Save();
     }
 
     //Reads the input file.

@@ -450,7 +450,7 @@ public class PlayerController : MonoBehaviour
 
         center_mass = avg / n_mol;
 
-        Debug.Log("Center Mass: " + center_mass);
+        Debug.Log("Camera center mass: " + center_mass);
 
         camera_pivot.transform.position = center_mass;
     }

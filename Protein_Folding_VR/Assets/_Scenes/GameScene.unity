@@ -436,6 +436,7 @@ GameObject:
   - component: {fileID: 406531369}
   - component: {fileID: 406531371}
   - component: {fileID: 406531372}
+  - component: {fileID: 406531373}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -510,6 +511,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickText: {fileID: 1512804337}
+--- !u!114 &406531373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 406531368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34835534d14362e4190904fa44053f20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &534669902
 GameObject:
   m_ObjectHideFlags: 0
