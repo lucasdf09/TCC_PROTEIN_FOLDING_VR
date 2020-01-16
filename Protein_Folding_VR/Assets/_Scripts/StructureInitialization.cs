@@ -30,41 +30,61 @@ public class StructureInitialization : MonoBehaviour
     // Start is called before the first frame update.
     void Start()
     {
-        // Loads the name of the file with the molecule structure to be builded.
-        //string file_name = "Inputs/" + PlayerPrefs.GetString("File_Name");
-        string file_name = "/Inputs/13_teste_bestCoordinates.txt";
+        string file_name;
+        string read_data;
 
-        string read_data = readTxtInput(file_name);
-
-        if (!String.IsNullOrEmpty(read_data))
-            loadInput(read_data);
-
-        res_structure = new GameObject[n_mol];
-        bond_structure = new GameObject[n_mol - 1];
-        bond_coords = new Vector3[n_mol - 1];
-        bond_rotations = new Quaternion[n_mol - 1];
+        // Deactivate the player interaction
         PlayerController.select_mode = false;
         PlayerController.move_mode = false;
-        //scale = 10.0f;
-        initializeResidues();
-        initializeBonds();
-        asignResiduesJoints();
-        asignBondsJoints();
-        asignResidueColor();
-        markFirstResidue();
-        PlayerController.select_mode = true;
-        //
-        gameObject.GetComponent<SaveHandler>().Save();
+
+        // Check if the file with the protein structure was loaded in the MenuScene
+        if (PlayerPrefs.HasKey("File_Name"))
+        {
+            //file_name = PlayerPrefs.GetString("File_Name");
+            file_name = "13_teste_bestCoordinates.txt";
+
+            // Verify if it is a new or a loaded game, by the file format
+            // New game
+            if (file_name.Contains(".txt")) // New game
+            {
+                // Read data in a Txt file to a string
+                read_data = readTxtInput(file_name);
+
+                // Check the string generated and loads only the necessary data to build a structure
+                if (!String.IsNullOrEmpty(read_data))
+                    loadInput(read_data);
+
+                buildStructure();
+            }
+            // Load game
+            else if (file_name.Contains(".json"))
+            {
+                gameObject.GetComponent<SaveHandler>().Load(file_name);
+                buildStructure();
+            }
+            // Error
+            else
+            {
+                Debug.Log("StrucInit Error: Invalid File_Name!");
+            }
+            // Activate the player interaction
+            PlayerController.select_mode = true;
+        }
+        else
+        {
+            Debug.Log("StructureInit Error: No File Loaded!");
+        }
     }
 
-    //Reads the input file.
+
+    //Reads an input Text file into a string
     string readTxtInput(string file_name)
     {
         // Loads the a file path in a special location that can be accessed in the application.
         // More information: search for "Streaming Assets".
         //string file_path = Path.Combine(Application.streamingAssetsPath, file_name);
 
-        var file_path = Application.streamingAssetsPath + file_name;
+        var file_path = Application.streamingAssetsPath + "/Inputs/" + file_name;
 
         Debug.Log("File path: " + file_path);
 
@@ -100,6 +120,7 @@ public class StructureInitialization : MonoBehaviour
         */
     }
 
+    // 
     void loadInput(string read_data)
     {
         // Split the words in the input between the ' ', '\t', '\r', '\n' characters, removing them from the resulting Array.
@@ -128,9 +149,6 @@ public class StructureInitialization : MonoBehaviour
         for (var i = 0; i < n_mol * 4; i += 4)
         {
             var j = i / 4;
-            //residueCoords[j].x = (float.Parse(words[i+1], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.x) * scale;
-            //residueCoords[j].y = (float.Parse(words[i+2], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.y) * scale;
-            //residueCoords[j].z = (float.Parse(words[i+3], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.z) * scale;
             res_coords[j].x = float.Parse(words[i + 1], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.x;
             res_coords[j].y = float.Parse(words[i + 2], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.y;
             res_coords[j].z = float.Parse(words[i + 3], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.z;
@@ -142,6 +160,35 @@ public class StructureInitialization : MonoBehaviour
             Debug.Log("ResidueCoord: " + $"<{coord}>");
         }
         */
+    }
+
+
+    // Use to build a structure from data read from a file
+    public void buildStructure()
+    {
+        res_structure = new GameObject[n_mol];
+        bond_structure = new GameObject[n_mol - 1];
+        bond_coords = new Vector3[n_mol - 1];
+        bond_rotations = new Quaternion[n_mol - 1];
+        initializeResidues();
+        initializeBonds();
+        asignResiduesJoints();
+        asignBondsJoints();
+        asignResidueColor();
+        markFirstResidue();
+    }
+
+    // Use to destroy a structure, before the loading of a new or a saved one
+    public void destroyStructure()
+    {
+        // Destroy the n_mol -1 objects of the previous game
+        for (var i = 0; i < n_mol - 1; i++)
+        {
+            Destroy(res_structure[i]);
+            Destroy(bond_structure[i]);
+        }
+        Destroy(res_structure[n_mol - 1]);
+        Destroy(first_mol);
     }
 
     // Initializes residues position.

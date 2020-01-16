@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Ignores the collision between the bond and his neighbour residue - which is kind of attached to it
 public class BondCollisionHandler : MonoBehaviour
 {
     private static GameObject[] residues;       // Residues Array reference.

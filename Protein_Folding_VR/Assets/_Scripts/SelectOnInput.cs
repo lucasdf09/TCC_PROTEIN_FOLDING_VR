@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+
+//DON'T WORKING. Uses to select the buttons using the arrows from the keyboard or the joystick
 public class SelectOnInput : MonoBehaviour
 {
     public EventSystem eventSystem;

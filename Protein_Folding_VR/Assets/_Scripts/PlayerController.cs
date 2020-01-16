@@ -21,13 +21,15 @@ public class PlayerController : MonoBehaviour
     public static GameObject target;
     public static Color target_color;
 
+    private readonly Color color_end = Color.yellow;
+    private readonly Color orange_color = new Color(1.0f, 0.64f, 0.0f);
+    private const float blink_duration = 1.0f;
+    private const float delta = 0.01f;
+
     private GameObject[] particles;
-    private int n_mol;
-    private Color color_end;
-    private Color color_aux;
-    private float blink_duration;
-    private Vector3 movement;
-    private float delta;
+    private int n_mol;   
+    private Color color_aux;   
+    private Vector3 movement;  
     private string sequence;
 
     private float score;
@@ -38,24 +40,23 @@ public class PlayerController : MonoBehaviour
     private float rg_p;
     private Vector3 center_mass;
 
-    private Color orange_color;
     private bool moved;
 
     private Vector3[] res_variation;
     private Vector3[] bond_variation;
 
+    // Awake is initializing the variables.
+    private void Awake()
+    {
+        score = 0.0f;
+    }
 
     void Start()
     {
         target = null;
         particles = StructureInitialization.res_structure;
         n_mol = StructureInitialization.n_mol;
-        color_end = Color.yellow;
-        blink_duration = 1.0f;
-        delta = 0.01f;
-        score = 0.0f;
         sequence = StructureInitialization.sequence;
-        orange_color = new Color(1.0f, 0.64f, 0.0f);
         moved = false;
 
         initializeParameters();
@@ -84,23 +85,24 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    void initializeGame()
+    {
+        target = null;
+        particles = StructureInitialization.res_structure;
+        n_mol = StructureInitialization.n_mol;
+        sequence = StructureInitialization.sequence;
+        moved = false;
+
+        initializeParameters();
+        setScoreText();
+        setParametersText();
+
+        setCameraPivot();
+    }
+
     private void Update()
     {
         if (select_mode) {
-
-            /*** Camera movement 
-
-            if (Input.GetAxis("Horizontal") != 0)
-            {
-                transform.RotateAround(camera_pivot.transform.position, transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
-                //transform.RotateAround(camera_pivot.transform.position, main_camera.transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
-            }
-            if (Input.GetAxis("Vertical") != 0)
-            {
-                transform.RotateAround(camera_pivot.transform.position, transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
-               // transform.RotateAround(camera_pivot.transform.position, main_camera.transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
-            }
-            ***/
 
             if (target != null && Input.GetButtonDown("Fire1"))
             {
@@ -115,7 +117,8 @@ public class PlayerController : MonoBehaviour
 
                 reticle_pointer.SetActive(false);
 
-                /*
+
+                /***
                  * Debug stuff.
                 for (var i = 0; i < n_mol; i++)
                 {
@@ -133,12 +136,36 @@ public class PlayerController : MonoBehaviour
                     Debug.Log("Bond Var[" + i + "]: " + bond_variation[i].ToString("F8"));
                 }       
                 calculateDistance();
-                */
+                ***/
             }
 
             if (target != null)
             {
                 blinkResidue(target.GetComponent<Renderer>(), target_color, color_end);
+            }
+
+            // Save/Load test
+            //Save
+            if (Input.GetKeyDown("k"))
+            {
+                Debug.Log("Save key pressed!");
+                gameObject.GetComponent<SaveHandler>().Save("/saveTest.josn");
+            }
+            //Load
+            else if (Input.GetKeyDown("l"))
+            {
+                Debug.Log("Load key pressed!");
+                reticle_pointer.SetActive(false);
+                select_mode = false;
+                move_mode = false;
+
+                gameObject.GetComponent<StructureInitialization>().destroyStructure();
+                gameObject.GetComponent<SaveHandler>().Load("/saveTest.josn");
+                gameObject.GetComponent<StructureInitialization>().buildStructure();
+                initializeGame();
+
+                select_mode = true;
+                reticle_pointer.SetActive(true);
             }
         }
         else if (move_mode)
@@ -208,8 +235,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void FixedUpdate()
-    {
-        
+    {  
         if (move_mode)
         {
             if (Input.GetKey("w"))
@@ -257,7 +283,6 @@ public class PlayerController : MonoBehaviour
       
             calculatePotentialEnergy();
             calculateRg();
-
 
             // A good score must be a positive value.
             /*

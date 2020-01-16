@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+// Selects the residue to be manipulated using Gaze Input (Reticle Pointer)
 public class SelectResidueOnGaze : MonoBehaviour
 {
     public void pointerEnter()

@@ -9,14 +9,15 @@ public class SaveHandler : MonoBehaviour
 {
     private static string save_folder;
 
+    // Awake is called when the script instance is being loaded
     void Awake()
     {
 
 #if UNITY_EDITOR
-        save_folder = Application.dataPath + "/_Saves";
+        save_folder = Application.dataPath + "/Saves";
 
 #elif UNITY_ANDROID
-        SAVE_FOLDER = Application.persistentDataPath + "/_Saves";
+        SAVE_FOLDER = Application.persistentDataPath + "/Saves";
 
 #endif
         // Test if SAVE_FOLDER exists
@@ -27,9 +28,13 @@ public class SaveHandler : MonoBehaviour
         }
     }
 
-    public void Save()
+    // Saves the structure information of the game (summarized in the SaveData class) into a Json file
+    public void Save(string save_name)
     {
+        string save_file = save_folder + save_name;
+
         Debug.Log("SaveHandler Saving!");
+        Debug.Log("Save file: " + save_file);
 
         // Save the game state
         SaveData save_slot = new SaveData();
@@ -38,34 +43,45 @@ public class SaveHandler : MonoBehaviour
         save_slot.residues_coords = new Vector3[save_slot.n_mol];
         for (var i = 0; i < save_slot.n_mol; i++)
         {
-            save_slot.residues_coords[i] = StructureInitialization.res_coords[i];
+            save_slot.residues_coords[i] = StructureInitialization.res_structure[i].transform.position;
         }
 
+        // Debug stuff
         printSaveData("SAVE", save_slot);
 
         // Convert to Json format
         string json = JsonUtility.ToJson(save_slot);
 
+        // Debug stuff
         Debug.Log(json);
 
-        string save_name = save_folder + "/saveTest.json";
-
-        Debug.Log("Data path: " + save_name);
-        File.WriteAllText(save_name, json);
+        File.WriteAllText(save_file, json);
     }
 
-
-    public void Load()
+    // Loads a prevoius stored game from a Json file
+    public void Load(string load_name)
     {
-        string load_name = save_folder + "/saveTest.json";
-        if (File.Exists(load_name))
+        string load_file = save_folder + load_name;
+
+        Debug.Log("SaveHandler Loading!");
+        Debug.Log("Load file: " + load_file);
+
+        if (File.Exists(load_file))
         {
-            string json = File.ReadAllText(load_name);
-            Debug.Log("SaveHandler Loading!");
+            string json = File.ReadAllText(load_file);          
             SaveData load_slot = new SaveData();
             load_slot = JsonUtility.FromJson<SaveData>(json);
 
+            // Debug stuff
             printSaveData("LOAD", load_slot);
+
+            StructureInitialization.n_mol = load_slot.n_mol;
+            StructureInitialization.sequence = load_slot.sequence;
+            StructureInitialization.res_coords = new Vector3[load_slot.n_mol];
+            for (var i = 0; i < load_slot.n_mol; i++)
+            {
+                StructureInitialization.res_coords[i] = load_slot.residues_coords[i];
+            }
         }
         else
         {
