@@ -40,6 +40,8 @@ public class SaveHandler : MonoBehaviour
         SaveData save_slot = new SaveData();
         save_slot.n_mol = StructureInitialization.n_mol;
         save_slot.sequence = StructureInitialization.sequence;
+        save_slot.best_energy = PlayerController.best_energy;
+        save_slot.score = PlayerController.score;
         save_slot.residues_coords = new Vector3[save_slot.n_mol];
         for (var i = 0; i < save_slot.n_mol; i++)
         {
@@ -77,6 +79,8 @@ public class SaveHandler : MonoBehaviour
 
             StructureInitialization.n_mol = load_slot.n_mol;
             StructureInitialization.sequence = load_slot.sequence;
+            PlayerController.best_energy = load_slot.best_energy;
+            PlayerController.score = load_slot.score;
             StructureInitialization.res_coords = new Vector3[load_slot.n_mol];
             for (var i = 0; i < load_slot.n_mol; i++)
             {

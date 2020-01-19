@@ -12,12 +12,12 @@ using UnityEngine.Networking;
 public class StructureInitialization : MonoBehaviour
 {
     public static int n_mol;
-    public GameObject residue;                 // Residue Prefab refernce.
-    public GameObject bond;                     // Bond Prefab reference.
-    public GameObject first;                    // First Prefab reference.
-    public Transform residues;                 // Instatitated Prefab reference.
-    public Transform bonds;                     // Instatitated Prefab reference.
-    public Transform first_ref;                 // Instatitated Prefab reference.
+    public GameObject residue;                 // Residue Prefab refernce
+    public GameObject bond;                     // Bond Prefab reference
+    public GameObject first;                    // First Prefab reference
+    public Transform residues;                 // Instatitated Prefab reference
+    public Transform bonds;                     // Instatitated Prefab reference
+    public Transform first_ref;                 // Instatitated Prefab reference
     public static GameObject[] res_structure;
     public static GameObject[] bond_structure;
     public static GameObject first_mol;
@@ -48,7 +48,7 @@ public class StructureInitialization : MonoBehaviour
             if (file_name.Contains(".txt")) // New game
             {
                 // Read data in a Txt file to a string
-                read_data = readTxtInput(file_name);
+                read_data = readTxtFile(file_name);
 
                 // Check the string generated and loads only the necessary data to build a structure
                 if (!String.IsNullOrEmpty(read_data))
@@ -78,11 +78,11 @@ public class StructureInitialization : MonoBehaviour
 
 
     //Reads an input Text file into a string
-    string readTxtInput(string file_name)
+    string readTxtFile(string file_name)
     {
-        // Loads the a file path in a special location that can be accessed in the application.
-        // More information: search for "Streaming Assets".
-        //string file_path = Path.Combine(Application.streamingAssetsPath, file_name);
+        Debug.Log("StructureInitialization.readTxtFile()");
+        // Loads the a file path in a special location that can be accessed in the application
+        // More information: search for "Streaming Assets"
 
         var file_path = Application.streamingAssetsPath + "/Inputs/" + file_name;
 
@@ -120,17 +120,20 @@ public class StructureInitialization : MonoBehaviour
         */
     }
 
-    // 
+    // Load the input file data to the structure attributes
     void loadInput(string read_data)
     {
+   
+        Debug.Log("StructureInitialization.loadInput()");
         // Split the words in the input between the ' ', '\t', '\r', '\n' characters, removing them from the resulting Array.
         string[] words = read_data.Split(new char[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-
-        //for (var i = 0; i < words.Length; i++)
-        //{
-        //    Debug.Log("words[" + i + "] = " + words[i]);
-        //}
+        /*
+        for (var i = 0; i < words.Length; i++)
+        {
+            Debug.Log("words[" + i + "] = " + words[i]);
+        }
+        */
 
         n_mol = int.Parse(words[Array.IndexOf(words, "Molecules") + 2]);
         Debug.Log("n_mol (Molecules) : " + n_mol);
@@ -153,13 +156,6 @@ public class StructureInitialization : MonoBehaviour
             res_coords[j].y = float.Parse(words[i + 2], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.y;
             res_coords[j].z = float.Parse(words[i + 3], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.z;
         }
-
-        /*
-        foreach (var coord in residueCoords)
-        {
-            Debug.Log("ResidueCoord: " + $"<{coord}>");
-        }
-        */
     }
 
 
@@ -181,7 +177,7 @@ public class StructureInitialization : MonoBehaviour
     // Use to destroy a structure, before the loading of a new or a saved one
     public void destroyStructure()
     {
-        // Destroy the n_mol -1 objects of the previous game
+        // Destroy the objects thal will be loaded
         for (var i = 0; i < n_mol - 1; i++)
         {
             Destroy(res_structure[i]);
@@ -191,7 +187,7 @@ public class StructureInitialization : MonoBehaviour
         Destroy(first_mol);
     }
 
-    // Initializes residues position.
+    // Initializes residues position
     void initializeResidues()
     {
         for (var i = 0; i < n_mol; i++)
@@ -222,22 +218,24 @@ public class StructureInitialization : MonoBehaviour
         }
 
         /*
+        Debug.Log("StructureInitialization.initializeBonds()");
         for (var i = 0; i < n_mol - 1; i++)
         {
             Debug.Log("BondCoord[" + i + "]: " + $"<{bond_coords[i]}>");
         }
         */
+        
     }
-    
+
 
     void asignResiduesJoints()
     {
         // The first residue ([0]) is conneced to the world origin coordinate.
         // The other residues are connected to the bond that precede them.
-        for(var i = 1; i < n_mol; i++)
+        for (var i = 1; i < n_mol; i++)
         {
             res_structure[i].GetComponent<FixedJoint>().connectedBody = bond_structure[i - 1].GetComponent<Rigidbody>();
-        }   
+        }
     }
 
     void asignBondsJoints()
@@ -259,7 +257,7 @@ public class StructureInitialization : MonoBehaviour
             if (sequence[i] == 'A')
             {
                 // Initialize the hydrophobic residue color
-                res_structure[i].GetComponent<Renderer>().material.color = Color.red; 
+                res_structure[i].GetComponent<Renderer>().material.color = Color.red;
             }
             else
             {

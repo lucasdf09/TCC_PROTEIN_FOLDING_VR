@@ -9,6 +9,8 @@ public class SaveData
 {
     public int n_mol;
     public string sequence;
+    public float best_energy;
+    public float score;
     public Vector3[] residues_coords;
     //public Vector3[] bonds_coords;
 }
