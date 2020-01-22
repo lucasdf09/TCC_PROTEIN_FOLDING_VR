@@ -2159,7 +2159,6 @@ GameObject:
   - component: {fileID: 787507879}
   - component: {fileID: 787507878}
   - component: {fileID: 787507880}
-  - component: {fileID: 787507881}
   m_Layer: 5
   m_Name: MainMenuPanel
   m_TagString: Untagged
@@ -2253,20 +2252,6 @@ MonoBehaviour:
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 1
---- !u!114 &787507881
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 787507876}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a19873c90e7816649b9537ab76dd0265, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eventSystem: {fileID: 1036795518}
-  selectedObject: {fileID: 1437386040}
 --- !u!1 &845466857
 GameObject:
   m_ObjectHideFlags: 0
@@ -2688,18 +2673,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 935682904}
   m_CullTransparentMesh: 0
---- !u!114 &1036795518 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1816646545, guid: 463285ecd6702471a909ba810832bf0e,
-    type: 3}
-  m_PrefabInstance: {fileID: 243870696}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1071319062
 GameObject:
   m_ObjectHideFlags: 0
@@ -4393,8 +4366,8 @@ GameObject:
   - component: {fileID: 1437386044}
   - component: {fileID: 1437386043}
   - component: {fileID: 1437386045}
-  - component: {fileID: 1437386042}
   - component: {fileID: 1437386046}
+  - component: {fileID: 1437386042}
   m_Layer: 5
   m_Name: NewGameButton
   m_TagString: Untagged

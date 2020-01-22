@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-
+// Raise the "Click" EventSystem when the player is looking at the game button
+// and press the "Fire1" joystick button
 public class ButtonJoystickClick : MonoBehaviour
 {
 

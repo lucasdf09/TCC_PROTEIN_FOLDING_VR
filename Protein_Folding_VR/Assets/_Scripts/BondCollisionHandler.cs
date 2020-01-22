@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Ignores the collision between the bond and his neighbour residue - which is kind of attached to it
 public class BondCollisionHandler : MonoBehaviour
 {
     private static GameObject[] residues;       // Residues Array reference.
@@ -10,8 +11,8 @@ public class BondCollisionHandler : MonoBehaviour
 
     void Start()
     {
-        residues = StructureInitialization.res_structure;
-        bonds = StructureInitialization.bond_structure;
+        residues = StructureInitialization.residues_structure;
+        bonds = StructureInitialization.bonds_structure;
         // Get the index of the current object in the Bonds array.
         index = System.Array.IndexOf(bonds, gameObject);
         // Ignore the collision with the neighbour residue, with the same index in the Residues array. 

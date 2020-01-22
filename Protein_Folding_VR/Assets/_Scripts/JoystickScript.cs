@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+// Prints the joystick input in the screen
 public class JoystickScript : MonoBehaviour
 {
-    private string joystickRead;
+    private string joystickMessage;
 
     public Text joystickText;
 
@@ -14,8 +16,8 @@ public class JoystickScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        joystickRead = "Starting!";
-        setJoystickText(joystickRead);
+        joystickMessage = "Starting!";
+        setJoystickText(joystickMessage);
         list = new List<string> { "Fire1", "Fire2", "Fire3", "Jump", "A", "B", "C", "D", "Submit", "Cancel" };
     }
 
@@ -24,9 +26,9 @@ public class JoystickScript : MonoBehaviour
     {
         if (Input.anyKeyDown)
         {
-            joystickRead = Input.inputString;
-            Debug.Log(joystickRead);
-            setJoystickText(joystickRead);
+            joystickMessage = Input.inputString;
+            Debug.Log(joystickMessage);
+            setJoystickText(joystickMessage);
 
             if (Input.GetKey(KeyCode.Backspace))
                 setJoystickText("Backspace");
