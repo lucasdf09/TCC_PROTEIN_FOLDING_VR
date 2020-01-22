@@ -12,5 +12,7 @@ public class SaveData
     public float best_energy;
     public float score;
     public Vector3[] residues_coords;
-    //public Vector3[] bonds_coords;
+    public Quaternion[] residues_rotations;
+    public Vector3[] bonds_coords;
+    public Quaternion[] bonds_rotations;
 }

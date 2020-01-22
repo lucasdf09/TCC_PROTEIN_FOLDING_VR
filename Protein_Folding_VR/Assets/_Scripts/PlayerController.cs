@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
     public static Color target_color;
     public static float best_energy;
     public static float score;
+    public static float saved_score;
 
     private readonly Color color_end = Color.yellow;
     private readonly Color orange_color = new Color(1.0f, 0.64f, 0.0f);
@@ -34,7 +35,6 @@ public class PlayerController : MonoBehaviour
     private Vector3 movement;  
     private string sequence;
 
-    //private float score;
     private float potential_energy;  
     private float rg_all;
     private float rg_h;
@@ -43,37 +43,30 @@ public class PlayerController : MonoBehaviour
 
     private bool moved;
 
-    // DEBUG STUFF
+    // DEBUG
     Vector3[] res_variation;
     Vector3[] bond_variation;
-    Vector3 actual_var;
 
-    // Awake is initializing the variables
+    // Awake is called before Start(). Initializing attributes
     private void Awake()
     {
         score = 0.0f;
         best_energy = 0.0f;
         potential_energy = 0.0f;
+        // Deactivate the player interaction
+        select_mode = false;
+        move_mode = false;
     }
 
     void Start()
     {
-        initializeGame();
-
-        //  Debug stuff
-        res_variation = new Vector3[n_mol];
-        bond_variation = new Vector3[n_mol - 1];
-        actual_var = new Vector3(0, 0, 0);
-
-        //calculateDistance();
-       //calculateVariation();
-
+        Invoke("initializeGame", 0);
     }
 
     void initializeGame()
     {
         target = null;
-        particles = StructureInitialization.res_structure;
+        particles = StructureInitialization.residues_structure;
         n_mol = StructureInitialization.n_mol;
         sequence = StructureInitialization.sequence;
         moved = false;
@@ -81,7 +74,57 @@ public class PlayerController : MonoBehaviour
         initializeParameters();
         setParametersText();
         setCameraPivot();
+        // Activate the player interaction
+        select_mode = true;
+
     }
+
+    // Save game routine
+    void saveGame(string save_file)
+    {
+        Debug.Log("Save key pressed!");
+        gameObject.GetComponent<SaveHandler>().Save(save_file);
+    }
+
+    // Load game routine
+    void loadGame(string load_file)
+    {
+        Debug.Log("Load key pressed!");
+        // Deactivate player interaction
+        reticle_pointer.SetActive(false);
+        select_mode = false;
+        move_mode = false;
+
+        //Physics.autoSimulation = false;
+
+        gameObject.GetComponent<StructureInitialization>().destroyStructure();
+        gameObject.GetComponent<SaveHandler>().Load(load_file);
+        gameObject.GetComponent<StructureInitialization>().loadStructure();
+
+        target = null;
+        particles = StructureInitialization.residues_structure;
+        n_mol = StructureInitialization.n_mol;
+        sequence = StructureInitialization.sequence;
+        moved = false;
+        refreshScoreboard();
+        setCameraPivot();
+        // Activate the player interaction
+        select_mode = true;
+
+        Debug.Log("Saved Score: " + saved_score.ToString("F8"));
+
+        reticle_pointer.SetActive(true);
+
+        //Physics.autoSimulation = true;
+
+        //  Debug stuff
+        //res_variation = new Vector3[n_mol];
+        //bond_variation = new Vector3[n_mol - 1];
+        //calculateDistance();
+        //calculateVariation();
+    }
+    
+
 
     private void Update()
     {
@@ -91,7 +134,7 @@ public class PlayerController : MonoBehaviour
         // Move the camera.
         if (select_mode) {
 
-            // Check the transition to MMOVE_MODE
+            // Check the transition to MOVE_MODE
             if (target != null && Input.GetButtonDown("Fire1"))
             {
                 Debug.Log("SELECT: CLICK key was pressed");
@@ -117,34 +160,23 @@ public class PlayerController : MonoBehaviour
                 blinkResidue(target.GetComponent<Renderer>(), target_color, color_end);
             }
 
-            // Save/Load test
+            // Save and Load test
             //Save
             if (Input.GetKeyDown("k"))
             {
-                Debug.Log("Save key pressed!");
-                gameObject.GetComponent<SaveHandler>().Save("/saveTest.josn");
+                saveGame("/saveTest.josn");
             }
             //Load
             else if (Input.GetKeyDown("l"))
-            {
-                Debug.Log("Load key pressed!");
-                reticle_pointer.SetActive(false);
-                select_mode = false;
-                move_mode = false;
-
-                gameObject.GetComponent<StructureInitialization>().destroyStructure();
-                gameObject.GetComponent<SaveHandler>().Load("/saveTest.josn");
-                gameObject.GetComponent<StructureInitialization>().buildStructure();
-                initializeGame();
-
-                select_mode = true;
-                reticle_pointer.SetActive(true);
+            {              
+                loadGame("/saveTest.josn");              
             }
         }
 
         // Check the return condition to SELECT MODE, once in MOVE MODE
         else if (move_mode)
         {
+
             blinkResidue(target.GetComponent<Renderer>(), target_color, color_aux);
 
             // Put movement input here?
@@ -167,7 +199,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // DEBUG
-        // refreshScoreboard();
+        //refreshScoreboard();
         //calculateDistance();
         //calculateVariation();
     }
@@ -284,6 +316,7 @@ public class PlayerController : MonoBehaviour
         calculatePotentialEnergy();
         float first_energy = potential_energy;
         Physics.autoSimulation = false;
+        Debug.Log("Pre Simulation Step!");
         do
         {
             best_energy = potential_energy;
@@ -485,7 +518,7 @@ public class PlayerController : MonoBehaviour
         {
             //Debug.Log("ResiduePos[" + i + "]: " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
             //Debug.Log("ResidueCoords[" + i + "]: " + StructureInitialization.res_coords[i].ToString("F8"));         
-            variation = Vector3.Distance(particles[i].transform.position, StructureInitialization.res_coords[i]);
+            variation = Vector3.Distance(particles[i].transform.position, StructureInitialization.residues_coords[i]);
             Debug.Log("Variation ResCoord[" + i + "]: " + variation.ToString("F8"));
             //Debug.Log("Var Variation Residue[" + i + "]: " + (variation - Vector3.Distance(StructureInitialization.res_coords[i], res_variation[i])).ToString("F8"));
             //Debug.Log("Pos Variation Residue[" + i + "]: " + Vector3.Distance(res_variation[i], particles[i].transform.position).ToString("F8"));
@@ -498,7 +531,7 @@ public class PlayerController : MonoBehaviour
         {
             //Debug.Log("BondPos[" + i + "]: " + StructureInitialization.bond_structure[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
             //Debug.Log("BondCoords[" + i + "]: " + StructureInitialization.bond_coords[i].ToString("F8"));
-            variation = Vector3.Distance(StructureInitialization.bond_structure[i].transform.position, StructureInitialization.bond_coords[i]);
+            variation = Vector3.Distance(StructureInitialization.bonds_structure[i].transform.position, StructureInitialization.bonds_coords[i]);
             Debug.Log("Variation BondCoord[" + i + "]: " + variation.ToString("F8"));
             //Debug.Log("Var Variation Bond[" + i + "]: " + (variation - Vector3.Distance(StructureInitialization.bond_coords[i], bond_variation[i])).ToString("F8"));
             //Debug.Log("Pos Variation Bond[" + i + "]: " + Vector3.Distance(bond_variation[i], StructureInitialization.bond_structure[i].transform.position).ToString("F8"));

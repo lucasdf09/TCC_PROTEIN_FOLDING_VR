@@ -18,12 +18,13 @@ public class StructureInitialization : MonoBehaviour
     public Transform residues;                 // Instatitated Prefab reference
     public Transform bonds;                     // Instatitated Prefab reference
     public Transform first_ref;                 // Instatitated Prefab reference
-    public static GameObject[] res_structure;
-    public static GameObject[] bond_structure;
+    public static GameObject[] residues_structure;
+    public static GameObject[] bonds_structure;
     public static GameObject first_mol;
-    public static Vector3[] res_coords;
-    public static Vector3[] bond_coords;
-    public static Quaternion[] bond_rotations;
+    public static Vector3[] residues_coords;
+    public static Quaternion[] residues_rotations;
+    public static Vector3[] bonds_coords;
+    public static Quaternion[] bonds_rotations;
     public static Vector3 pos_offset;
     public static string sequence;
 
@@ -33,9 +34,6 @@ public class StructureInitialization : MonoBehaviour
         string file_name;
         string read_data;
 
-        // Deactivate the player interaction
-        PlayerController.select_mode = false;
-        PlayerController.move_mode = false;
 
         // Check if the file with the protein structure was loaded in the MenuScene
         if (PlayerPrefs.HasKey("File_Name"))
@@ -67,8 +65,6 @@ public class StructureInitialization : MonoBehaviour
             {
                 Debug.Log("StrucInit Error: Invalid File_Name!");
             }
-            // Activate the player interaction
-            PlayerController.select_mode = true;
         }
         else
         {
@@ -82,8 +78,7 @@ public class StructureInitialization : MonoBehaviour
     {
         Debug.Log("StructureInitialization.readTxtFile()");
         // Loads the a file path in a special location that can be accessed in the application
-        // More information: search for "Streaming Assets"
-
+        // More information search for "Streaming Assets"
         var file_path = Application.streamingAssetsPath + "/Inputs/" + file_name;
 
         Debug.Log("File path: " + file_path);
@@ -111,29 +106,14 @@ public class StructureInitialization : MonoBehaviour
         return webRequest.downloadHandler.text;
       
 #endif
-
-        /*
-        // Loads all the TXT input file to "words[]".
-        StreamReader reader = new StreamReader(file_path);
-        string full_text = reader.ReadToEnd();
-        reader.Close();
-        */
     }
 
     // Load the input file data to the structure attributes
     void loadInput(string read_data)
-    {
-   
+    { 
         Debug.Log("StructureInitialization.loadInput()");
         // Split the words in the input between the ' ', '\t', '\r', '\n' characters, removing them from the resulting Array.
         string[] words = read_data.Split(new char[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-
-        /*
-        for (var i = 0; i < words.Length; i++)
-        {
-            Debug.Log("words[" + i + "] = " + words[i]);
-        }
-        */
 
         n_mol = int.Parse(words[Array.IndexOf(words, "Molecules") + 2]);
         Debug.Log("n_mol (Molecules) : " + n_mol);
@@ -141,20 +121,20 @@ public class StructureInitialization : MonoBehaviour
         sequence = words[Array.IndexOf(words, "Sequence") + 2];
         Debug.Log("Sequence: " + sequence);
 
+        // Takes the offset from the center (0.0 x , 0.0 y , 0.0 z) of the simulation box
         pos_offset.x = float.Parse(words[1], CultureInfo.InvariantCulture.NumberFormat);
         pos_offset.y = float.Parse(words[2], CultureInfo.InvariantCulture.NumberFormat);
         pos_offset.z = float.Parse(words[3], CultureInfo.InvariantCulture.NumberFormat);
-
         Debug.Log("Position offset: " + $"<{pos_offset}>");
 
-        res_coords = new Vector3[n_mol];
-
+        // Initialize the structure in the center of the Scene with the first residue in Vector3(0, 0, 0)
+        residues_coords = new Vector3[n_mol];
         for (var i = 0; i < n_mol * 4; i += 4)
         {
             var j = i / 4;
-            res_coords[j].x = float.Parse(words[i + 1], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.x;
-            res_coords[j].y = float.Parse(words[i + 2], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.y;
-            res_coords[j].z = float.Parse(words[i + 3], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.z;
+            residues_coords[j].x = float.Parse(words[i + 1], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.x;
+            residues_coords[j].y = float.Parse(words[i + 2], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.y;
+            residues_coords[j].z = float.Parse(words[i + 3], CultureInfo.InvariantCulture.NumberFormat) - pos_offset.z;
         }
     }
 
@@ -162,10 +142,10 @@ public class StructureInitialization : MonoBehaviour
     // Use to build a structure from data read from a file
     public void buildStructure()
     {
-        res_structure = new GameObject[n_mol];
-        bond_structure = new GameObject[n_mol - 1];
-        bond_coords = new Vector3[n_mol - 1];
-        bond_rotations = new Quaternion[n_mol - 1];
+        residues_structure = new GameObject[n_mol];
+        bonds_structure = new GameObject[n_mol - 1];
+        bonds_coords = new Vector3[n_mol - 1];
+        bonds_rotations = new Quaternion[n_mol - 1];
         initializeResidues();
         initializeBonds();
         asignResiduesJoints();
@@ -180,11 +160,25 @@ public class StructureInitialization : MonoBehaviour
         // Destroy the objects thal will be loaded
         for (var i = 0; i < n_mol - 1; i++)
         {
-            Destroy(res_structure[i]);
-            Destroy(bond_structure[i]);
+            Destroy(residues_structure[i]);
+            Destroy(bonds_structure[i]);
         }
-        Destroy(res_structure[n_mol - 1]);
+        Destroy(residues_structure[n_mol - 1]);
         Destroy(first_mol);
+    }
+
+    public void loadStructure()
+    {
+        residues_structure = new GameObject[n_mol];
+        bonds_structure = new GameObject[n_mol - 1];
+        //bonds_coords = new Vector3[n_mol - 1];
+        //bonds_rotations = new Quaternion[n_mol - 1];
+        loadResidues();
+        loadBonds();
+        asignResiduesJoints();
+        asignBondsJoints();
+        asignResidueColor();
+        markFirstResidue();
     }
 
     // Initializes residues position
@@ -192,16 +186,18 @@ public class StructureInitialization : MonoBehaviour
     {
         for (var i = 0; i < n_mol; i++)
         {
-            res_structure[i] = Instantiate(residue, res_coords[i], Quaternion.identity, residues);
-            res_structure[i].name = "Residue" + i.ToString();
+            residues_structure[i] = Instantiate(residue, residues_coords[i], Quaternion.identity, residues);
+            residues_structure[i].name = "Residue" + i.ToString();
         }
+    }
 
-        /*
+    void loadResidues()
+    {
         for (var i = 0; i < n_mol; i++)
         {
-            Debug.Log("ResidueCoord[" + i + "]: " + mol_coords[i].ToString("F8"));
+            residues_structure[i] = Instantiate(residue, residues_coords[i], residues_rotations[i], residues);
+            residues_structure[i].name = "Residue" + i.ToString();
         }
-        */
     }
 
     // Initializes bonds position.
@@ -210,21 +206,20 @@ public class StructureInitialization : MonoBehaviour
         for (var i = 0; i < n_mol - 1; i++)
         {
             // Define the mean position between a residue and its neighbour to place the bond coordinates.
-            bond_coords[i] = (res_coords[i] + res_coords[i + 1]) / 2;
-            bond_rotations[i] = Quaternion.FromToRotation(Vector3.down, res_coords[i + 1] - res_coords[i]);
+            bonds_coords[i] = (residues_coords[i] + residues_coords[i + 1]) / 2;
+            bonds_rotations[i] = Quaternion.FromToRotation(Vector3.down, residues_coords[i + 1] - residues_coords[i]);
+            bonds_structure[i] = Instantiate(bond, bonds_coords[i], bonds_rotations[i], bonds);
+            bonds_structure[i].name = "Bond" + i.ToString();
+        }      
+    }
 
-            bond_structure[i] = Instantiate(bond, bond_coords[i], bond_rotations[i], bonds);
-            bond_structure[i].name = "Bond" + i.ToString();
-        }
-
-        /*
-        Debug.Log("StructureInitialization.initializeBonds()");
+    void loadBonds()
+    {
         for (var i = 0; i < n_mol - 1; i++)
-        {
-            Debug.Log("BondCoord[" + i + "]: " + $"<{bond_coords[i]}>");
+        {          
+            bonds_structure[i] = Instantiate(bond, bonds_coords[i], bonds_rotations[i], bonds);
+            bonds_structure[i].name = "Bond" + i.ToString();
         }
-        */
-        
     }
 
 
@@ -234,19 +229,19 @@ public class StructureInitialization : MonoBehaviour
         // The other residues are connected to the bond that precede them.
         for (var i = 1; i < n_mol; i++)
         {
-            res_structure[i].GetComponent<FixedJoint>().connectedBody = bond_structure[i - 1].GetComponent<Rigidbody>();
+            residues_structure[i].GetComponent<FixedJoint>().connectedBody = bonds_structure[i - 1].GetComponent<Rigidbody>();
         }
     }
 
     void asignBondsJoints()
     {
         // The first bond is connected to the first residue.
-        bond_structure[0].GetComponent<ConfigurableJoint>().connectedBody = res_structure[0].GetComponent<Rigidbody>();
+        bonds_structure[0].GetComponent<ConfigurableJoint>().connectedBody = residues_structure[0].GetComponent<Rigidbody>();
 
         // The other bonds are connected to the bond that precede them.
         for (var i = 1; i < n_mol - 1; i++)
         {
-            bond_structure[i].GetComponent<ConfigurableJoint>().connectedBody = bond_structure[i - 1].GetComponent<Rigidbody>();
+            bonds_structure[i].GetComponent<ConfigurableJoint>().connectedBody = bonds_structure[i - 1].GetComponent<Rigidbody>();
         }
     }
 
@@ -257,19 +252,19 @@ public class StructureInitialization : MonoBehaviour
             if (sequence[i] == 'A')
             {
                 // Initialize the hydrophobic residue color
-                res_structure[i].GetComponent<Renderer>().material.color = Color.red;
+                residues_structure[i].GetComponent<Renderer>().material.color = Color.red;
             }
             else
             {
                 // Initialize the polar residue color
-                res_structure[i].GetComponent<Renderer>().material.color = Color.blue;
+                residues_structure[i].GetComponent<Renderer>().material.color = Color.blue;
             }
         }
     }
 
     void markFirstResidue()
     {
-        first_mol = Instantiate(first, res_coords[0], Quaternion.identity, first_ref);
+        first_mol = Instantiate(first, residues_coords[0], Quaternion.identity, first_ref);
         first_mol.name = "First0";
     }
 }

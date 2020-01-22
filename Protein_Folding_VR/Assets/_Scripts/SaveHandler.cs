@@ -43,21 +43,29 @@ public class SaveHandler : MonoBehaviour
         save_slot.best_energy = PlayerController.best_energy;
         save_slot.score = PlayerController.score;
         save_slot.residues_coords = new Vector3[save_slot.n_mol];
-        for (var i = 0; i < save_slot.n_mol; i++)
+        save_slot.residues_rotations = new Quaternion[save_slot.n_mol];
+        save_slot.bonds_coords = new Vector3[save_slot.n_mol - 1];
+        save_slot.bonds_rotations = new Quaternion[save_slot.n_mol - 1];
+        for (var i = 0; i < save_slot.n_mol - 1; i++)
         {
-            save_slot.residues_coords[i] = StructureInitialization.res_structure[i].transform.position;
+            save_slot.residues_coords[i] = StructureInitialization.residues_structure[i].transform.position;
+            save_slot.residues_rotations[i] = StructureInitialization.residues_structure[i].transform.rotation;
+            save_slot.bonds_coords[i] = StructureInitialization.bonds_structure[i].transform.position;
+            save_slot.bonds_rotations[i] = StructureInitialization.bonds_structure[i].transform.rotation;
         }
-
-        // Debug stuff
-        printSaveData("SAVE", save_slot);
+        save_slot.residues_coords[save_slot.n_mol - 1] = StructureInitialization.residues_structure[save_slot.n_mol - 1].transform.position;
+        save_slot.residues_rotations[save_slot.n_mol - 1] = StructureInitialization.residues_structure[save_slot.n_mol - 1].transform.rotation;
 
         // Convert to Json format
         string json = JsonUtility.ToJson(save_slot);
 
-        // Debug stuff
-        Debug.Log(json);
-
+        // Write Json string to a file
         File.WriteAllText(save_file, json);
+
+
+        // DEBUG
+        //printSaveData("SAVE", save_slot);
+        //Debug.Log(json);
     }
 
     // Loads a prevoius stored game from a Json file
@@ -74,18 +82,26 @@ public class SaveHandler : MonoBehaviour
             SaveData load_slot = new SaveData();
             load_slot = JsonUtility.FromJson<SaveData>(json);
 
-            // Debug stuff
-            printSaveData("LOAD", load_slot);
+            // DEBUG
+            // printSaveData("LOAD", load_slot);
 
             StructureInitialization.n_mol = load_slot.n_mol;
             StructureInitialization.sequence = load_slot.sequence;
             PlayerController.best_energy = load_slot.best_energy;
-            PlayerController.score = load_slot.score;
-            StructureInitialization.res_coords = new Vector3[load_slot.n_mol];
-            for (var i = 0; i < load_slot.n_mol; i++)
-            {
-                StructureInitialization.res_coords[i] = load_slot.residues_coords[i];
+            PlayerController.saved_score = load_slot.score;
+            StructureInitialization.residues_coords = new Vector3[load_slot.n_mol];
+            StructureInitialization.residues_rotations = new Quaternion[load_slot.n_mol];
+            StructureInitialization.bonds_coords = new Vector3[load_slot.n_mol - 1];
+            StructureInitialization.bonds_rotations = new Quaternion[load_slot.n_mol - 1];
+            for (var i = 0; i < load_slot.n_mol - 1; i++)
+            {                
+                StructureInitialization.residues_coords[i] = load_slot.residues_coords[i];
+                StructureInitialization.residues_rotations[i] = load_slot.residues_rotations[i];
+                StructureInitialization.bonds_coords[i] = load_slot.bonds_coords[i];
+                StructureInitialization.bonds_rotations[i] = load_slot.bonds_rotations[i];
             }
+            StructureInitialization.residues_coords[load_slot.n_mol - 1] = load_slot.residues_coords[load_slot.n_mol - 1];
+            StructureInitialization.residues_rotations[load_slot.n_mol - 1] = load_slot.residues_rotations[load_slot.n_mol - 1];
         }
         else
         {
@@ -100,9 +116,16 @@ public class SaveHandler : MonoBehaviour
         Debug.Log(operation);
         Debug.Log(slot.n_mol);
         Debug.Log(slot.sequence);
-        for (var i = 0; i < slot.n_mol; i++)
-        {
+        Debug.Log(slot.best_energy);
+        Debug.Log(slot.score);
+        for (var i = 0; i < slot.n_mol - 1; i++)
+        {            
             Debug.Log(i + ": " + slot.residues_coords[i]);
+            Debug.Log(i + ": " + slot.residues_rotations[i]);
+            Debug.Log(i + ": " + slot.bonds_coords[i]);
+            Debug.Log(i + ": " + slot.bonds_rotations[i]);
         }
+        Debug.Log((slot.n_mol - 1) + ": " + slot.residues_coords[slot.n_mol - 1]);
+        Debug.Log((slot.n_mol - 1) + ": " + slot.residues_rotations[slot.n_mol - 1]);
     }
  }
