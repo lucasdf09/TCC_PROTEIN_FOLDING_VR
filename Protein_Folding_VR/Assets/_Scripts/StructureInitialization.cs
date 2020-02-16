@@ -34,12 +34,11 @@ public class StructureInitialization : MonoBehaviour
         string file_name;
         string read_data;
 
-
         // Check if the file with the protein structure was loaded in the MenuScene
         if (PlayerPrefs.HasKey("File_Name"))
         {
-            //file_name = PlayerPrefs.GetString("File_Name");
-            file_name = "13_teste_bestCoordinates.txt";
+            file_name = PlayerPrefs.GetString("File_Name");
+            //file_name = "13_teste_bestCoordinates.txt";
 
             // Verify if it is a new or a loaded game, by the file format
             // New game
@@ -79,15 +78,15 @@ public class StructureInitialization : MonoBehaviour
         Debug.Log("StructureInitialization.readTxtFile()");
         // Loads the a file path in a special location that can be accessed in the application
         // More information search for "Streaming Assets"
-        var file_path = Application.streamingAssetsPath + "/Inputs/" + file_name;
+        //var file_path = Application.streamingAssetsPath + "/Inputs/" + file_name;
 
-        Debug.Log("File path: " + file_path);
+        Debug.Log("File path: " + file_name);
 
 #if UNITY_EDITOR
 
-        if (File.Exists(file_path))
+        if (File.Exists(file_name))
         {
-            string read_data = File.ReadAllText(file_path);
+            string read_data = File.ReadAllText(file_name);
             return read_data;
         }
         else
@@ -98,7 +97,7 @@ public class StructureInitialization : MonoBehaviour
 
 #elif UNITY_ANDROID
 
-        UnityWebRequest webRequest = UnityWebRequest.Get(file_path);
+        UnityWebRequest webRequest = UnityWebRequest.Get(file_name);
         webRequest.SendWebRequest();
         while (!webRequest.isDone)
         {

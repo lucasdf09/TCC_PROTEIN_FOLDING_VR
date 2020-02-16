@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour
     public float fov_min;
     public float fov_max;
     public float zoom_smooth;
+    public float pivot_smooth;
+    public Transform camera_transform;
 
     public static bool select_mode;
     public static bool move_mode;
@@ -60,6 +62,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        // Call initializeGame function in the next frame. 
         Invoke("initializeGame", 0);
     }
 
@@ -73,7 +76,8 @@ public class PlayerController : MonoBehaviour
         setScoreText();
         initializeParameters();
         setParametersText();
-        setCameraPivot();
+        setInitialPosition();
+        //setCameraPivot();
         // Activate the player interaction
         select_mode = true;
 
@@ -232,10 +236,19 @@ public class PlayerController : MonoBehaviour
                 transform.Translate(new Vector3(0, 0, -1) * Time.deltaTime * zoom_smooth);
                 //cameraZoom(1);
             }
+            if (Input.GetKey("p"))
+            {
+                foreach (GameObject particle in particles)
+                {
+                    Debug.Log("Is Visible: " + particle.GetComponent<Renderer>().isVisible.ToString());
+                }
+            }
         }
     }
 
+
     // Like an image zoom, NOT IN USE
+    /*
     private void cameraZoom(float signal)
     {
         float fov = Camera.main.fieldOfView;
@@ -244,6 +257,7 @@ public class PlayerController : MonoBehaviour
         //Camera.main.fieldOfView = fov;
         Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, fov, Time.deltaTime * zoom_smooth);
     }
+    */
 
     private void FixedUpdate()
     {
@@ -482,7 +496,41 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("Camera center mass: " + center_mass);
 
+        camera_pivot.transform.position = center_mass * Time.deltaTime * pivot_smooth;
+    }
+
+    void setInitialPosition()
+    {
+        Vector3 avg = new Vector3(0.0f, 0.0f, 0.0f);
+
+        for (var i = 0; i < n_mol; i++)
+        {
+            avg += particles[i].transform.position;
+        }
+
+        center_mass = avg / n_mol;
+
+        Debug.Log("Camera center mass: " + center_mass);
+
         camera_pivot.transform.position = center_mass;
+
+        Debug.Log("Camera transfor before: " + camera_transform.rotation);
+        transform.LookAt(camera_pivot.transform);
+        camera_transform.LookAt(camera_pivot.transform);
+        Debug.Log("Camera transfor after: " + camera_transform.rotation);
+
+        for (int i = 0; i < n_mol; i++) 
+        {
+            Renderer visibility = particles[i].GetComponent<Renderer>();
+            Debug.Log(i + " is visible: " + visibility.isVisible.ToString());
+            /*
+            while (!visibility.isVisible)
+            {            
+                transform.Translate(new Vector3(0, 0, -1) * zoom_smooth);
+                Debug.Log("Is Visible: " + visibility.isVisible.ToString());
+            }   
+            */
+        }
     }
 
 

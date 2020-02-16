@@ -9,7 +9,7 @@ public class SaveHandler : MonoBehaviour
 {
     private static string save_folder;
 
-    // Awake is called when the script instance is being loaded
+    /* Awake is called when the script instance is being loaded
     void Awake()
     {
 
@@ -17,7 +17,7 @@ public class SaveHandler : MonoBehaviour
         save_folder = Application.dataPath + "/Saves";
 
 #elif UNITY_ANDROID
-        SAVE_FOLDER = Application.persistentDataPath + "/Saves";
+        save_folder = Application.persistentDataPath + "/Saves";
 
 #endif
         // Test if SAVE_FOLDER exists
@@ -26,6 +26,13 @@ public class SaveHandler : MonoBehaviour
             // Create SAVE_FOLDER
             Directory.CreateDirectory(save_folder);
         }
+    }
+    */
+    private void Start()
+    {
+        GameObject game_file = GameObject.FindGameObjectWithTag("GameFiles");
+        //GameFilesInitialization game_file_initialization = game_file.GetComponent<>
+        //save_folder = game_file.GetComponent<GameFileInitialization>().Save_folder;
     }
 
     // Saves the structure information of the game (summarized in the SaveData class) into a Json file
@@ -108,7 +115,6 @@ public class SaveHandler : MonoBehaviour
             Debug.Log("LOAD: File not found!");
         }   
     }
-
 
     // Debug function
     private void printSaveData(string operation, SaveData slot)
