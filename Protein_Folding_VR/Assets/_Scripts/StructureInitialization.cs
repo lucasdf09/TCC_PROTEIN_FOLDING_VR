@@ -57,7 +57,8 @@ public class StructureInitialization : MonoBehaviour
             else if (file_name.Contains(".json"))
             {
                 gameObject.GetComponent<SaveHandler>().Load(file_name);
-                buildStructure();
+                //buildStructure();
+                loadStructure();
             }
             // Error
             else

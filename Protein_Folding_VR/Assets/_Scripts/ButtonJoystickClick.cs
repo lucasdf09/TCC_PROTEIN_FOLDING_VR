@@ -13,16 +13,34 @@ public class ButtonJoystickClick : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+#if UNITY_EDITOR
+        if (gazed_at && Input.GetButtonDown("Submit"))
+        {
+            Debug.Log("Gazed TRUE");
+            //gazed_at = false;
+            button_down = true;
+            Debug.Log("Click: Pointer down!");
+            ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerDownHandler);
+        }
+
+        else if (gazed_at && button_down && Input.GetButtonUp("Submit"))
+        {
+            Debug.Log("Button TRUE");
+            gazed_at = false;
+            button_down = false;
+            Debug.Log("Click: Pointer up!");
+            ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerUpHandler);
+        }
+
+#elif UNITY_ANDROID
         if (gazed_at && Input.GetButtonDown("Fire1"))
         {
             Debug.Log("Gazed TRUE");
             //gazed_at = false;
             button_down = true;
-#if UNITY_EDITOR
-
-#elif UNITY_ANDROID
+            Debug.Log("Click: Pointer down!");
             ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerDownHandler);
-#endif
         }
 
         else if (gazed_at && button_down && Input.GetButtonUp("Fire1"))
@@ -30,13 +48,12 @@ public class ButtonJoystickClick : MonoBehaviour
             Debug.Log("Button TRUE");
             gazed_at = false;
             button_down = false;
-#if UNITY_EDITOR
-
-#elif UNITY_ANDROID
-            Debug.Log("pointer up!");
+            Debug.Log("Click: Pointer up!");
             ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerUpHandler);
-#endif
         }
+
+#endif
+
     }
 
     public void pointerEnter()

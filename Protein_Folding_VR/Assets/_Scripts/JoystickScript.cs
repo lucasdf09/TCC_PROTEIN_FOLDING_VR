@@ -69,7 +69,10 @@ public class JoystickScript : MonoBehaviour
             else if (Input.GetKey(KeyCode.JoystickButton1))
                 setJoystickText("JoystickButton1");
             else if (Input.GetKey(KeyCode.Escape))
+            {
                 setJoystickText("Escape");
+                gameObject.GetComponent<ExitOnClick>().Exit();
+            }
 
         }
         else

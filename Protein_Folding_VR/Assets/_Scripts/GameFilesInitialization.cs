@@ -10,7 +10,7 @@ public class GameFilesInitialization : MonoBehaviour
 {
     private static string inputs_folder;
     private static string outputs_folder;
-    private static string save_folder;
+    private static string saves_folder;
    
     // "Folder" attributes properties
     public string Inputs_folder
@@ -27,11 +27,11 @@ public class GameFilesInitialization : MonoBehaviour
             return outputs_folder;
         }
     }   
-    public string Save_folder
+    public string Saves_folder
     {
         get
         {
-            return save_folder;
+            return saves_folder;
         }
     }
 
@@ -58,12 +58,12 @@ public class GameFilesInitialization : MonoBehaviour
 
         inputs_folder = Path.Combine(game_files_folder, "Inputs");
         outputs_folder = Path.Combine(game_files_folder, "Outputs");
-        save_folder = Path.Combine(game_files_folder, "Saves");
+        saves_folder = Path.Combine(game_files_folder, "Saves");
 
         folderCheck(game_files_folder);
         folderCheck(inputs_folder);
         folderCheck(outputs_folder);
-        folderCheck(save_folder);
+        folderCheck(saves_folder);
 
         // Check whether files in Streaming Assets have already been copied to the Inputs folder
 
@@ -138,6 +138,9 @@ public class GameFilesInitialization : MonoBehaviour
                 }
             }
         }
+
+
+        Debug.Log("Game File Initialization END!!!");
     }
 
     /// Reads an input Text file into a string, only for files in StreamingAssets folder
@@ -196,5 +199,27 @@ public class GameFilesInitialization : MonoBehaviour
         {
             Debug.Log("Already exists: " + folder);
         }
+    }
+
+
+    // Reads a directory and return its files names list with extension
+    public string[] readDirectory(string path, string extension)
+    {
+        Debug.Log("GameFilesInit path: " + path);
+        DirectoryInfo directory = new DirectoryInfo(path);
+        //FileInfo[] info = inputs_directory.GetFiles("*.*");
+        FileInfo[] files = directory.GetFiles(extension);
+
+        Debug.Log("GameFilesInitialization: Inputs size: " + files.Length);
+        foreach (FileInfo file in files)
+        {
+            Debug.Log(file.Name);
+        }
+        string[] file_names = new string[files.Length];
+        for (var i = 0; i < files.Length; i++)
+        {
+            file_names[i] = files[i].Name;
+        }
+        return file_names;
     }
 }

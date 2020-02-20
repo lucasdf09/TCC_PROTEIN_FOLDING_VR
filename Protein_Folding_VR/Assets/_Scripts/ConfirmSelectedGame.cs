@@ -7,7 +7,7 @@ using UnityEngine.Events;
 using System.IO;
 
 // Implements the functions to be confirmed by a modal window when specific types of buttons are clicked
-public class ConfirmNewGame : MonoBehaviour
+public class ConfirmSelectedGame : MonoBehaviour
 {
     private ModalPanel modal_panel;
 
@@ -17,6 +17,9 @@ public class ConfirmNewGame : MonoBehaviour
     [SerializeField]
     GameObject parent_panel;
 
+    [SerializeField]
+    string message;
+
     private void Awake()
     {
         modal_panel = ModalPanel.Instance();
@@ -25,9 +28,10 @@ public class ConfirmNewGame : MonoBehaviour
     }
 
     // Send to the Modal Panel to set up the Buttons and Functions to call
-    public void confirmNewGame()
+    public void confirmGame()
     {
-        modal_panel.Confirm("Would you like to start a new game with " + Path.GetFileNameWithoutExtension(PlayerPrefs.GetString("File_Name")) + " ?", ok_action, cancel_action);
+        // Calls the Confirm function with: message to be shown, Ok assigned function, Cancel assigned function
+        modal_panel.Confirm(message + Path.GetFileNameWithoutExtension(PlayerPrefs.GetString("File_Name")) + " ?", ok_action, cancel_action);
     }
 
     // These are wrapped into UnityActions

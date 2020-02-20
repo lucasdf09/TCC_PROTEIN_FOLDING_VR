@@ -168,12 +168,12 @@ public class PlayerController : MonoBehaviour
             //Save
             if (Input.GetKeyDown("k"))
             {
-                saveGame("/saveTest.josn");
+                saveGame("/saveTest.json");
             }
             //Load
             else if (Input.GetKeyDown("l"))
             {              
-                loadGame("/saveTest.josn");              
+                loadGame("/saveTest.json");              
             }
         }
 
@@ -247,8 +247,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    // Like an image zoom, NOT IN USE
-    /*
+    // Like an image zoom, NOT IN USE!!!
     private void cameraZoom(float signal)
     {
         float fov = Camera.main.fieldOfView;
@@ -257,7 +256,7 @@ public class PlayerController : MonoBehaviour
         //Camera.main.fieldOfView = fov;
         Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, fov, Time.deltaTime * zoom_smooth);
     }
-    */
+
 
     private void FixedUpdate()
     {
@@ -499,6 +498,8 @@ public class PlayerController : MonoBehaviour
         camera_pivot.transform.position = center_mass * Time.deltaTime * pivot_smooth;
     }
 
+
+    // !!!
     void setInitialPosition()
     {
         Vector3 avg = new Vector3(0.0f, 0.0f, 0.0f);

@@ -30,9 +30,12 @@ public class SaveHandler : MonoBehaviour
     */
     private void Start()
     {
-        GameObject game_file = GameObject.FindGameObjectWithTag("GameFiles");
-        //GameFilesInitialization game_file_initialization = game_file.GetComponent<>
-        //save_folder = game_file.GetComponent<GameFileInitialization>().Save_folder;
+        // Get the reference to the GameFilesHandler game object
+        GameObject game_file = GameObject.FindGameObjectWithTag("GameFiles");       
+        save_folder = game_file.GetComponent<GameFilesInitialization>().Saves_folder;
+
+        //GameFilesInitialization game_file_initialization = FindObjectOfType<GameFilesInitialization>();
+        //save_folder = game_file_initialization.Saves_folder;
     }
 
     // Saves the structure information of the game (summarized in the SaveData class) into a Json file
@@ -78,7 +81,8 @@ public class SaveHandler : MonoBehaviour
     // Loads a prevoius stored game from a Json file
     public void Load(string load_name)
     {
-        string load_file = save_folder + load_name;
+        //string load_file = save_folder + load_name;
+        string load_file = load_name;
 
         Debug.Log("SaveHandler Loading!");
         Debug.Log("Load file: " + load_file);
