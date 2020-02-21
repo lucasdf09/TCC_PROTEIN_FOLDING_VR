@@ -83,7 +83,7 @@ public class StructureInitialization : MonoBehaviour
 
         Debug.Log("File path: " + file_name);
 
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
 
         if (File.Exists(file_name))
         {
@@ -95,7 +95,7 @@ public class StructureInitialization : MonoBehaviour
             Debug.Log("Read Input: File not found!");
             return null;
         }
-
+/*
 #elif UNITY_ANDROID
 
         UnityWebRequest webRequest = UnityWebRequest.Get(file_name);
@@ -106,6 +106,7 @@ public class StructureInitialization : MonoBehaviour
         return webRequest.downloadHandler.text;
       
 #endif
+*/
     }
 
     // Load the input file data to the structure attributes

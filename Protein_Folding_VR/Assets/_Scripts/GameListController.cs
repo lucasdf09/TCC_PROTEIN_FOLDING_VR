@@ -84,6 +84,9 @@ public class GameListController : MonoBehaviour
 
         else
         {
+            //Disable the missing files message
+            message_text.SetActive(false);           
+            
             // Sort file_names array
             // MISSING!!!
 

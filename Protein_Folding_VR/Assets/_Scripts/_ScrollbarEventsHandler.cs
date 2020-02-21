@@ -4,7 +4,9 @@ using UnityEngine;
 
 using UnityEngine.EventSystems;
 
-public class ScrollbarEventsHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+
+// Not in USE
+public class _ScrollbarEventsHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
 {
     private bool gazed_at;
     private bool button_down;
