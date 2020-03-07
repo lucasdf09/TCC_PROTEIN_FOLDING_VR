@@ -202,7 +202,7 @@ public class GameFilesInitialization : MonoBehaviour
     }
 
 
-    // Reads a directory and return its files names list with extension
+    // Reads a directory and return a list of files of type extension
     public string[] readDirectory(string path, string extension)
     {
         Debug.Log("GameFilesInit path: " + path);

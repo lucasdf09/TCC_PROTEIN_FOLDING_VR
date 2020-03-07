@@ -18,6 +18,7 @@ public class ColorButtonManager : MonoBehaviour
         normal_color = new Color(0.0f, 0.0f, 0.0f);
         highlight_color = new Color(0.0f, 0.0f, 1.0f, 0.5f);
         pressed_color = new Color(0.0f, 0.0f, 1.0f);
+
         normal_text = new Color(0.0f, 0.0f, 0.0f);
         highlight_text = new Color(0.0f, 0.0f, 1.0f, 0.5f);
         pressed_text = new Color(0.0f, 0.0f, 1.0f);

@@ -17,6 +17,10 @@ public class PlayerController : MonoBehaviour
     public float zoom_smooth;
     public float pivot_smooth;
     public Transform camera_transform;
+    public GameObject game_menu;
+    public GameObject keyboard_container;
+    public GameObject structure;
+    public float delta;
 
     public static bool select_mode;
     public static bool move_mode;
@@ -29,7 +33,7 @@ public class PlayerController : MonoBehaviour
     private readonly Color color_end = Color.yellow;
     private readonly Color orange_color = new Color(1.0f, 0.64f, 0.0f);
     private const float blink_duration = 1.0f;
-    private const float delta = 0.01f;
+    //private const float delta = 0.01f;
 
     private GameObject[] particles;
     private int n_mol;   
@@ -42,8 +46,6 @@ public class PlayerController : MonoBehaviour
     private float rg_h;
     private float rg_p;
     private Vector3 center_mass;
-
-    private bool moved;
 
     // DEBUG
     Vector3[] res_variation;
@@ -72,7 +74,6 @@ public class PlayerController : MonoBehaviour
         particles = StructureInitialization.residues_structure;
         n_mol = StructureInitialization.n_mol;
         sequence = StructureInitialization.sequence;
-        moved = false;
         setScoreText();
         initializeParameters();
         setParametersText();
@@ -109,7 +110,6 @@ public class PlayerController : MonoBehaviour
         particles = StructureInitialization.residues_structure;
         n_mol = StructureInitialization.n_mol;
         sequence = StructureInitialization.sequence;
-        moved = false;
         refreshScoreboard();
         setCameraPivot();
         // Activate the player interaction
@@ -147,8 +147,8 @@ public class PlayerController : MonoBehaviour
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 select_mode = false;
                 move_mode = true;
-                Debug.Log("Select mode: " + PlayerController.select_mode);
-                Debug.Log("Move mode: " + PlayerController.move_mode);
+                Debug.Log("Select mode: " + select_mode);
+                Debug.Log("Move mode: " + move_mode);
                 reticle_pointer.SetActive(false);
 
                 refreshScoreboard();
@@ -166,6 +166,7 @@ public class PlayerController : MonoBehaviour
 
             // Save and Load test
             //Save
+            /*
             if (Input.GetKeyDown("k"))
             {
                 saveGame("/saveTest.json");
@@ -174,6 +175,22 @@ public class PlayerController : MonoBehaviour
             else if (Input.GetKeyDown("l"))
             {              
                 loadGame("/saveTest.json");              
+            }
+            */
+
+            //Menu calling
+            if (Input.GetKeyDown("m"))
+            {
+                select_mode = false;
+                structure.SetActive(false);
+                game_menu.transform.position = camera_transform.position + camera_transform.forward * 2;
+                game_menu.transform.rotation = camera_transform.rotation;
+                game_menu.SetActive(true);
+
+                keyboard_container.transform.position = camera_transform.position + camera_transform.forward * 2;
+                // The " * " operator add two Quaternions. So, the camera rotaion is added to the current keyboard rotation.
+                keyboard_container.transform.rotation = camera_transform.rotation;
+                keyboard_container.transform.Rotate(30, 0, 0);
             }
         }
 
@@ -265,17 +282,29 @@ public class PlayerController : MonoBehaviour
         // Manipulate a residues position using the joystick input; 
         if (move_mode)
         {
+            if (Input.GetAxisRaw("Horizontal") != 0)
+            {
+                target.transform.Translate(Vector3.right * delta * Input.GetAxisRaw("Horizontal") * Time.deltaTime, Camera.main.transform);
+            }
+            if (Input.GetAxisRaw("Vertical") != 0)
+            {
+                target.transform.Translate(Vector3.up * delta * Input.GetAxisRaw("Vertical") * Time.deltaTime, Camera.main.transform);
+            }
+            if (Input.GetAxisRaw("Z-axis") != 0)
+            {
+                target.transform.Translate(Vector3.forward * delta * Input.GetAxisRaw("Z-axis") * Time.deltaTime, Camera.main.transform);
+            }
+
+            /*
             if (Input.GetKey("w"))
             {
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 movement.y += delta;
-                moved = true;
             }
             else if (Input.GetKey("s"))
             {
                 movement = target.GetComponent<Rigidbody>().transform.position;
                 movement.y -= delta;
-                moved = true;
             }
             if (Input.GetKey("d"))
             {
@@ -301,17 +330,7 @@ public class PlayerController : MonoBehaviour
                 movement.z -= delta;
                 moved = true;
             }
-
-            if (moved)
-            {
-                target.GetComponent<Rigidbody>().transform.position = movement;
-                moved = false;
-            }
-      
-            //calculatePotentialEnergy();
-            //calculateRg();
-            //setScoreText();
-            //setParametersText();
+            */
 
             refreshScoreboard();
         }
@@ -515,15 +534,15 @@ public class PlayerController : MonoBehaviour
 
         camera_pivot.transform.position = center_mass;
 
-        Debug.Log("Camera transfor before: " + camera_transform.rotation);
+        Debug.Log("Camera transform before: " + camera_transform.rotation);
         transform.LookAt(camera_pivot.transform);
         camera_transform.LookAt(camera_pivot.transform);
-        Debug.Log("Camera transfor after: " + camera_transform.rotation);
+        Debug.Log("Camera transform after: " + camera_transform.rotation);
 
         for (int i = 0; i < n_mol; i++) 
         {
             Renderer visibility = particles[i].GetComponent<Renderer>();
-            Debug.Log(i + " is visible: " + visibility.isVisible.ToString());
+            //Debug.Log(i + " is visible: " + visibility.isVisible.ToString());
             /*
             while (!visibility.isVisible)
             {            
