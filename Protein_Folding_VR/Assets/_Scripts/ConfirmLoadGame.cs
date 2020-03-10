@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Events;
 using System.IO;
 
-// Implements the functions to be confirmed by a modal window when specific types of buttons are clicked
-public class ConfirmSelectedGame : MonoBehaviour
+/// <summary>
+/// Implements the method to be confirmed by a modal window when a saved file game button is clicked
+/// </summary>
+public class ConfirmLoadGame : MonoBehaviour
 {
     private ModalPanel modal_panel;
 
@@ -16,9 +17,6 @@ public class ConfirmSelectedGame : MonoBehaviour
     [SerializeField]
     GameObject parent_panel;
 
-    [SerializeField]
-    string message;
-
     private void Awake()
     {
         modal_panel = ModalPanel.Instance();
@@ -26,24 +24,31 @@ public class ConfirmSelectedGame : MonoBehaviour
         cancel_action = new UnityAction(cancelFunction);
     }
 
-    // Send to the Modal Panel to set up the Buttons and Functions to call
+    /// <summary>
+    /// Send to the Modal Panel to set up the Buttons and Functions to call
+    /// </summary>
     public void confirmGame()
     {
         // Calls the Confirm function with: message to be shown, Ok assigned function, Cancel assigned function
-        modal_panel.Confirm(message + Path.GetFileNameWithoutExtension(PlayerPrefs.GetString("File_Name")) + " ?", ok_action, cancel_action);
+        modal_panel.Confirm("Would you like to load the game: " + Path.GetFileNameWithoutExtension(PlayerPrefs.GetString(GameFilesHandler.Saved_game)) + " ?", ok_action, cancel_action);
     }
 
-    // These are wrapped into UnityActions
+    /// <summary>
+    /// Load the Game Scene
+    /// </summary>
     private void okFunction()
     {
-        Debug.Log("Ok - " + PlayerPrefs.GetString("File_Name"));
+        Debug.Log("Ok - " + PlayerPrefs.GetString(GameFilesHandler.Saved_game));
         // Load the GameScene (index 1)
         gameObject.GetComponent<LoadSceneOnClick>().LoadByIndex(1);
     }
 
+    /// <summary>
+    /// Return to the New Game Panel
+    /// </summary>
     private void cancelFunction()
     {
-        Debug.Log("Cancel - " + PlayerPrefs.GetString("File_Name"));
+        Debug.Log("Cancel - " + PlayerPrefs.GetString(GameFilesHandler.Saved_game));
         // Return to the parent panel
         parent_panel.SetActive(true);
     }

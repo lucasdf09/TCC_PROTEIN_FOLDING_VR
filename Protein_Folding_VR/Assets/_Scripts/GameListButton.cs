@@ -3,21 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Buttons attributes and parent component references
+/// </summary>
 public class GameListButton : MonoBehaviour
 {
     [SerializeField]
-    private Text button_text;
+    private Text button_text;                       // Button text
 
     [SerializeField]
-    private GameListController list_controller;
+    private GameListController list_controller;     // Reference to parent Game List Controller script
 
-    private string button_file;
+    private string button_file;                     // Game file name associated with the button
 
     private string msg_text;
 
-    // Properties
+    /// <summary>
+    /// Get and Set methods to the file name associated
+    /// </summary>
     public string Button_file
     {
+        
         get
         {
             return button_file;
@@ -27,7 +33,10 @@ public class GameListButton : MonoBehaviour
             button_file = value;
         }
     }
-    
+
+    /// <summary>
+    /// Set the button text to be shown on game
+    /// </summary>
     public string Button_text
     {
         set
@@ -36,18 +45,4 @@ public class GameListButton : MonoBehaviour
             msg_text = value;
         }
     }
-
-    /*
-    public void setText(string text_string)
-    {
-        msg_text = text_string;
-        button_text.text = text_string;
-    }
-    
-
-    public void OnClick()
-    {
-        list_controller.buttonClicked(msg_text);
-    }
-    */
 }

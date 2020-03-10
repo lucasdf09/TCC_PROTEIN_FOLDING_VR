@@ -1,18 +1,30 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-
+/// <summary>
+/// 
+/// </summary>
 public class SaveVerifyName : MonoBehaviour
 {
+    [SerializeField]
+    private InputField input_text;
+
+    private static GameFilesHandler game_files_handler;
+
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        // Get the reference to the GameFilesHandler game object
+        GameObject game_files = GameObject.FindGameObjectWithTag("GameFiles");
+        game_files_handler = game_files.GetComponent<GameFilesHandler>();
     }
 
-    public void verifySaveName(string file_name)
+    public void verifySaveName()
     {
+        string file_name = input_text.text;
         // Empty name
         if (string.IsNullOrEmpty(file_name))
         {
@@ -41,15 +53,25 @@ public class SaveVerifyName : MonoBehaviour
         // Valid name
         else
         {
+            Debug.Log("Verify: " + file_name + " OK");
+            //game_files_handler.saveGame(file_name);
 
         }
-
         
     }
 
     private bool saveFileExists(string file_name)
     {
-
-        return true;
+        string [] files = game_files_handler.readSavesFolder();
+        Debug.Log("saveFileExists:\n");
+        foreach (string file in files)
+        {
+            Debug.Log(file);
+            if (file.Equals(file_name + ".json"))
+            {
+                return true;
+            }
+        }      
+        return false;
     }
 }

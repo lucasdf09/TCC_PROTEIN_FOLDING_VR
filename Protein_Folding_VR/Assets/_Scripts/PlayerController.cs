@@ -85,11 +85,13 @@ public class PlayerController : MonoBehaviour
     }
 
     // Save game routine
+    /*
     void saveGame(string save_file)
     {
         Debug.Log("Save key pressed!");
         gameObject.GetComponent<SaveHandler>().Save(save_file);
     }
+    */
 
     // Load game routine
     void loadGame(string load_file)

@@ -32,7 +32,8 @@ public class SaveHandler : MonoBehaviour
     {
         // Get the reference to the GameFilesHandler game object
         GameObject game_file = GameObject.FindGameObjectWithTag("GameFiles");       
-        save_folder = game_file.GetComponent<GameFilesInitialization>().Saves_folder;
+        //save_folder = game_file.GetComponent<GameFilesHandler>().Saves_folder;
+        save_folder = GameFilesHandler.Saves_folder;
 
         //GameFilesInitialization game_file_initialization = FindObjectOfType<GameFilesInitialization>();
         //save_folder = game_file_initialization.Saves_folder;

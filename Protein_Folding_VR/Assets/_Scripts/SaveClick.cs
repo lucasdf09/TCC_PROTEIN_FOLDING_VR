@@ -8,7 +8,6 @@ using UnityEngine;
 // ELSE: Offers a choice to the user, in the Game Save Panel.
 public class SaveClick : MonoBehaviour
 {
-
     [SerializeField]
     private GameObject save_panel;
 
@@ -18,16 +17,9 @@ public class SaveClick : MonoBehaviour
     [SerializeField]
     private GameObject keyboard_container;
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     public void checkSaveFileOnClick()
     {
-        string save_file = PlayerPrefs.GetString("Save_File");
+        string save_file = PlayerPrefs.GetString(GameFilesHandler.Saved_game);
 
         if (string.IsNullOrEmpty(save_file))
         {

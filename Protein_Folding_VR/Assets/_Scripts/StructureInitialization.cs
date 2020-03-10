@@ -35,9 +35,9 @@ public class StructureInitialization : MonoBehaviour
         string read_data;
 
         // Check if the file with the protein structure was loaded in the MenuScene
-        if (PlayerPrefs.HasKey("File_Name"))
+        if (!PlayerPrefs.GetString(GameFilesHandler.New_game).Equals(null))
         {
-            file_name = PlayerPrefs.GetString("File_Name");
+            file_name = PlayerPrefs.GetString(GameFilesHandler.New_game);
             //file_name = "13_teste_bestCoordinates.txt";
 
             // Verify if it is a new or a loaded game, by the file format
@@ -65,6 +65,15 @@ public class StructureInitialization : MonoBehaviour
             {
                 Debug.Log("StrucInit Error: Invalid File_Name!");
             }
+        }
+        else if (!PlayerPrefs.GetString(GameFilesHandler.Saved_game).Equals(null))
+        {
+            file_name = PlayerPrefs.GetString(GameFilesHandler.Saved_game);
+
+            gameObject.GetComponent<SaveHandler>().Load(file_name);
+            //buildStructure();
+            loadStructure();
+
         }
         else
         {
