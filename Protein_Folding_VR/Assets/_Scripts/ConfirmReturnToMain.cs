@@ -12,7 +12,7 @@ public class ConfirmReturnToMain : MonoBehaviour
     //private UnityAction cancel_action;
 
     [SerializeField]
-    private GameObject parent_panel;
+    private GameObject parent_panel = default;
 
     private void Awake()
     {

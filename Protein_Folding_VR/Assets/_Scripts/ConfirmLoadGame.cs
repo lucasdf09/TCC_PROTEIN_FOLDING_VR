@@ -15,7 +15,7 @@ public class ConfirmLoadGame : MonoBehaviour
     private UnityAction cancel_action;
 
     [SerializeField]
-    GameObject parent_panel;
+    GameObject parent_panel = default;
 
     private void Awake()
     {
@@ -30,7 +30,7 @@ public class ConfirmLoadGame : MonoBehaviour
     public void confirmGame()
     {
         // Calls the Confirm function with: message to be shown, Ok assigned function, Cancel assigned function
-        modal_panel.Confirm("Would you like to load the game: " + Path.GetFileNameWithoutExtension(PlayerPrefs.GetString(GameFilesHandler.Saved_game)) + " ?", ok_action, cancel_action);
+        modal_panel.Confirm("Would you like to load the game:\n" + Path.GetFileNameWithoutExtension(PlayerPrefs.GetString(GameFilesHandler.Saved_game)) + "?", ok_action, cancel_action);
     }
 
     /// <summary>
@@ -49,6 +49,8 @@ public class ConfirmLoadGame : MonoBehaviour
     private void cancelFunction()
     {
         Debug.Log("Cancel - " + PlayerPrefs.GetString(GameFilesHandler.Saved_game));
+        // Clear the PlayerPrefs field
+        PlayerPrefs.SetString(GameFilesHandler.Saved_game, null);
         // Return to the parent panel
         parent_panel.SetActive(true);
     }

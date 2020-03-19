@@ -801,7 +801,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   list_button: {fileID: 8816439842235061912}
   message_text: {fileID: 1429793442468828363}
-  game_files_handler: {fileID: 0}
   type: 0
 --- !u!1 &1429793444200058077
 GameObject:
@@ -1309,14 +1308,6 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
-      propertyPath: message
-      value: 'Would you like to start a new game with:  '
-      objectReference: {fileID: 0}
-    - target: {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
-      propertyPath: parent_panel
-      value: 
-      objectReference: {fileID: 1429793442739461953}
     - target: {fileID: 1930237011481657154, guid: 34973dfa7d78e22478fb936ed415f0b5,
         type: 3}
       propertyPath: list_controller
@@ -1346,7 +1337,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[4].m_Target
       value: 
-      objectReference: {fileID: 1429793443473515013}
+      objectReference: {fileID: 0}
     - target: {fileID: 2284509986273078724, guid: 34973dfa7d78e22478fb936ed415f0b5,
         type: 3}
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[4].m_MethodName
@@ -1381,7 +1372,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[5].m_Target
       value: 
-      objectReference: {fileID: 1429793443473515013}
+      objectReference: {fileID: 0}
     - target: {fileID: 2284509986273078724, guid: 34973dfa7d78e22478fb936ed415f0b5,
         type: 3}
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[5].m_MethodName
@@ -1396,7 +1387,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[6].m_Target
       value: 
-      objectReference: {fileID: 1429793443473515013}
+      objectReference: {fileID: 0}
     - target: {fileID: 2284509986273078724, guid: 34973dfa7d78e22478fb936ed415f0b5,
         type: 3}
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[6].m_MethodName
@@ -1432,6 +1423,19 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[3].m_Mode
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 2284509986273078724, guid: 34973dfa7d78e22478fb936ed415f0b5,
+        type: 3}
+      propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
+      propertyPath: message
+      value: 'Would you like to start a new game with:  '
+      objectReference: {fileID: 0}
+    - target: {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
+      propertyPath: parent_panel
+      value: 
+      objectReference: {fileID: 1429793442739461953}
     - target: {fileID: 4705784395157348531, guid: 34973dfa7d78e22478fb936ed415f0b5,
         type: 3}
       propertyPath: m_Color.r
@@ -1447,29 +1451,20 @@ PrefabInstance:
       propertyPath: m_Color.b
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
+    - {fileID: 2220619733035829955, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
+    - {fileID: 3798468469359024372, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
---- !u!1 &8816439842235061912 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7605995778489710206, guid: 34973dfa7d78e22478fb936ed415f0b5,
-    type: 3}
-  m_PrefabInstance: {fileID: 1429793442727878886}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1429793443473515013 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5,
-    type: 3}
-  m_PrefabInstance: {fileID: 1429793442727878886}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8816439842235061912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be98196fe05b8614e8e771b105c82b32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &8981258438114428673 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8031171001053095911, guid: 34973dfa7d78e22478fb936ed415f0b5,
+    type: 3}
+  m_PrefabInstance: {fileID: 1429793442727878886}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8816439842235061912 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7605995778489710206, guid: 34973dfa7d78e22478fb936ed415f0b5,
     type: 3}
   m_PrefabInstance: {fileID: 1429793442727878886}
   m_PrefabAsset: {fileID: 0}

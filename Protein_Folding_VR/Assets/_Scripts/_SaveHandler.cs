@@ -1,11 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 using System.IO;
 
 // Class to implement and manage the Save and Load processes in the game
-public class SaveHandler : MonoBehaviour
+public class _SaveHandler : MonoBehaviour
 {
     private static string save_folder;
 

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class InputFieldReset : MonoBehaviour
 {
     [SerializeField]
-    private InputField text_input;
+    private InputField text_input = default;
 
     public void resetInputField()
     {

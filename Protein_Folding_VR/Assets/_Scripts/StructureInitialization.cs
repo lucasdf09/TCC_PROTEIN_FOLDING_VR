@@ -7,73 +7,63 @@ using System.IO;
 using System;
 using System.Globalization;
 
-using UnityEngine.Networking;
+//using UnityEngine.Networking;
 
+/// <summary>
+/// Structure (protein) attributes and methods.
+/// </summary>
 public class StructureInitialization : MonoBehaviour
 {
     public static int n_mol;
-    public GameObject residue;                 // Residue Prefab refernce
-    public GameObject bond;                     // Bond Prefab reference
-    public GameObject first;                    // First Prefab reference
-    public Transform residues;                 // Instatitated Prefab reference
-    public Transform bonds;                     // Instatitated Prefab reference
-    public Transform first_ref;                 // Instatitated Prefab reference
-    public static GameObject[] residues_structure;
-    public static GameObject[] bonds_structure;
-    public static GameObject first_mol;
-    public static Vector3[] residues_coords;
-    public static Quaternion[] residues_rotations;
-    public static Vector3[] bonds_coords;
-    public static Quaternion[] bonds_rotations;
-    public static Vector3 pos_offset;
-    public static string sequence;
+    public GameObject residue;                      // Residue Prefab refernce
+    public GameObject bond;                         // Bond Prefab reference
+    public GameObject first;                        // First Prefab reference
+    public Transform residues;                      // Instatitated Parent reference
+    public Transform bonds;                         // Instatitated Parent reference
+    public Transform first_ref;                     // Instatitated Parent reference
+    public static GameObject[] residues_structure;  // Array to store residues objects
+    public static GameObject[] bonds_structure;     // Array to store bonds objects
+    public static GameObject first_mol;             // Object to store first object
+    public static Vector3[] residues_coords;        // Residues coordinates
+    public static Quaternion[] residues_rotations;  // Residues rotations
+    public static Vector3[] bonds_coords;           // Bonds coordinates
+    public static Quaternion[] bonds_rotations;     // Bonds rotations
+    public static Vector3 pos_offset;               // Original structure off-set (x, y, z)
+    public static string sequence;                  // AB sequence
+    public static string origin_name;               // The name of the protein simulation input file
+
+    private GameFilesHandler files_handler;         // Game Files Handler reference.
 
     // Start is called before the first frame update.
-    void Start()
+    private void Start()
     {
-        string file_name;
-        string read_data;
+        // Get the reference to the GameFilesHandler game object
+        GameObject game_files = GameObject.FindGameObjectWithTag("GameFiles");
+        files_handler = game_files.GetComponent<GameFilesHandler>();
 
-        // Check if the file with the protein structure was loaded in the MenuScene
-        if (!PlayerPrefs.GetString(GameFilesHandler.New_game).Equals(null))
+        // New Game Structure initialization
+        if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.New_game)))
         {
-            file_name = PlayerPrefs.GetString(GameFilesHandler.New_game);
-            //file_name = "13_teste_bestCoordinates.txt";
+            string file_name = PlayerPrefs.GetString(GameFilesHandler.New_game);
 
-            // Verify if it is a new or a loaded game, by the file format
-            // New game
-            if (file_name.Contains(".txt")) // New game
+            // Get the name of the original protein file and set a reference name 
+            origin_name = Path.GetFileName(file_name);
+
+            // Read data in a Txt file to a string
+            string read_data = files_handler.readTxtFile(file_name);
+            // Check the string generated and loads only the necessary data to build a structure
+            if (!string.IsNullOrEmpty(read_data))
             {
-                // Read data in a Txt file to a string
-                read_data = readTxtFile(file_name);
-
-                // Check the string generated and loads only the necessary data to build a structure
-                if (!String.IsNullOrEmpty(read_data))
-                    loadInput(read_data);
-
+                loadInput(read_data);
                 buildStructure();
-            }
-            // Load game
-            else if (file_name.Contains(".json"))
-            {
-                gameObject.GetComponent<SaveHandler>().Load(file_name);
-                //buildStructure();
-                loadStructure();
-            }
-            // Error
-            else
-            {
-                Debug.Log("StrucInit Error: Invalid File_Name!");
-            }
+            }                      
         }
-        else if (!PlayerPrefs.GetString(GameFilesHandler.Saved_game).Equals(null))
+        // Saved Game Structure initialization
+        else if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.Saved_game)))
         {
-            file_name = PlayerPrefs.GetString(GameFilesHandler.Saved_game);
-
-            gameObject.GetComponent<SaveHandler>().Load(file_name);
-            //buildStructure();
+            string file_name = PlayerPrefs.GetString(GameFilesHandler.Saved_game);
+            files_handler.loadGame(file_name);
             loadStructure();
-
         }
         else
         {
@@ -81,53 +71,21 @@ public class StructureInitialization : MonoBehaviour
         }
     }
 
-
-    //Reads an input Text file into a string
-    string readTxtFile(string file_name)
-    {
-        Debug.Log("StructureInitialization.readTxtFile()");
-        // Loads the a file path in a special location that can be accessed in the application
-        // More information search for "Streaming Assets"
-        //var file_path = Application.streamingAssetsPath + "/Inputs/" + file_name;
-
-        Debug.Log("File path: " + file_name);
-
-//#if UNITY_EDITOR
-
-        if (File.Exists(file_name))
-        {
-            string read_data = File.ReadAllText(file_name);
-            return read_data;
-        }
-        else
-        {
-            Debug.Log("Read Input: File not found!");
-            return null;
-        }
-/*
-#elif UNITY_ANDROID
-
-        UnityWebRequest webRequest = UnityWebRequest.Get(file_name);
-        webRequest.SendWebRequest();
-        while (!webRequest.isDone)
-        {
-        }
-        return webRequest.downloadHandler.text;
-      
-#endif
-*/
-    }
-
-    // Load the input file data to the structure attributes
-    void loadInput(string read_data)
+    /// <summary>
+    /// Load the input file data to the structure attributes.
+    /// </summary>
+    /// <param name="read_data">String with a structure data formated</param>
+    private void loadInput(string read_data)
     { 
         Debug.Log("StructureInitialization.loadInput()");
-        // Split the words in the input between the ' ', '\t', '\r', '\n' characters, removing them from the resulting Array.
+        // Split the words in the input between the ' ', '\t', '\r', '\n' characters, removing them from the resulting Array
         string[] words = read_data.Split(new char[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
+        //Get the molecules data
         n_mol = int.Parse(words[Array.IndexOf(words, "Molecules") + 2]);
         Debug.Log("n_mol (Molecules) : " + n_mol);
 
+        // Get the sequence data
         sequence = words[Array.IndexOf(words, "Sequence") + 2];
         Debug.Log("Sequence: " + sequence);
 
@@ -137,7 +95,7 @@ public class StructureInitialization : MonoBehaviour
         pos_offset.z = float.Parse(words[3], CultureInfo.InvariantCulture.NumberFormat);
         Debug.Log("Position offset: " + $"<{pos_offset}>");
 
-        // Initialize the structure in the center of the Scene with the first residue in Vector3(0, 0, 0)
+        // Initialize the structure in the center of the Scene with the first residue in Vector3 (0, 0, 0)
         residues_coords = new Vector3[n_mol];
         for (var i = 0; i < n_mol * 4; i += 4)
         {
@@ -149,7 +107,9 @@ public class StructureInitialization : MonoBehaviour
     }
 
 
-    // Use to build a structure from data read from a file
+    /// <summary>
+    /// Builds a structure for a new game.
+    /// </summary>
     public void buildStructure()
     {
         residues_structure = new GameObject[n_mol];
@@ -160,39 +120,46 @@ public class StructureInitialization : MonoBehaviour
         initializeBonds();
         asignResiduesJoints();
         asignBondsJoints();
-        asignResidueColor();
+        setResiduesColor();
         markFirstResidue();
     }
 
-    // Use to destroy a structure, before the loading of a new or a saved one
+    /// <summary>
+    /// Destroys a structure objects.
+    /// </summary>
     public void destroyStructure()
     {
-        // Destroy the objects thal will be loaded
+        // Destroy the residues and bonds objects
         for (var i = 0; i < n_mol - 1; i++)
         {
             Destroy(residues_structure[i]);
             Destroy(bonds_structure[i]);
         }
+        // Destroy the last residue
         Destroy(residues_structure[n_mol - 1]);
+        // Destroy the First object
         Destroy(first_mol);
     }
 
+    /// <summary>
+    /// Builds a strucuture for a saved game.
+    /// </summary>
     public void loadStructure()
     {
         residues_structure = new GameObject[n_mol];
         bonds_structure = new GameObject[n_mol - 1];
-        //bonds_coords = new Vector3[n_mol - 1];
-        //bonds_rotations = new Quaternion[n_mol - 1];
         loadResidues();
         loadBonds();
         asignResiduesJoints();
         asignBondsJoints();
-        asignResidueColor();
+        setResiduesColor();
         markFirstResidue();
     }
 
-    // Initializes residues position
-    void initializeResidues()
+    /// <summary>
+    /// Initializes residues for a new game.
+    /// </summary>
+    private void initializeResidues()
     {
         for (var i = 0; i < n_mol; i++)
         {
@@ -201,7 +168,10 @@ public class StructureInitialization : MonoBehaviour
         }
     }
 
-    void loadResidues()
+    /// <summary>
+    /// Initializes residues for saved game.
+    /// </summary>
+    private void loadResidues()
     {
         for (var i = 0; i < n_mol; i++)
         {
@@ -210,20 +180,26 @@ public class StructureInitialization : MonoBehaviour
         }
     }
 
-    // Initializes bonds position.
-    void initializeBonds()
+    /// <summary>
+    /// Initializes bonds for a new game.
+    /// </summary>
+    private void initializeBonds()
     {
         for (var i = 0; i < n_mol - 1; i++)
         {
             // Define the mean position between a residue and its neighbour to place the bond coordinates.
             bonds_coords[i] = (residues_coords[i] + residues_coords[i + 1]) / 2;
+            // Define the bond rotation based on the neighbour residues.
             bonds_rotations[i] = Quaternion.FromToRotation(Vector3.down, residues_coords[i + 1] - residues_coords[i]);
             bonds_structure[i] = Instantiate(bond, bonds_coords[i], bonds_rotations[i], bonds);
             bonds_structure[i].name = "Bond" + i.ToString();
         }      
     }
 
-    void loadBonds()
+    /// <summary>
+    /// Initializes bonds for a saved game.
+    /// </summary>
+    private void loadBonds()
     {
         for (var i = 0; i < n_mol - 1; i++)
         {          
@@ -232,47 +208,57 @@ public class StructureInitialization : MonoBehaviour
         }
     }
 
-
-    void asignResiduesJoints()
+    /// <summary>
+    /// Asigns the residues joints.
+    /// </summary>
+    private void asignResiduesJoints()
     {
-        // The first residue ([0]) is conneced to the world origin coordinate.
-        // The other residues are connected to the bond that precede them.
+        // The first residue ([0]) is conneced to the world origin coordinate
+        // The other residues are connected to the bond that precede them
         for (var i = 1; i < n_mol; i++)
         {
             residues_structure[i].GetComponent<FixedJoint>().connectedBody = bonds_structure[i - 1].GetComponent<Rigidbody>();
         }
     }
 
-    void asignBondsJoints()
+    /// <summary>
+    /// Asigns the bonds joints.
+    /// </summary>
+    private void asignBondsJoints()
     {
-        // The first bond is connected to the first residue.
+        // The first bond is connected to the first residue
         bonds_structure[0].GetComponent<ConfigurableJoint>().connectedBody = residues_structure[0].GetComponent<Rigidbody>();
-
-        // The other bonds are connected to the bond that precede them.
+        // The other bonds are connected to the bond that precede them
         for (var i = 1; i < n_mol - 1; i++)
         {
             bonds_structure[i].GetComponent<ConfigurableJoint>().connectedBody = bonds_structure[i - 1].GetComponent<Rigidbody>();
         }
     }
-
-    void asignResidueColor()
+    
+    /// <summary>
+    /// Sets the residues color.
+    /// </summary>
+    private void setResiduesColor()
     {
         for (var i = 0; i < n_mol; i++)
         {
             if (sequence[i] == 'A')
             {
-                // Initialize the hydrophobic residue color
+                // Initialize the hydrophobic residues color as red
                 residues_structure[i].GetComponent<Renderer>().material.color = Color.red;
             }
             else
             {
-                // Initialize the polar residue color
+                // Initialize the polar residues color as blue
                 residues_structure[i].GetComponent<Renderer>().material.color = Color.blue;
             }
         }
     }
 
-    void markFirstResidue()
+    /// <summary>
+    /// Instatiates the First object and associates it with the first residue.
+    /// </summary>
+    private void markFirstResidue()
     {
         first_mol = Instantiate(first, residues_coords[0], Quaternion.identity, first_ref);
         first_mol.name = "First0";

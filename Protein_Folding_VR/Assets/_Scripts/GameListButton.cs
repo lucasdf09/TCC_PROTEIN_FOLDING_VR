@@ -9,12 +9,12 @@ using UnityEngine.UI;
 public class GameListButton : MonoBehaviour
 {
     [SerializeField]
-    private Text button_text;                       // Button text
+    private Text button_text = default;                     // Button text
 
     [SerializeField]
-    private GameListController list_controller;     // Reference to parent Game List Controller script
+    private GameListController list_controller = default;   // Reference to parent Game List Controller script
 
-    private string button_file;                     // Game file name associated with the button
+    private string button_file;                             // Game file name associated with the button
 
     private string msg_text;
 
@@ -22,8 +22,7 @@ public class GameListButton : MonoBehaviour
     /// Get and Set methods to the file name associated
     /// </summary>
     public string Button_file
-    {
-        
+    {       
         get
         {
             return button_file;
@@ -39,6 +38,10 @@ public class GameListButton : MonoBehaviour
     /// </summary>
     public string Button_text
     {
+        get
+        {
+            return button_text.text;
+        }
         set
         {
             button_text.text = value;

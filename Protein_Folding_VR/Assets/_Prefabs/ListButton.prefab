@@ -92,9 +92,6 @@ GameObject:
   - component: {fileID: 5322563663896058963}
   - component: {fileID: 9100358752880801681}
   - component: {fileID: 1930237011481657154}
-  - component: {fileID: 865174243}
-  - component: {fileID: 2220619733035829955}
-  - component: {fileID: 3798468469359024372}
   m_Layer: 5
   m_Name: ListButton
   m_TagString: Untagged
@@ -242,7 +239,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 2220619733035829955}
+        - m_Target: {fileID: 0}
           m_MethodName: LoadName
           m_Mode: 1
           m_Arguments:
@@ -275,7 +272,7 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-        - m_Target: {fileID: 865174243}
+        - m_Target: {fileID: 0}
           m_MethodName: confirmGame
           m_Mode: 1
           m_Arguments:
@@ -324,41 +321,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button_text: {fileID: 4705784395157348531}
   list_controller: {fileID: 0}
---- !u!114 &865174243
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7605995778489710206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be98196fe05b8614e8e771b105c82b32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parent_panel: {fileID: 0}
-  message: Put your message here!
---- !u!114 &2220619733035829955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7605995778489710206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d01e4d214dfea84b8bf39835f940619, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &3798468469359024372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7605995778489710206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65eb23447f5756644a53e801d738eeae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -11,30 +11,34 @@ using UnityEngine.UI;
 public class GameListController : MonoBehaviour
 {
     [SerializeField]
-    private GameObject list_button;         // Button prefab reference
+    private GameObject list_button = default;           // Button prefab reference
+        
+    [SerializeField]
+    private GameObject message_text = default;          // View panel message object
+
+    //[SerializeField]
+    private GameFilesHandler files_handler = default;   // Reference to GameFilesHandler
 
     [SerializeField]
-    private GameObject message_text;        // View panel message object
+    private int type = default;                         // Folder to list (Inputs or Saves)
 
-    [SerializeField]
-    private GameFilesHandler game_files_handler;    // Reference to GameFilesHandler
+    private List<GameObject> buttons_list;              //Buttons list (NOT IN USE)
 
-    [SerializeField]
-    private int type;       // Type of file to load (new or load game)
-
-    private List<GameObject> buttons_list;  //Buttons list (NOT IN USE)
 
     // Start is called before the first frame update
     void Start()
     {
+        // Get the reference to the GameFilesHandler game object
+        GameObject game_files = GameObject.FindGameObjectWithTag("GameFiles");
+        files_handler = game_files.GetComponent<GameFilesHandler>();
         buttons_list = new List<GameObject>();
         generateList();
     }
 
     /// <summary>
-    /// Generates the buttons list
+    /// Generates the buttons list.
     /// </summary>
-    private void generateList()
+    public void generateList()
     {
         // If the list is not empty
         if (buttons_list.Count > 0)
@@ -47,25 +51,25 @@ public class GameListController : MonoBehaviour
             buttons_list.Clear();
         }
 
-        // Set the type of operation that will be made: New or Load Game
+        // Set the Folder to list: Inputs or Saves folder
         string[] file_names;
         string file_path;
         //string file_extension;
         switch (type)
         {
-            // New Game
+            // Inputs folder
             case 1:
                 file_path = GameFilesHandler.Inputs_folder;
                 //file_extension = "*.txt";
-                file_names = game_files_handler.readInputsFolder();
+                file_names = files_handler.readInputsFolder();
                 message_text.GetComponent<Text>().text = "Input files not found!";
                 break;
 
-            // Load Game
+            // Saves folder
             case 2:
                 file_path = GameFilesHandler.Saves_folder;
                 //file_extension = "*.json";
-                file_names = game_files_handler.readSavesFolder();
+                file_names = files_handler.readSavesFolder();
                 message_text.GetComponent<Text>().text = "Saved files not found!";
                 break;
 
@@ -133,8 +137,8 @@ public class GameListController : MonoBehaviour
             {
                 Debug.Log(button.GetComponent<GameListButton>().Button_file);
             }
-
         }
     }
+
 
 }

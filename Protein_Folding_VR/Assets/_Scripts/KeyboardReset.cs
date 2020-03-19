@@ -6,13 +6,13 @@ using UnityEngine;
 public class KeyboardReset : MonoBehaviour
 {
     [SerializeField]
-    private GameObject standard_keyboard;
+    private GameObject standard_keyboard = default;
 
     [SerializeField]
-    private GameObject capital_keyboard;
+    private GameObject capital_keyboard = default;
 
     [SerializeField]
-    private GameObject numerical_keyboard;
+    private GameObject numerical_keyboard = default;
 
     public void resetKeyboard()
     {

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class InputPanelSetText : MonoBehaviour
 {
     [SerializeField]
-    private Text input_text;
+    private Text input_text = default;
 
     public void setInputText(string text)
     {

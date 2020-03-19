@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Class that implements the save data storage object.
-// Serialization using JSON format.
+
+/// <summary>
+/// Class that implements the saved data storage object.
+/// Serialization using JSON format.
+/// </summary>
 [System.Serializable]
 public class SaveData
 {
