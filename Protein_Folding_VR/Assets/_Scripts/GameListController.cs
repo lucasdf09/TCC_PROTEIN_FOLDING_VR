@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// Creates the a list of buttons, with the files that can be loaded
@@ -12,28 +14,42 @@ public class GameListController : MonoBehaviour
 {
     [SerializeField]
     private GameObject list_button = default;           // Button prefab reference
-        
+
     [SerializeField]
     private GameObject message_text = default;          // View panel message object
 
     //[SerializeField]
-    private GameFilesHandler files_handler = default;   // Reference to GameFilesHandler
+    //private GameFilesHandler files_handler = default;   // Reference to GameFilesHandler
+    private GameFilesHandler files_handler;             // Reference to GameFilesHandler
 
     [SerializeField]
     private int type = default;                         // Folder to list (Inputs or Saves)
 
-    private List<GameObject> buttons_list;              //Buttons list (NOT IN USE)
+    private List<GameObject> buttons_list;              //Buttons list
 
-
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
-        // Get the reference to the GameFilesHandler game object
+        buttons_list = new List<GameObject>();
         GameObject game_files = GameObject.FindGameObjectWithTag("GameFiles");
         files_handler = game_files.GetComponent<GameFilesHandler>();
-        buttons_list = new List<GameObject>();
-        generateList();
+        Debug.Log("GameListController: Game Files Handler Found");   
     }
+
+    /*
+    // Start is called before the first frame update
+    private void Start()
+    {
+        if (files_handler != default)
+        {
+            // Get the reference to the GameFilesHandler game object
+            GameObject game_files = GameObject.FindGameObjectWithTag("GameFiles");
+            files_handler = game_files.GetComponent<GameFilesHandler>();
+            Debug.Log("GameListController: Game Files Handler Found");
+            //buttons_list = new List<GameObject>();
+            //generateList();
+        }       
+    }
+    */
 
     /// <summary>
     /// Generates the buttons list.
@@ -54,13 +70,11 @@ public class GameListController : MonoBehaviour
         // Set the Folder to list: Inputs or Saves folder
         string[] file_names;
         string file_path;
-        //string file_extension;
         switch (type)
         {
             // Inputs folder
             case 1:
                 file_path = GameFilesHandler.Inputs_folder;
-                //file_extension = "*.txt";
                 file_names = files_handler.readInputsFolder();
                 message_text.GetComponent<Text>().text = "Input files not found!";
                 break;
@@ -68,21 +82,16 @@ public class GameListController : MonoBehaviour
             // Saves folder
             case 2:
                 file_path = GameFilesHandler.Saves_folder;
-                //file_extension = "*.json";
                 file_names = files_handler.readSavesFolder();
                 message_text.GetComponent<Text>().text = "Saved files not found!";
                 break;
 
             default:
                 file_path = null;
-                //file_extension = null;
                 file_names = null;
                 Debug.Log("Invalid Type!");
                 break;
         }
-
-        // Read Input_folder to load the new game files
-        //file_names = game_files_handler.readDirectory(file_path, file_extension);
 
         Debug.Log("File_names Length: = " + file_names.Length);
 
@@ -97,10 +106,17 @@ public class GameListController : MonoBehaviour
         else
         {
             //Disable the missing files message
-            message_text.SetActive(false);           
-            
-            // Sort file_names array
-            // MISSING!!!
+            message_text.SetActive(false);
+
+            // Sort the array with the names alphanumerically
+            //var sorted_names = file_names.OrderBy(file => file).ToArray();
+            var sorted_names = file_names.OrderBy(file => PadNumbers(file)).ToArray();
+            Debug.Log("Sorted Names:");
+            foreach (string name in sorted_names)
+            {
+                Debug.Log(name);
+            }
+            file_names = sorted_names;
 
             // Create buttons
             Debug.Log("Buttons_list BUTTONS");
@@ -140,5 +156,14 @@ public class GameListController : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Pads the numbers in a string, filling them with zeros until the number has 10 digits.
+    /// </summary>
+    /// <param name="input">String name.</param>
+    /// <returns>String with numbers filled with zeros to the left.</returns>
+    //public static string PadNumbers(string input)
+    private string PadNumbers(string input)
+    {
+        return Regex.Replace(input, "[0-9]+", match => match.Value.PadLeft(10, '0'));
+    }
 }

@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
+    public GameObject player_canvas;        // Object reference to Score and Parameters
     public Text score_text;                 // Score text reference
     public Text parameters_text;            // Parameters text reference
     public GameObject reticle_pointer;      // Reticle Pointer reference
@@ -103,7 +104,7 @@ public class PlayerController : MonoBehaviour
         {
             // Check the transition to MOVE_MODE
             // If a residues is being gazed and the action button has being pressed
-            if (target != null && Input.GetButtonDown("Fire1"))
+            if (target != null && Input.GetButtonDown("C"))
             {
                 Debug.Log("SELECT: CLICK key was pressed");
                 // Get the residue own color
@@ -129,7 +130,8 @@ public class PlayerController : MonoBehaviour
             }
 
             // Menu calling
-            if (Input.GetKeyDown("m"))
+            //if (Input.GetKeyDown("m"))
+            if (Input.GetButtonDown("D"))
             {
                 // Reset residue gazed attributes
                 if(target != null)
@@ -137,7 +139,8 @@ public class PlayerController : MonoBehaviour
                     target.GetComponent<Renderer>().material.color = target_color;
                     target = null;
                 }
-                
+                // Disable score
+                player_canvas.SetActive(false);
                 // Disable select mode
                 select_mode = false;
                 // Hide the strucure from player view 
@@ -159,7 +162,7 @@ public class PlayerController : MonoBehaviour
         {
             blinkResidue(target.GetComponent<Renderer>(), target_color, color_aux);
             // If the action button was pressed, return to select mode
-            if (Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonDown("C"))
             {
                 print("MOVE: CLICK key was pressed");
                 // Reset the residue own color
@@ -200,6 +203,12 @@ public class PlayerController : MonoBehaviour
                 transform.RotateAround(camera_pivot.transform.position, transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
                 //transform.RotateAround(camera_pivot.transform.position, Camera.main.transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
             }
+            // Zoom in/out with joystick buttons
+            if (Input.GetAxis("Z-axis") != 0)
+            {
+                transform.Translate(Vector3.forward * Time.deltaTime * zoom_smooth * Input.GetAxis("Z-axis"));
+            }
+            /*
             // Zoom in
             if (Input.GetKey("e"))
             {
@@ -212,6 +221,7 @@ public class PlayerController : MonoBehaviour
                 // Move the player object in the Z direction
                 transform.Translate(new Vector3(0, 0, -1) * Time.deltaTime * zoom_smooth);
             }
+            */
             // Debug stuff
             if (Input.GetKey("p"))
             {
@@ -297,43 +307,6 @@ public class PlayerController : MonoBehaviour
             {
                 target.transform.Translate(Vector3.forward * delta * Input.GetAxisRaw("Z-axis") * Time.deltaTime, Camera.main.transform);
             }
-
-            /*
-            if (Input.GetKey("w"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.y += delta;
-            }
-            else if (Input.GetKey("s"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.y -= delta;
-            }
-            if (Input.GetKey("d"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.x += delta;
-                moved = true;
-            }
-            else if (Input.GetKey("a"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.x -= delta;
-                moved = true;
-            }
-            if (Input.GetKey("e"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.z += delta;
-                moved = true;
-            }
-            else if (Input.GetKey("q"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.z -= delta;
-                moved = true;
-            }
-            */
             refreshScoreboard();
         }
     }
@@ -541,7 +514,9 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("Camera center mass: " + center_mass);
 
-        camera_pivot.transform.position = center_mass * Time.deltaTime * pivot_smooth;
+        //camera_pivot.transform.position = center_mass * Time.deltaTime * pivot_smooth;
+
+        camera_pivot.transform.position = center_mass;
     }
 
 
@@ -559,27 +534,43 @@ public class PlayerController : MonoBehaviour
 
         center_mass = avg / n_mol;
 
-        Debug.Log("Camera center mass: " + center_mass);
+        // Calculate the distance to center mass until the further and closer residues
+        float further = 0.0f;
+        float closer = n_mol;
+        Vector3 further_residue = Vector3.right;
+        Vector3 closer_residue = Vector3.up;
 
+        for (var i = 0; i < n_mol; i++)
+        {
+            var distance = Vector3.Distance(center_mass, particles[i].transform.position);
+            if (distance > further)
+            {
+                further = distance;
+                further_residue = particles[i].transform.position;
+            }
+            if (distance < closer)
+            {
+                closer = distance;
+                closer_residue = particles[i].transform.position;
+            }
+        }
+
+        // Calculate the perpendicular direction
+        Vector3 player_position = Vector3.Cross(further_residue, closer_residue);
+        player_position = player_position.normalized * further * 2.0f;
+        Debug.Log("Player position vector: " + player_position);
+
+        Debug.Log("Camera center mass: " + center_mass);
+        // Set the camera pivot position of the sphere orbitation
         camera_pivot.transform.position = center_mass;
+
+        // Move the position of the player (camera) to the calculated position
+        transform.Translate(player_position);
 
         Debug.Log("Camera transform before: " + camera_transform.rotation);
         transform.LookAt(camera_pivot.transform);
         camera_transform.LookAt(camera_pivot.transform);
         Debug.Log("Camera transform after: " + camera_transform.rotation);
-
-        for (int i = 0; i < n_mol; i++) 
-        {
-            Renderer visibility = particles[i].GetComponent<Renderer>();
-            //Debug.Log(i + " is visible: " + visibility.isVisible.ToString());
-            /*
-            while (!visibility.isVisible)
-            {            
-                transform.Translate(new Vector3(0, 0, -1) * zoom_smooth);
-                Debug.Log("Is Visible: " + visibility.isVisible.ToString());
-            }   
-            */
-        }
     }
 
 
