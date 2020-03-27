@@ -4,88 +4,237 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// Class to implement the principal user interaction functionalities.
+/// </summary>
 public class PlayerController : MonoBehaviour
 {
-    public Text score_text;
-    public Text parameters_text;
-    public GameObject reticle_pointer;
-    public GameObject camera_pivot;
-    public float rotation_angle;
-    public float zoom_factor;
+    public GameObject player_canvas;        // Object reference to Score and Parameters
+    public Text score_text;                 // Score text reference
+    public Text parameters_text;            // Parameters text reference
+    public GameObject reticle_pointer;      // Reticle Pointer reference
+    public GameObject camera_pivot;         // Camera Pivot reference
+    public float rotation_angle;            // Rotation angle rate (to move around the structure)
+    /*
+    public float zoom_factor;                
     public float fov_min;
     public float fov_max;
-    public float zoom_smooth;
+    */
+    public float zoom_smooth;               // Zoom speed rate
+    public float pivot_smooth;              // Pivot change position speed rate
+    public Transform camera_transform;      // Camera position and rotation reference 
+    public GameObject menu_container;       // Menu container object reference
+    public GameObject keyboard_container;   // Keyboard container object reference
+    public GameObject structure;            // Structure object reference
+    public float delta;                     // Residue translation rate
+    public float blink_duration;            // Blink period increasing rate;
 
-    public static bool select_mode;
-    public static bool move_mode;
-    public static GameObject target;
-    public static Color target_color;
-    public static float best_energy;
-    public static float score;
-    public static float saved_score;
+    public static bool select_mode;         // Flag to signal the select residue mode
+    public static bool move_mode;           // Flag to signal the residue movement mode
+    public static GameObject target;        // Gazed/Selected residue reference
+    public static Color target_color;       // Target residue color reference
+    public static float score;              // Diference between the Start Best Energy and the actual
+    public static float saved_score;        // Score loaded from a saved file to set a new Best Energy start parameter
+    public static float best_energy;        // Best Potential Energy reference for score calculation
 
-    private readonly Color color_end = Color.yellow;
-    private readonly Color orange_color = new Color(1.0f, 0.64f, 0.0f);
-    private const float blink_duration = 1.0f;
-    private const float delta = 0.01f;
+    private static Color color_end;         // Color to blink with the original
+    private static Color orange_color;      // Orange color;
+    private GameObject[] particles;         // Reference to residues
+    private int n_mol;                      // Number of molecules
+    private Color color_aux;                // Auxiliar color object to store the residue own color during blink        
+    private string sequence;                // AB Protein sequence 
 
-    private GameObject[] particles;
-    private int n_mol;   
-    private Color color_aux;   
-    private Vector3 movement;  
-    private string sequence;
-
-    private float potential_energy;  
-    private float rg_all;
-    private float rg_h;
-    private float rg_p;
-    private Vector3 center_mass;
-
-    private bool moved;
+    private float potential_energy;         // 3D AB off-lattice model Potential Energy 
+    private float rg_all;                   // All residues Radius of Gyration (R.G.)
+    private float rg_h;                     // Hydrophobic residues R.G. 
+    private float rg_p;                     // Polar residues R.G.
+    private Vector3 center_mass;            // Residues Center of Mass cartesian coordinates
 
     // DEBUG
-    Vector3[] res_variation;
-    Vector3[] bond_variation;
+    Vector3[] res_variation;                // Variation of the residues
+    Vector3[] bond_variation;               // Variation of the bonds
 
-    // Awake is called before Start(). Initializing attributes
+    // Awake is called before Start().
     private void Awake()
     {
+        // Initialization of attributes
+        color_end = Color.yellow;
+        orange_color = new Color(1.0f, 0.64f, 0.0f);
         score = 0.0f;
         best_energy = 0.0f;
         potential_energy = 0.0f;
-        // Deactivate the player interaction
+        // Deactivate player interaction until initialization finish
         select_mode = false;
         move_mode = false;
     }
 
-    void Start()
+    private void Start()
     {
+        // Call initializeGame function in the next frame. 
         Invoke("initializeGame", 0);
     }
 
-    void initializeGame()
+    /// <summary>
+    /// Initialize the game and the player status
+    /// </summary>
+    private void initializeGame()
     {
         target = null;
         particles = StructureInitialization.residues_structure;
         n_mol = StructureInitialization.n_mol;
         sequence = StructureInitialization.sequence;
-        moved = false;
         setScoreText();
         initializeParameters();
         setParametersText();
-        setCameraPivot();
+        setInitialPosition();
+        //setCameraPivot();
         // Activate the player interaction
         select_mode = true;
-
     }
 
-    // Save game routine
-    void saveGame(string save_file)
+    private void Update()
     {
-        Debug.Log("Save key pressed!");
-        gameObject.GetComponent<SaveHandler>().Save(save_file);
+        // SELECT MODE
+        // In this mode the player can:
+        // Select a residue (to manipulate) using the gaze input (reticle pointer)
+        // Move the camera
+        // Zoom in/out
+        // Access the Game Menu
+        if (select_mode)
+        {
+            // Check the transition to MOVE_MODE
+            // If a residues is being gazed and the action button has being pressed
+            if (target != null && Input.GetButtonDown("C"))
+            {
+                Debug.Log("SELECT: CLICK key was pressed");
+                // Get the residue own color
+                color_aux = target_color;
+                //Set the auxiliar color transparency to blink
+                color_aux.a = 0.1f;
+                select_mode = false;
+                move_mode = true;
+                Debug.Log("Select mode: " + select_mode);
+                Debug.Log("Move mode: " + move_mode);
+                reticle_pointer.SetActive(false);
+                refreshScoreboard();
+
+                // DEBUG
+                //calculateDistance();
+                //calculateVariation();               
+            }
+
+            // Blink the residue on gaze
+            if (target != null)
+            {
+                blinkResidue(target.GetComponent<Renderer>(), target_color, color_end);
+            }
+
+            // Menu calling
+            //if (Input.GetKeyDown("m"))
+            if (Input.GetButtonDown("D"))
+            {
+                // Reset residue gazed attributes
+                if(target != null)
+                {
+                    target.GetComponent<Renderer>().material.color = target_color;
+                    target = null;
+                }
+                // Disable score
+                player_canvas.SetActive(false);
+                // Disable select mode
+                select_mode = false;
+                // Hide the strucure from player view 
+                structure.SetActive(false);
+                // Set the Game Menu in front of the player view using the camera as reference
+                menu_container.transform.position = camera_transform.position + camera_transform.forward * 2;
+                menu_container.transform.rotation = camera_transform.rotation;
+                menu_container.SetActive(true);
+                // Set the Keyboard in front of the player view using the camera as reference
+                keyboard_container.transform.position = camera_transform.position + camera_transform.forward * 2;                
+                keyboard_container.transform.rotation = camera_transform.rotation;
+                // Rotate the Keyboard to a better position for the player interaction
+                keyboard_container.transform.Rotate(30, 0, 0);
+            }
+        }
+
+        // Check the return condition to SELECT MODE, once in MOVE MODE
+        else if (move_mode)
+        {
+            blinkResidue(target.GetComponent<Renderer>(), target_color, color_aux);
+            // If the action button was pressed, return to select mode
+            if (Input.GetButtonDown("C"))
+            {
+                print("MOVE: CLICK key was pressed");
+                // Reset the residue own color
+                target.GetComponent<Renderer>().material.color = target_color;
+                target = null;
+                reticle_pointer.SetActive(true);
+                // Set the camera pivot after the residues movements
+                setCameraPivot();               
+                select_mode = true;
+                move_mode = false;
+                print("Select mode: " + select_mode);
+                print("Move mode: " + move_mode);
+            }
+        }
+
+        // DEBUG
+        //refreshScoreboard();
+        //calculateDistance();
+        //calculateVariation();
     }
 
+    // To process the camera movement
+    private void LateUpdate()
+    {
+        if (select_mode)
+        {
+            // Camera movement
+            // Movement in horizontal axis with joystick
+            if (Input.GetAxis("Horizontal") != 0)
+            {
+                transform.RotateAround(camera_pivot.transform.position, transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
+                //transform.RotateAround(camera_pivot.transform.position, Camera.main.transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
+                //transform.Rotate(0.0f, 0.0f, rotation_angle * 2 * Time.deltaTime * -Input.GetAxis("Horizontal"));
+            }
+            // Movement in vertical axis with joystick
+            if (Input.GetAxis("Vertical") != 0)
+            {
+                transform.RotateAround(camera_pivot.transform.position, transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
+                //transform.RotateAround(camera_pivot.transform.position, Camera.main.transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
+            }
+            // Zoom in/out with joystick buttons
+            if (Input.GetAxis("Z-axis") != 0)
+            {
+                transform.Translate(Vector3.forward * Time.deltaTime * zoom_smooth * Input.GetAxis("Z-axis"));
+            }
+            /*
+            // Zoom in
+            if (Input.GetKey("e"))
+            {
+                // Move the player object in the Z direction
+                transform.Translate(new Vector3(0,0,1) * Time.deltaTime * zoom_smooth);
+            }
+            // Zoom out
+            else if (Input.GetKey("q"))
+            {
+                // Move the player object in the Z direction
+                transform.Translate(new Vector3(0, 0, -1) * Time.deltaTime * zoom_smooth);
+            }
+            */
+            // Debug stuff
+            if (Input.GetKey("p"))
+            {
+                foreach (GameObject particle in particles)
+                {
+                    Debug.Log("Is Visible: " + particle.GetComponent<Renderer>().isVisible.ToString());
+                }
+            }
+        }
+    }
+
+
+    /*
     // Load game routine
     void loadGame(string load_file)
     {
@@ -105,7 +254,6 @@ public class PlayerController : MonoBehaviour
         particles = StructureInitialization.residues_structure;
         n_mol = StructureInitialization.n_mol;
         sequence = StructureInitialization.sequence;
-        moved = false;
         refreshScoreboard();
         setCameraPivot();
         // Activate the player interaction
@@ -123,119 +271,12 @@ public class PlayerController : MonoBehaviour
         //calculateDistance();
         //calculateVariation();
     }
-    
+    */
 
 
-    private void Update()
-    {
-        // SELECT MODE
-        // In this mode the player can:
-        // Select a residue to manipulate using the gaze input (reticle pointer);
-        // Move the camera.
-        if (select_mode) {
 
-            // Check the transition to MOVE_MODE
-            if (target != null && Input.GetButtonDown("Fire1"))
-            {
-                Debug.Log("SELECT: CLICK key was pressed");
-                color_aux = target_color;
-                color_aux.a = 0.1f;
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                select_mode = false;
-                move_mode = true;
-                Debug.Log("Select mode: " + PlayerController.select_mode);
-                Debug.Log("Move mode: " + PlayerController.move_mode);
-                reticle_pointer.SetActive(false);
-
-                refreshScoreboard();
-
-                // DEBUG
-                //calculateDistance();
-                //calculateVariation();               
-            }
-
-            // Blink the residue on gaze
-            if (target != null)
-            {
-                blinkResidue(target.GetComponent<Renderer>(), target_color, color_end);
-            }
-
-            // Save and Load test
-            //Save
-            if (Input.GetKeyDown("k"))
-            {
-                saveGame("/saveTest.josn");
-            }
-            //Load
-            else if (Input.GetKeyDown("l"))
-            {              
-                loadGame("/saveTest.josn");              
-            }
-        }
-
-        // Check the return condition to SELECT MODE, once in MOVE MODE
-        else if (move_mode)
-        {
-
-            blinkResidue(target.GetComponent<Renderer>(), target_color, color_aux);
-
-            // Put movement input here?
-
-            //if (Input.GetKeyDown("return"))
-
-            if (Input.GetButtonDown("Fire1"))
-            {
-                print("MOVE: CLICK key was pressed");
-                target.GetComponent<Renderer>().material.color = target_color;
-                target = null;
-                reticle_pointer.SetActive(true);
-                setCameraPivot();
-
-                select_mode = true;
-                move_mode = false;
-                print("Select mode: " + select_mode);
-                print("Move mode: " + move_mode);
-            }
-        }
-
-        // DEBUG
-        //refreshScoreboard();
-        //calculateDistance();
-        //calculateVariation();
-    }
-
-    // To process the camera movement
-    private void LateUpdate()
-    {
-        if (select_mode)
-        {
-            /*** Camera movement ***/
-
-            if (Input.GetAxis("Horizontal") != 0)
-            {
-                transform.RotateAround(camera_pivot.transform.position, transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
-                //transform.RotateAround(camera_pivot.transform.position, Camera.main.transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
-                //transform.Rotate(0.0f, 0.0f, rotation_angle * 2 * Time.deltaTime * -Input.GetAxis("Horizontal"));
-            }
-            if (Input.GetAxis("Vertical") != 0)
-            {
-                transform.RotateAround(camera_pivot.transform.position, transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
-                //transform.RotateAround(camera_pivot.transform.position, Camera.main.transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
-            }
-            if (Input.GetKey("i"))
-            {
-                transform.Translate(new Vector3(0,0,1) * Time.deltaTime * zoom_smooth);
-                //cameraZoom(-1);
-            }
-            else if (Input.GetKey("o"))
-            {
-                transform.Translate(new Vector3(0, 0, -1) * Time.deltaTime * zoom_smooth);
-                //cameraZoom(1);
-            }
-        }
-    }
-
-    // Like an image zoom, NOT IN USE
+    // Like an image zoom, NOT IN USE!!!
+    /*
     private void cameraZoom(float signal)
     {
         float fov = Camera.main.fieldOfView;
@@ -244,74 +285,48 @@ public class PlayerController : MonoBehaviour
         //Camera.main.fieldOfView = fov;
         Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, fov, Time.deltaTime * zoom_smooth);
     }
+    */
+
 
     private void FixedUpdate()
     {
         // MOVE MODE
         // In this mode the player can:
-        // Manipulate a residues position using the joystick input; 
+        // Manipulate a residues position using the joystick input
         if (move_mode)
         {
-            if (Input.GetKey("w"))
+            if (Input.GetAxisRaw("Horizontal") != 0)
             {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.y += delta;
-                moved = true;
+                target.transform.Translate(Vector3.right * delta * Input.GetAxisRaw("Horizontal") * Time.deltaTime, Camera.main.transform);
             }
-            else if (Input.GetKey("s"))
+            if (Input.GetAxisRaw("Vertical") != 0)
             {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.y -= delta;
-                moved = true;
+                target.transform.Translate(Vector3.up * delta * Input.GetAxisRaw("Vertical") * Time.deltaTime, Camera.main.transform);
             }
-            if (Input.GetKey("d"))
+            if (Input.GetAxisRaw("Z-axis") != 0)
             {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.x += delta;
-                moved = true;
+                target.transform.Translate(Vector3.forward * delta * Input.GetAxisRaw("Z-axis") * Time.deltaTime, Camera.main.transform);
             }
-            else if (Input.GetKey("a"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.x -= delta;
-                moved = true;
-            }
-            if (Input.GetKey("e"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.z += delta;
-                moved = true;
-            }
-            else if (Input.GetKey("q"))
-            {
-                movement = target.GetComponent<Rigidbody>().transform.position;
-                movement.z -= delta;
-                moved = true;
-            }
-
-            if (moved)
-            {
-                target.GetComponent<Rigidbody>().transform.position = movement;
-                moved = false;
-            }
-      
-            //calculatePotentialEnergy();
-            //calculateRg();
-            //setScoreText();
-            //setParametersText();
-
             refreshScoreboard();
         }
     }
-    
 
-    void blinkResidue(Renderer rend, Color target_color, Color color_blink)
+    /// <summary>
+    /// Blinks residue color periodically.
+    /// </summary>
+    /// <param name="rend">Residue renderer reference</param>
+    /// <param name="target_color">Start color</param>
+    /// <param name="color_blink">Final color</param>
+    private void blinkResidue(Renderer rend, Color target_color, Color color_blink)
     {
         float lerp = Mathf.PingPong(Time.time, blink_duration) / blink_duration;
         rend.material.color = Color.Lerp(target_color, color_blink, lerp);
     }
 
-    void initializeParameters()
+    /// <summary>
+    /// Initializes the structures parameters. 
+    /// </summary>
+    private void initializeParameters()
     {
         calculatePotentialEnergy();
         float first_energy = potential_energy;
@@ -329,7 +344,10 @@ public class PlayerController : MonoBehaviour
         Debug.Log("initializeParameters() Finished.\n Best_energy = " + best_energy + "\nFirst_energy = " + first_energy);
     }
 
-    void refreshScoreboard()
+    /// <summary>
+    /// Updates the structures parameters.
+    /// </summary>
+    private void refreshScoreboard()
     {
         calculatePotentialEnergy();
         calculateRg();
@@ -337,7 +355,10 @@ public class PlayerController : MonoBehaviour
         setParametersText();
     }
 
-    void calculatePotentialEnergy()
+    /// <summary>
+    /// Calculates the Potential Energy using the 3D AB off-lattice model.
+    /// </summary>
+    private void calculatePotentialEnergy()
     {
         float u_bond = 0.0f;
         float u_torsion = 0.0f;
@@ -389,7 +410,10 @@ public class PlayerController : MonoBehaviour
         potential_energy = u_bond + u_torsion + u_LJ;
     }
 
-    void calculateRg()
+    /// <summary>
+    /// Calculates the Radius of Gyration parameters.
+    /// </summary>
+    private void calculateRg()
     {
         int h = 0;
         int p = 0;
@@ -442,7 +466,10 @@ public class PlayerController : MonoBehaviour
         center_mass = avg;
     }
 
-    void setScoreText()
+    /// <summary>
+    /// Sets the player's graphical score.
+    /// </summary>
+    private void setScoreText()
     {
         // A good score must be a positive value.
         score = best_energy - potential_energy;
@@ -459,7 +486,10 @@ public class PlayerController : MonoBehaviour
         score_text.text = "Score: " + score.ToString();
     }
 
-    void setParametersText()
+    /// <summary>
+    /// Sets the player's graphichal structures parameters.
+    /// </summary>
+    private void setParametersText()
     {
         string p_energy = "Potential Energy: " + potential_energy.ToString();
         string rg_a = "Rg: " + rg_all.ToString();
@@ -468,7 +498,9 @@ public class PlayerController : MonoBehaviour
         parameters_text.text = p_energy + "\n" + rg_a + "\n" + r_h + "\n" + r_p;
     }
 
-
+    /// <summary>
+    /// Sets the camera pivot (center of rotation in camera movement).
+    /// </summary>
     void setCameraPivot()
     {
         Vector3 avg = new Vector3(0.0f, 0.0f, 0.0f);
@@ -482,7 +514,63 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("Camera center mass: " + center_mass);
 
+        //camera_pivot.transform.position = center_mass * Time.deltaTime * pivot_smooth;
+
         camera_pivot.transform.position = center_mass;
+    }
+
+
+    /// <summary>
+    /// Sets the Initial camera position to best fit the protein structure view.
+    /// </summary>
+    void setInitialPosition()
+    {
+        Vector3 avg = new Vector3(0.0f, 0.0f, 0.0f);
+
+        for (var i = 0; i < n_mol; i++)
+        {
+            avg += particles[i].transform.position;
+        }
+
+        center_mass = avg / n_mol;
+
+        // Calculate the distance to center mass until the further and closer residues
+        float further = 0.0f;
+        float closer = n_mol;
+        Vector3 further_residue = Vector3.right;
+        Vector3 closer_residue = Vector3.up;
+
+        for (var i = 0; i < n_mol; i++)
+        {
+            var distance = Vector3.Distance(center_mass, particles[i].transform.position);
+            if (distance > further)
+            {
+                further = distance;
+                further_residue = particles[i].transform.position;
+            }
+            if (distance < closer)
+            {
+                closer = distance;
+                closer_residue = particles[i].transform.position;
+            }
+        }
+
+        // Calculate the perpendicular direction
+        Vector3 player_position = Vector3.Cross(further_residue, closer_residue);
+        player_position = player_position.normalized * further * 2.0f;
+        Debug.Log("Player position vector: " + player_position);
+
+        Debug.Log("Camera center mass: " + center_mass);
+        // Set the camera pivot position of the sphere orbitation
+        camera_pivot.transform.position = center_mass;
+
+        // Move the position of the player (camera) to the calculated position
+        transform.Translate(player_position);
+
+        Debug.Log("Camera transform before: " + camera_transform.rotation);
+        transform.LookAt(camera_pivot.transform);
+        camera_transform.LookAt(camera_pivot.transform);
+        Debug.Log("Camera transform after: " + camera_transform.rotation);
     }
 
 

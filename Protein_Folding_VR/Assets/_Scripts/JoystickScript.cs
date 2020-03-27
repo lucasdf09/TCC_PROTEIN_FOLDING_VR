@@ -69,7 +69,10 @@ public class JoystickScript : MonoBehaviour
             else if (Input.GetKey(KeyCode.JoystickButton1))
                 setJoystickText("JoystickButton1");
             else if (Input.GetKey(KeyCode.Escape))
+            {
                 setJoystickText("Escape");
+                gameObject.GetComponent<ExitOnClick>().Exit();
+            }
 
         }
         else
@@ -85,22 +88,7 @@ public class JoystickScript : MonoBehaviour
 
             if (Input.GetButton("Fire1"))
                 setJoystickText("Fire1");
-
         } 
-        
-         /*
-        if (Input.GetAxisRaw("Horizontal") != 0)
-            setJoystickText("H " + Input.GetAxisRaw("Horizontal").ToString());
-
-        if (Input.GetAxisRaw("Vertical") != 0)
-            setJoystickText("V " + Input.GetAxisRaw("Vertical").ToString());
-
-        if (Input.GetAxisRaw("Z-axis") != 0)
-            setJoystickText("Z " + Input.GetAxisRaw("Z-axis").ToString());
-
-        foreach (var item in list)
-            testJoystick(item);
-        */
     }
 
     void testJoystick(string input)
