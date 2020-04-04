@@ -21,9 +21,9 @@ public class ButtonJoystickClick : MonoBehaviour
         // The button is gazed and the action button is pressed
         if (gazed_at && Input.GetButtonDown("Submit"))
         {
-            Debug.Log("Gazed TRUE");
+            //Debug.Log("Gazed TRUE");
             button_down = true;
-            Debug.Log("Click: Pointer down!");
+            //Debug.Log("Click: Pointer down!");
             // Rise a Pointer Click Down event, that can be catched by the Event Trigger
             ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerDownHandler);
         }
@@ -32,10 +32,10 @@ public class ButtonJoystickClick : MonoBehaviour
         // The button continues to be gazed and the action button (once pressed) is released
         else if (gazed_at && button_down && Input.GetButtonUp("Submit"))
         {
-            Debug.Log("Button TRUE");
+            //Debug.Log("Button TRUE");
             gazed_at = false;
             button_down = false;
-            Debug.Log("Click: Pointer up!");
+            //Debug.Log("Click: Pointer up!");
             // Rise a Pointer Click Up event, that can be catched by the Event Trigger
             ExecuteEvents.Execute(gameObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerUpHandler);
         }

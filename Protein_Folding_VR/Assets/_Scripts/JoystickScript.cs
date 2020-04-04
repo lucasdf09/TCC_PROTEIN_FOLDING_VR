@@ -4,7 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-// Prints the joystick input in the screen
+/// <summary>
+/// Prints the joystick input in the screen. For development only.
+/// </summary>
 public class JoystickScript : MonoBehaviour
 {
     private string joystickMessage;
