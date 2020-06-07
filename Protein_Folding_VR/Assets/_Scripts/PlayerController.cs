@@ -51,6 +51,10 @@ public class PlayerController : MonoBehaviour
     int var_bond = 0;
     Vector3[] res_variation;                // Variation of the residues
     Vector3[] bond_variation;               // Variation of the bonds
+    //float first_energy = 0.0f;
+    private GameObject[] bonds;
+    int counter;
+
 
     // Awake is called before Start().
     private void Awake()
@@ -68,6 +72,19 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        target = null;
+        particles = StructureInitialization.residues_structure;
+
+        bonds = StructureInitialization.bonds_structure;
+
+        n_mol = StructureInitialization.n_mol;
+        sequence = StructureInitialization.sequence;
+
+        Physics.autoSimulation = false;
+
+        //calculatePotentialEnergy();
+        //best_energy = potential_energy;
+        //calculateRg();
         // Call initializeGame function in the next frame. 
         Invoke("initializeGame", 0);
     }
@@ -77,12 +94,21 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void initializeGame()
     {
+        /*
         target = null;
         particles = StructureInitialization.residues_structure;
+
+        bonds = StructureInitialization.bonds_structure;
+
         n_mol = StructureInitialization.n_mol;
         sequence = StructureInitialization.sequence;
-        setScoreText();
+        */
+
+        //counter = ((n_mol * 2) - 1);
+        //counter = 1;
+
         initializeParameters();
+        setScoreText();
         setParametersText();
         setInitialPosition();
         // Activate the player interaction
@@ -172,25 +198,53 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        //***********************************************************************************************
         // Debug Stuff
+
+        // Refresh the score and show the residues and bonds positions
         if (Input.GetKeyDown("p"))
         {
-            calculateResidueVariation(false);
-            calculateBondVariation(false);
+            //calculateResidueVariation(false);
+            //calculateBondVariation(false);
             refreshScoreboard();
         }
 
+        // Set isKinematic as False
         if (Input.GetKeyDown("k"))
+        {         
+            /*
+            for (var i = 0; i < n_mol; i++)
+                particles[i].GetComponent<Rigidbody>().isKinematic = false;
+
+            for (var i = 0; i < n_mol-1; i++)
+                bonds[i].GetComponent<Rigidbody>().isKinematic = false;
+            */
+        }
+
+        // Set Rigidbody Constraints as None
+        if (Input.GetKeyDown("c"))
         {
-            foreach (var residue in StructureInitialization.residues_structure)
-                residue.GetComponent<Rigidbody>().isKinematic = false;
+            foreach (var residue in StructureInitialization.residues_structure)            
+                residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 
             foreach (var bond in StructureInitialization.bonds_structure)
-                bond.GetComponent<Rigidbody>().isKinematic = false;
+                bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        }      
+
+        // Replace the residues to the original place
+        if (Input.GetKeyDown("u"))
+        {
+            for (var i = 0; i < n_mol; i++)
+            {              
+                //particles[i].GetComponent<Rigidbody>().transform.Translate(StructureInitialization.residues_coords[i]);
+                //particles[i].transform.Translate(StructureInitialization.residues_coords[i], Space.World); 
+                //particles[i].GetComponent<Rigidbody>().transform.position = StructureInitialization.residues_coords[i];
+                particles[i].transform.position = StructureInitialization.residues_coords[i];                
+            }
         }
     }
 
-    // To process the camera movements
+    // Process the camera movements.
     private void LateUpdate()
     {
         if (select_mode)
@@ -217,7 +271,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // To process the residue movements
+    // Process the residue movements.
     private void FixedUpdate()
     {
         // MOVE MODE
@@ -261,14 +315,23 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void initializeParameters()
     {
-        calculatePotentialEnergy();
-        float first_energy = potential_energy;
-        Physics.autoSimulation = false;
-        Debug.Log("Pre Simulation Step!");
-        var step = 0;
+        calculatePotentialEnergy();      
+        best_energy = potential_energy;
+        calculateRg();
+
+        Physics.autoSimulation = true;
+
+        //first_energy = potential_energy;
+        //Physics.autoSimulation = false;
+        //Debug.Log("Pre Simulation Step!");
+        //var step = 0;
+
+        //counter = ((n_mol * 2) - 1);
+        //counter = 1;
+
+        /*
         do
-        {
-           
+        {         
             best_energy = potential_energy;
             Physics.Simulate(Time.fixedDeltaTime);
             Debug.Log("Simulation Running");
@@ -281,9 +344,94 @@ public class PlayerController : MonoBehaviour
             //calculateBondVariation(); 
             
         } while (best_energy != potential_energy);
-        Physics.autoSimulation = true;
-        calculateRg();
-        Debug.Log("initializeParameters() Finished.\n Best_energy = " + best_energy + "\nFirst_energy = " + first_energy);
+        */
+
+        /*
+        do
+        {
+            
+            if ((counter % 2) != 0)
+            {
+                //particles[(counter / 2)].GetComponent<Rigidbody>().isKinematic = false;
+                particles[(counter / 2)].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Res[" + (counter / 2) + "]");
+
+            }
+            if((counter % 2) == 0)
+            {
+                //bonds[(counter / 2) - 1].GetComponent<Rigidbody>().isKinematic = false;
+                bonds[(counter / 2) - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Bond[" + (counter / 2 - 1) + "]");
+            }
+            
+            if (counter > n_mol)
+            {
+                //bonds[counter - n_mol - 1].GetComponent<Rigidbody>().isKinematic = false;
+                bonds[counter - n_mol - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Bond[" + (counter - n_mol - 1) + "]");
+            }
+            else if (counter <= n_mol)
+            {
+                //particles[counter - 1].GetComponent<Rigidbody>().isKinematic = false;
+                particles[counter - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Res[" + (counter - 1) + "]");             
+            }
+            
+
+            //counter--;
+            //counter++;
+            
+
+            
+            for (var i = 0; i < 20; i++)
+            {
+                Physics.Simulate(Time.fixedDeltaTime);
+                Debug.Log("Step: " + ++step);
+            }
+            
+            do
+            {
+                best_energy = potential_energy;
+                for (var i = 0; i < 1; i++)
+                    Physics.Simulate(Time.fixedDeltaTime);
+                //calculatePotentialEnergy();
+                refreshScoreboard();
+                Debug.Log("Step: " + ++step);
+
+            } while (best_energy != potential_energy);
+            //refreshScoreboard();
+
+        } while (counter > 0);
+        //} while (counter < n_mol * 2);
+        */
+
+
+        //Physics.autoSimulation = true;
+        //calculateRg();
+
+        //best_energy = first_energy;
+
+        /*
+        for (var i = 0; i < n_mol; i++)
+            particles[i].GetComponent<Rigidbody>().isKinematic = false;
+
+        for (var i = 0; i < n_mol - 1; i++)
+            bonds[i].GetComponent<Rigidbody>().isKinematic = false;
+        */
+
+
+        foreach (var residue in StructureInitialization.residues_structure)
+            residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+
+        foreach (var bond in StructureInitialization.bonds_structure)
+            bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+
+        Debug.Log("initializeParameters() Finished");
+        //Debug.Log("Best Energy = " + best_energy.ToString("F12"));
+        //Debug.Log("First Energy = " + first_energy.ToString("F12"));
+        //Debug.Log("Potential Energy = " + potential_energy.ToString("F12"));
+
+        //best_energy = potential_energy;
 
         // Debug stuff
         /*
@@ -428,7 +576,8 @@ public class PlayerController : MonoBehaviour
     {
         // A good score must be a positive value.
         score = best_energy - potential_energy;
-        if (Mathf.Approximately(score, Mathf.Epsilon))
+        //if (Mathf.Approximately(score, Mathf.Epsilon))
+        if (score.ToString("F3").Equals("0,000"))
         {
             score = 0.0f;
             score_text.color = Color.white;
@@ -438,7 +587,12 @@ public class PlayerController : MonoBehaviour
             // Conditional expression. Orange if score is negative, green if score is positive.
             score_text.color = Mathf.Sign(score) < 0 ? orange_color : Color.green;
         }
-        score_text.text = "Score: " + score.ToString();
+        //score_text.text = "Score: " + score.ToString();
+        score_text.text = "Score: " + score.ToString("F3");
+
+        Debug.Log("Score Text:");
+        Debug.Log("Best Energy = " + best_energy.ToString("F12"));
+        Debug.Log("Potential Energy = " + potential_energy.ToString("F12"));
     }
 
     /// <summary>
@@ -557,8 +711,8 @@ public class PlayerController : MonoBehaviour
             for (var i = 0; i < n_mol; i++)
             {
               
-                Debug.Log("R C[" + i + "]: " + StructureInitialization.residues_coords[i].ToString("F8"));
-                Debug.Log("R P[" + i + "]: " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+                //Debug.Log("R C[" + i + "]: " + StructureInitialization.residues_coords[i].ToString("F8"));
+                //Debug.Log("R P[" + i + "]: " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
                 //var variation = Vector3.Distance(particles[i].transform.position, StructureInitialization.residues_coords[i]);
                 var variation = StructureInitialization.residues_coords[i] - particles[i].transform.position;
                 Debug.Log("Var R[" + i + "]: " + variation.ToString("F8"));
@@ -586,8 +740,8 @@ public class PlayerController : MonoBehaviour
         {
             for (var i = 0; i < n_mol - 1; i++)
             {
-                Debug.Log("B C[" + i + "]: " + StructureInitialization.bonds_coords[i].ToString("F8"));
-                Debug.Log("B P[" + i + "]: " + StructureInitialization.bonds_structure[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+                //Debug.Log("B C[" + i + "]: " + StructureInitialization.bonds_coords[i].ToString("F8"));
+                //Debug.Log("B P[" + i + "]: " + StructureInitialization.bonds_structure[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
                 //var variation = Vector3.Distance(StructureInitialization.bonds_structure[i].transform.position, StructureInitialization.bonds_coords[i]);
                 var variation = StructureInitialization.bonds_coords[i] - StructureInitialization.bonds_structure[i].transform.position;
                 Debug.Log("Var B[" + i + "]: " + variation.ToString("F8"));

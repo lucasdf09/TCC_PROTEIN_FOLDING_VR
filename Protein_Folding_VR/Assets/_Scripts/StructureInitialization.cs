@@ -122,25 +122,50 @@ public class StructureInitialization : MonoBehaviour
         initializeBonds();
 
         // Debug stuff
+
+
+        //TRY: isKinematic  
         /*
         foreach (var residue in residues_structure)
-            residue.GetComponent<Rigidbody>().isKinematic = true;
+          residue.GetComponent<Rigidbody>().isKinematic = true;        
 
         foreach (var bond in bonds_structure)
             bond.GetComponent<Rigidbody>().isKinematic = true;
         */
         
 
-        asignBondsJoints();
-        asignResiduesJoints();
-        //asignBondsJoints();
+
+        //TRY: Rigidbody Constraints  
+        
+        foreach (var residue in residues_structure)
+        {
+            residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+            //residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePosition;
+        }
+      
+        foreach (var bond in bonds_structure)
+        {
+            bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+            //bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePosition;
+        }
+        
+        
+        
+
+
+        //assignBondsJoints();
+        //assignResiduesJoints();
+
+        assignBondsJoints();
+        assignBondFixedJoints();
 
         setResiduesColor();
         markFirstResidue();
     }
 
     /// <summary>
-    /// Destroys a structure objects.
+    /// Destroys a structure objects. 
+    /// Not in Use.
     /// </summary>
     public void destroyStructure()
     {
@@ -165,8 +190,8 @@ public class StructureInitialization : MonoBehaviour
         bonds_structure = new GameObject[n_mol - 1];
         loadResidues();
         loadBonds();
-        asignResiduesJoints();
-        asignBondsJoints();
+        assignResiduesJoints();
+        assignBondsJoints();
         setResiduesColor();
         markFirstResidue();
     }
@@ -226,11 +251,13 @@ public class StructureInitialization : MonoBehaviour
     /// <summary>
     /// Asigns the residues joints.
     /// </summary>
-    private void asignResiduesJoints()
+    //private void asignResiduesJoints()
+    public void assignResiduesJoints()
     {
         // The first residue ([0]) is conneced to the world origin coordinate - by default
         // The other residues are connected to the bond that precede them
-        for (var i = 1; i < n_mol; i++)
+        //for (var i = 1; i < n_mol; i++)
+        for (var i = n_mol - 1; i > 0; i--)
         {
             residues_structure[i].GetComponent<FixedJoint>().connectedBody = bonds_structure[i - 1].GetComponent<Rigidbody>();
         }
@@ -239,7 +266,7 @@ public class StructureInitialization : MonoBehaviour
     /// <summary>
     /// Asigns the bonds joints.
     /// </summary>
-    private void asignBondsJoints()
+    private void assignBondsJoints()
     {
         // The first bond is connected to the first residue
         bonds_structure[0].GetComponent<ConfigurableJoint>().connectedBody = residues_structure[0].GetComponent<Rigidbody>();
@@ -275,7 +302,22 @@ public class StructureInitialization : MonoBehaviour
     /// </summary>
     private void markFirstResidue()
     {
-        first_mol = Instantiate(first, residues_coords[0], Quaternion.identity, first_ref);
+        //first_mol = Instantiate(first, residues_structure[0].transform.position, Quaternion.identity, first_ref);
+        first_mol = Instantiate(first, residues_structure[0].transform.position, Quaternion.identity, residues_structure[0].transform);
         first_mol.name = "First0";
+        //residues_structure[0].transform.SetParent(first_mol.transform);
+        //first_mol.GetComponent<FixedJoint>().connectedBody = residues_structure[0].GetComponent<Rigidbody>();
+        //residues_structure[0].GetComponent<Rigidbody>().isKinematic = true;
+    }
+
+    /// <summary>
+    /// Connects the fixed joints in the bonds objects to the residues. 
+    /// </summary>
+    private void assignBondFixedJoints()
+    {
+        for (var i = 0; i < n_mol - 1; i++)
+        {
+            bonds_structure[i].GetComponent<FixedJoint>().connectedBody = residues_structure[i + 1].GetComponent<Rigidbody>();
+        }
     }
 }
