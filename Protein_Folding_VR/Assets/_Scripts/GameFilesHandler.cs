@@ -123,7 +123,7 @@ public class GameFilesHandler : MonoBehaviour
         saved_game = "Saved_Game";
 
         // Folders files limit initialization
-        inputs_limit = 50;
+        inputs_limit = 5;
         saves_limit = 5;
         
         // PlayerPrefs fields initialization
@@ -409,6 +409,16 @@ public class GameFilesHandler : MonoBehaviour
     }
 
     /// <summary>
+    /// Checks if a file name exists in Outputs folder.
+    /// </summary>
+    /// <param name="file_name">File name (without path).</param>
+    /// <returns>True if the file exists.</returns>
+    public bool outputFileExists(string file_name)
+    {
+        return fileExists(file_name, ".txt", outputs_folder);
+    }
+
+    /// <summary>
     /// Checks if a file name exists in Saves folder.
     /// </summary>
     /// <param name="file_name">File name (without path).</param>
@@ -417,7 +427,6 @@ public class GameFilesHandler : MonoBehaviour
     {
         return fileExists(file_name, ".json", saves_folder);
     }
-
 
     /*
     /// <summary>
@@ -464,6 +473,15 @@ public class GameFilesHandler : MonoBehaviour
     public void removeInputFile(string file_name)
     {
         removeFile(file_name, ".txt", inputs_folder);
+    }
+
+    /// <summary>
+    /// Remove a file from Outputs folder.
+    /// </summary>
+    /// <param name="file_name">File name (without path and extension).</param>
+    public void removeOutputFile(string file_name)
+    {
+        removeFile(file_name, ".txt", outputs_folder);
     }
 
     /// <summary>
@@ -603,6 +621,64 @@ public class GameFilesHandler : MonoBehaviour
         {
             Debug.Log("LOAD: File not found!");
         }
+    }
+
+    /// <summary>
+    /// Saves the actual structure information of the game into a Text file.
+    /// </summary>
+    /// <param name="output_name">File name (without extension).</param>
+    public void saveOutput(string output_name)
+    {
+        string output_file = Path.Combine(outputs_folder, output_name + ".txt");
+
+        Debug.Log("SaveHandler Saving Output!");
+        Debug.Log("Output file: " + output_file);
+
+        string output_text = "";
+
+        string zeros = "D" + (StructureInitialization.n_mol - 1).ToString().Length;
+
+        string spaces = "";
+
+        for (var i = 0; i < StructureInitialization.n_mol; i++)
+        {
+            output_text += i.ToString(zeros);
+
+            if (StructureInitialization.residues_coords[i].x < 0)
+                spaces = "   ";
+            else
+                spaces = "    ";
+            output_text += spaces + StructureInitialization.residues_coords[i].x.ToString("F12");
+
+            if (StructureInitialization.residues_coords[i].y < 0)
+                spaces = "   ";
+            else
+                spaces = "    ";
+            output_text += spaces + StructureInitialization.residues_coords[i].y.ToString("F12");
+
+            if (StructureInitialization.residues_coords[i].z < 0)
+                spaces = "   ";
+            else
+                spaces = "    ";
+            output_text += spaces + StructureInitialization.residues_coords[i].z.ToString("F12") + "\n";
+        }
+        output_text += "\n";
+        output_text += "BestEnergy = " + PlayerController.best_energy.ToString() + "\n";
+        output_text += "Score = " + PlayerController.score.ToString() + "\n";
+        output_text += "\n";
+        output_text += "PotentialEnergy = " + PlayerController.potential_energy.ToString() + "\n";
+        output_text += "BondEnergy = " + PlayerController.bond_energy.ToString() + "\n";
+        output_text += "TorsionEnergy = " + PlayerController.torsion_energy.ToString() + "\n";
+        output_text += "Lennard-JonesEnergy = " + PlayerController.lj_energy.ToString() + "\n";
+        output_text += "\n";
+        output_text += "RgAll = " + PlayerController.rg_all.ToString() + "\n";
+        output_text += "RgH = " + PlayerController.rg_h.ToString() + "\n";
+        output_text += "RgP = " + PlayerController.rg_p.ToString() + "\n";
+        output_text += "\n";
+        output_text += "Molecules = " + StructureInitialization.n_mol.ToString() + "\n";
+        output_text += "Sequence = " + StructureInitialization.sequence.ToString() + "\n";
+
+        File.WriteAllText(output_file, output_text);
     }
 
 

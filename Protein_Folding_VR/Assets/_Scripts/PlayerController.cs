@@ -31,6 +31,13 @@ public class PlayerController : MonoBehaviour
     public static float score;              // Diference between the Start Best Energy and the actual
     public static float saved_score;        // Score loaded from a saved file to set a new Best Energy start parameter
     public static float best_energy;        // Best Potential Energy reference for score calculation
+    public static float potential_energy;   // 3D AB off-lattice model Potential Energy 
+    public static float bond_energy;        // 3D AB off-lattice model Bond Energy
+    public static float torsion_energy;     // 3D AB off-lattice model Torsion Energy
+    public static float lj_energy;          // 3D AB off-lattice model Lennard-Jones Energy
+    public static float rg_all;             // All residues Radius of Gyration (R.G.)
+    public static float rg_h;               // Hydrophobic residues R.G. 
+    public static float rg_p;               // Polar residues R.G.
 
     private static Color color_end;         // Color to blink with the original
     private static Color orange_color;      // Orange color;
@@ -39,10 +46,10 @@ public class PlayerController : MonoBehaviour
     private Color color_aux;                // Auxiliar color object to store the residue own color during blink        
     private string sequence;                // AB Protein sequence 
 
-    private float potential_energy;         // 3D AB off-lattice model Potential Energy 
-    private float rg_all;                   // All residues Radius of Gyration (R.G.)
-    private float rg_h;                     // Hydrophobic residues R.G. 
-    private float rg_p;                     // Polar residues R.G.
+    //private float potential_energy;         // 3D AB off-lattice model Potential Energy 
+    //private float rg_all;                   // All residues Radius of Gyration (R.G.)
+    //private float rg_h;                     // Hydrophobic residues R.G. 
+    //private float rg_p;                     // Polar residues R.G.
     private Vector3 center_mass;            // Residues Center of Mass cartesian coordinates
 
     // DEBUG
@@ -63,7 +70,7 @@ public class PlayerController : MonoBehaviour
         color_end = Color.yellow;
         orange_color = new Color(1.0f, 0.64f, 0.0f);
         score = 0.0f;
-        best_energy = 0.0f;
+        //best_energy = 0.0f;
         potential_energy = 0.0f;
         // Deactivate player interaction until initialization finish
         select_mode = false;
@@ -72,15 +79,15 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        Physics.autoSimulation = false;
+
         target = null;
         particles = StructureInitialization.residues_structure;
 
         bonds = StructureInitialization.bonds_structure;
 
         n_mol = StructureInitialization.n_mol;
-        sequence = StructureInitialization.sequence;
-
-        Physics.autoSimulation = false;
+        sequence = StructureInitialization.sequence;     
 
         //calculatePotentialEnergy();
         //best_energy = potential_energy;
@@ -108,11 +115,200 @@ public class PlayerController : MonoBehaviour
         //counter = 1;
 
         initializeParameters();
+
+        /*
+        for (var i = 0; i < 1000; i++)
+        {
+            Physics.Simulate(Time.fixedDeltaTime);
+            Debug.Log("Step");
+        }
+        */
+
+        //Physics.autoSimulation = true;
+
+        calculatePotentialEnergy();
         setScoreText();
         setParametersText();
         setInitialPosition();
         // Activate the player interaction
         select_mode = true;
+    }
+
+    /// <summary>
+    /// Initializes the structures parameters. 
+    /// </summary>
+    private void initializeParameters()
+    {
+        // New Game initialization
+        if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.New_game)))
+        {
+            calculatePotentialEnergy();
+            best_energy = potential_energy;
+        }
+
+        //Physics.autoSimulation = true;
+
+        //first_energy = potential_energy;
+        //Physics.autoSimulation = false;
+        //Debug.Log("Pre Simulation Step!");
+        //var step = 0;
+        //counter = ((n_mol * 2) - 1);
+        //counter = 1;
+        /*
+        do
+        {         
+            best_energy = potential_energy;
+            Physics.Simulate(Time.fixedDeltaTime);
+            Debug.Log("Simulation Running");
+            calculatePotentialEnergy();
+            // Debug stuff
+            //calculateDistance();
+            Debug.Log("Step: " + ++step);
+            calculateResidueVariation(true);
+            //calculateBondVariation();            
+        } while (best_energy != potential_energy);
+        */
+        /*
+        do
+        {            
+            if ((counter % 2) != 0)
+            {
+                //particles[(counter / 2)].GetComponent<Rigidbody>().isKinematic = false;
+                particles[(counter / 2)].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Res[" + (counter / 2) + "]");
+            }
+            if((counter % 2) == 0)
+            {
+                //bonds[(counter / 2) - 1].GetComponent<Rigidbody>().isKinematic = false;
+                bonds[(counter / 2) - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Bond[" + (counter / 2 - 1) + "]");
+            }          
+            if (counter > n_mol)
+            {
+                //bonds[counter - n_mol - 1].GetComponent<Rigidbody>().isKinematic = false;
+                bonds[counter - n_mol - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Bond[" + (counter - n_mol - 1) + "]");
+            }
+            else if (counter <= n_mol)
+            {
+                //particles[counter - 1].GetComponent<Rigidbody>().isKinematic = false;
+                particles[counter - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Res[" + (counter - 1) + "]");             
+            }
+            //counter--;
+            //counter++;          
+            for (var i = 0; i < 20; i++)
+            {
+                Physics.Simulate(Time.fixedDeltaTime);
+                Debug.Log("Step: " + ++step);
+            }           
+            do
+            {
+                best_energy = potential_energy;
+                for (var i = 0; i < 1; i++)
+                    Physics.Simulate(Time.fixedDeltaTime);
+                //calculatePotentialEnergy();
+                refreshScoreboard();
+                Debug.Log("Step: " + ++step);
+            } while (best_energy != potential_energy);
+            //refreshScoreboard();
+        } while (counter > 0);
+        //} while (counter < n_mol * 2);
+        */
+        //Physics.autoSimulation = true;
+        //calculateRg();
+        //best_energy = first_energy;
+        /*
+        for (var i = 0; i < n_mol; i++)
+            particles[i].GetComponent<Rigidbody>().isKinematic = false;
+        for (var i = 0; i < n_mol - 1; i++)
+            bonds[i].GetComponent<Rigidbody>().isKinematic = false;
+        */
+
+        foreach (var residue in StructureInitialization.residues_structure)
+            //residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            residue.GetComponent<Rigidbody>().isKinematic = false;
+
+        foreach (var bond in StructureInitialization.bonds_structure)
+            //bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            bond.GetComponent<Rigidbody>().isKinematic = false;
+
+        var energy = 0.0f;
+        calculatePotentialEnergy();
+        var step = 0;
+
+        do
+        {
+            energy = potential_energy;
+            Physics.Simulate(Time.fixedDeltaTime);
+            calculatePotentialEnergy();
+            Debug.Log("Step: " + ++step);           
+        } while (energy != potential_energy);
+        //} while (!Mathf.Approximately(energy - potential_energy, Mathf.Epsilon));
+
+        Physics.autoSimulation = true;
+
+        Debug.Log("initializeParameters() Finished");
+        Debug.Log("Best Energy = " + best_energy.ToString("F12"));        
+        Debug.Log("Potential Energy = " + potential_energy.ToString("F12"));
+
+        //best_energy = potential_energy;        
+    }
+
+    private void calculateBestEnergy()
+    {
+        Vector3[] particles = StructureInitialization.residues_coords;
+        float u_bond = 0.0f;
+        float u_torsion = 0.0f;
+        float u_LJ = 0.0f;
+        float r_ij;
+        float u_LJ_pair;
+        Vector3 dr1, dr2, dr3;
+
+
+        /*
+        for (var i = 0; i < n_mol - 2; i++)
+        {
+            dr1 = particles[i + 1].GetComponent<Transform>().transform.position - particles[i].GetComponent<Transform>().transform.position;
+            dr2 = particles[i + 2].GetComponent<Transform>().transform.position - particles[i + 1].GetComponent<Transform>().transform.position;
+
+            u_bond += Vector3.Dot(dr1, dr2);
+        }
+        */
+
+        // Bond (partial) and Tosion Energy.
+        for (var i = 0; i < n_mol - 3; i++)
+        {
+            dr1 = particles[i + 1] - particles[i];
+            dr2 = particles[i + 2] - particles[i + 1];
+            dr3 = particles[i + 3] - particles[i + 2];
+
+            u_bond += Vector3.Dot(dr1, dr2);
+            u_torsion += (-0.5f) * Vector3.Dot(dr1, dr3);
+        }
+
+        // Remaining Bond Energy.
+        dr1 = particles[n_mol - 2] - particles[n_mol - 3];
+        dr2 = particles[n_mol - 1] - particles[n_mol - 2];
+        u_bond += Vector3.Dot(dr1, dr2);
+
+        //Lennard-Jones Energy.
+        for (var i = 0; i < n_mol - 2; i++)
+        {
+            for (var j = i + 2; j < n_mol; j++)
+            {
+                r_ij = Vector3.Distance(particles[i], particles[j]);
+                u_LJ_pair = 4.0f * (Mathf.Pow(r_ij, -12.0f) - Mathf.Pow(r_ij, -6.0f));
+                if (sequence[i] != 'A' || sequence[j] != 'A')
+                {
+                    u_LJ_pair = 0.5f * u_LJ_pair;
+                }
+                u_LJ += u_LJ_pair;
+            }
+        }
+        //best_energy = u_bond + u_torsion + u_LJ;
+        Debug.Log("Calc Best Energy = " + (u_bond + u_torsion + u_LJ).ToString("F12"));
+        Debug.Log("Is Equal? " + string.Equals(best_energy.ToString(), (u_bond + u_torsion + u_LJ).ToString()));
     }
 
     // To process the non-playable interaction
@@ -207,29 +403,9 @@ public class PlayerController : MonoBehaviour
             //calculateResidueVariation(false);
             //calculateBondVariation(false);
             refreshScoreboard();
-        }
+            calculateBestEnergy();
 
-        // Set isKinematic as False
-        if (Input.GetKeyDown("k"))
-        {         
-            /*
-            for (var i = 0; i < n_mol; i++)
-                particles[i].GetComponent<Rigidbody>().isKinematic = false;
-
-            for (var i = 0; i < n_mol-1; i++)
-                bonds[i].GetComponent<Rigidbody>().isKinematic = false;
-            */
-        }
-
-        // Set Rigidbody Constraints as None
-        if (Input.GetKeyDown("c"))
-        {
-            foreach (var residue in StructureInitialization.residues_structure)            
-                residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-
-            foreach (var bond in StructureInitialization.bonds_structure)
-                bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-        }      
+        }    
 
         // Replace the residues to the original place
         if (Input.GetKeyDown("u"))
@@ -311,143 +487,6 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Initializes the structures parameters. 
-    /// </summary>
-    private void initializeParameters()
-    {
-        calculatePotentialEnergy();      
-        best_energy = potential_energy;
-        calculateRg();
-
-        Physics.autoSimulation = true;
-
-        //first_energy = potential_energy;
-        //Physics.autoSimulation = false;
-        //Debug.Log("Pre Simulation Step!");
-        //var step = 0;
-
-        //counter = ((n_mol * 2) - 1);
-        //counter = 1;
-
-        /*
-        do
-        {         
-            best_energy = potential_energy;
-            Physics.Simulate(Time.fixedDeltaTime);
-            Debug.Log("Simulation Running");
-            calculatePotentialEnergy();
-
-            // Debug stuff
-            //calculateDistance();
-            Debug.Log("Step: " + ++step);
-            calculateResidueVariation(true);
-            //calculateBondVariation(); 
-            
-        } while (best_energy != potential_energy);
-        */
-
-        /*
-        do
-        {
-            
-            if ((counter % 2) != 0)
-            {
-                //particles[(counter / 2)].GetComponent<Rigidbody>().isKinematic = false;
-                particles[(counter / 2)].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                Debug.Log("Counter Res[" + (counter / 2) + "]");
-
-            }
-            if((counter % 2) == 0)
-            {
-                //bonds[(counter / 2) - 1].GetComponent<Rigidbody>().isKinematic = false;
-                bonds[(counter / 2) - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                Debug.Log("Counter Bond[" + (counter / 2 - 1) + "]");
-            }
-            
-            if (counter > n_mol)
-            {
-                //bonds[counter - n_mol - 1].GetComponent<Rigidbody>().isKinematic = false;
-                bonds[counter - n_mol - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                Debug.Log("Counter Bond[" + (counter - n_mol - 1) + "]");
-            }
-            else if (counter <= n_mol)
-            {
-                //particles[counter - 1].GetComponent<Rigidbody>().isKinematic = false;
-                particles[counter - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                Debug.Log("Counter Res[" + (counter - 1) + "]");             
-            }
-            
-
-            //counter--;
-            //counter++;
-            
-
-            
-            for (var i = 0; i < 20; i++)
-            {
-                Physics.Simulate(Time.fixedDeltaTime);
-                Debug.Log("Step: " + ++step);
-            }
-            
-            do
-            {
-                best_energy = potential_energy;
-                for (var i = 0; i < 1; i++)
-                    Physics.Simulate(Time.fixedDeltaTime);
-                //calculatePotentialEnergy();
-                refreshScoreboard();
-                Debug.Log("Step: " + ++step);
-
-            } while (best_energy != potential_energy);
-            //refreshScoreboard();
-
-        } while (counter > 0);
-        //} while (counter < n_mol * 2);
-        */
-
-
-        //Physics.autoSimulation = true;
-        //calculateRg();
-
-        //best_energy = first_energy;
-
-        /*
-        for (var i = 0; i < n_mol; i++)
-            particles[i].GetComponent<Rigidbody>().isKinematic = false;
-
-        for (var i = 0; i < n_mol - 1; i++)
-            bonds[i].GetComponent<Rigidbody>().isKinematic = false;
-        */
-
-
-        foreach (var residue in StructureInitialization.residues_structure)
-            residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-
-        foreach (var bond in StructureInitialization.bonds_structure)
-            bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-
-        Debug.Log("initializeParameters() Finished");
-        //Debug.Log("Best Energy = " + best_energy.ToString("F12"));
-        //Debug.Log("First Energy = " + first_energy.ToString("F12"));
-        //Debug.Log("Potential Energy = " + potential_energy.ToString("F12"));
-
-        //best_energy = potential_energy;
-
-        // Debug stuff
-        /*
-        for (var i = 0; i < n_mol; i++)
-        {
-            //Debug.Log("Coord[" + i.ToString() + "] : " + StructureInitialization.residues_coords[i].ToString("F8"));
-            //particles[i].GetComponent<Rigidbody>().transform.Translate(StructureInitialization.residues_coords[i]);
-            //particles[i].transform.Translate(StructureInitialization.residues_coords[i], Space.World); 
-            //particles[i].GetComponent<Rigidbody>().transform.position = StructureInitialization.residues_coords[i];
-            particles[i].transform.position = StructureInitialization.residues_coords[i];
-            Debug.Log("Position[" + i.ToString() + "] : " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
-        }
-        */
-    }
-
-    /// <summary>
     /// Updates the structures parameters.
     /// </summary>
     private void refreshScoreboard()
@@ -511,6 +550,9 @@ public class PlayerController : MonoBehaviour
             }
         }
         potential_energy = u_bond + u_torsion + u_LJ;
+        bond_energy = u_bond;
+        torsion_energy = u_torsion;
+        lj_energy = u_LJ;
     }
 
     /// <summary>
@@ -600,10 +642,10 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void setParametersText()
     {
-        string p_energy = "Potential Energy: " + potential_energy.ToString();
-        string rg_a = "Rg: " + rg_all.ToString();
-        string r_h = "Rg H: " + rg_h.ToString();
-        string r_p = "Rg P: " + rg_p.ToString();
+        string p_energy = "Potential Energy: " + potential_energy.ToString("F3");
+        string rg_a = "Rg: " + rg_all.ToString("F3");
+        string r_h = "Rg H: " + rg_h.ToString("F3");
+        string r_p = "Rg P: " + rg_p.ToString("F3");
         parameters_text.text = p_energy + "\n" + rg_a + "\n" + r_h + "\n" + r_p;
     }
 

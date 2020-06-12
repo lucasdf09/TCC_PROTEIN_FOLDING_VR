@@ -68,7 +68,7 @@ public class StructureInitialization : MonoBehaviour
         }
         else
         {
-            Debug.Log("StructureInit Error: No File Loaded!");
+            Debug.Log("StructureInitialization Error: No File Loaded!");
         }
     }
 
@@ -121,41 +121,9 @@ public class StructureInitialization : MonoBehaviour
         initializeResidues();       
         initializeBonds();
 
-        // Debug stuff
+        lockStructure();
 
-
-        //TRY: isKinematic  
-        /*
-        foreach (var residue in residues_structure)
-          residue.GetComponent<Rigidbody>().isKinematic = true;        
-
-        foreach (var bond in bonds_structure)
-            bond.GetComponent<Rigidbody>().isKinematic = true;
-        */
-        
-
-
-        //TRY: Rigidbody Constraints  
-        
-        foreach (var residue in residues_structure)
-        {
-            residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-            //residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePosition;
-        }
-      
-        foreach (var bond in bonds_structure)
-        {
-            bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-            //bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePosition;
-        }
-        
-        
-        
-
-
-        //assignBondsJoints();
         //assignResiduesJoints();
-
         assignBondsJoints();
         assignBondFixedJoints();
 
@@ -190,8 +158,13 @@ public class StructureInitialization : MonoBehaviour
         bonds_structure = new GameObject[n_mol - 1];
         loadResidues();
         loadBonds();
-        assignResiduesJoints();
+
+        lockStructure();
+
+        //assignResiduesJoints();
         assignBondsJoints();
+        assignBondFixedJoints();
+
         setResiduesColor();
         markFirstResidue();
     }
@@ -249,7 +222,19 @@ public class StructureInitialization : MonoBehaviour
     }
 
     /// <summary>
-    /// Asigns the residues joints.
+    /// Locks the residues and bonds setting the Rigidbody components as kinematic. 
+    /// </summary>
+    private void lockStructure()
+    {
+        foreach (var residue in residues_structure)
+            residue.GetComponent<Rigidbody>().isKinematic = true;
+
+        foreach (var bond in bonds_structure)
+            bond.GetComponent<Rigidbody>().isKinematic = true;
+    }
+
+    /// <summary>
+    /// Assigns the residues joints.
     /// </summary>
     //private void asignResiduesJoints()
     public void assignResiduesJoints()
@@ -264,7 +249,9 @@ public class StructureInitialization : MonoBehaviour
     }
 
     /// <summary>
-    /// Asigns the bonds joints.
+    /// Assigns the bonds configurable joints. 
+    /// Connects a bond joint with the previous bond.
+    /// Except for the first bond.
     /// </summary>
     private void assignBondsJoints()
     {
@@ -276,7 +263,19 @@ public class StructureInitialization : MonoBehaviour
             bonds_structure[i].GetComponent<ConfigurableJoint>().connectedBody = bonds_structure[i - 1].GetComponent<Rigidbody>();
         }
     }
-    
+
+    /// <summary>
+    /// Assigns the bonds fixed joints.
+    /// Connects a bonds joint with the next residue. 
+    /// </summary>
+    private void assignBondFixedJoints()
+    {
+        for (var i = 0; i < n_mol - 1; i++)
+        {
+            bonds_structure[i].GetComponent<FixedJoint>().connectedBody = residues_structure[i + 1].GetComponent<Rigidbody>();
+        }
+    }
+
     /// <summary>
     /// Sets the residues color.
     /// </summary>
@@ -310,14 +309,7 @@ public class StructureInitialization : MonoBehaviour
         //residues_structure[0].GetComponent<Rigidbody>().isKinematic = true;
     }
 
-    /// <summary>
-    /// Connects the fixed joints in the bonds objects to the residues. 
-    /// </summary>
-    private void assignBondFixedJoints()
-    {
-        for (var i = 0; i < n_mol - 1; i++)
-        {
-            bonds_structure[i].GetComponent<FixedJoint>().connectedBody = residues_structure[i + 1].GetComponent<Rigidbody>();
-        }
-    }
+    
+
+
 }

@@ -47,6 +47,11 @@ public class ConfirmOverwrite : MonoBehaviour
         // Exrtact only the saved file name
         file_name = Path.GetFileNameWithoutExtension(file_name);
         files_handler.saveGame(file_name);
+
+        // Overwrite the output file associated
+        files_handler.saveOutput(file_name);
+
+        // Verify if the file was successfully overwrited
         if (files_handler.saveFileExists(file_name))
         {
             Debug.Log("Overwrite successful!");
@@ -55,6 +60,16 @@ public class ConfirmOverwrite : MonoBehaviour
         else
         {
             gameObject.GetComponent<NotifyOverwrite>().notifyOverwrite(file_name + "\nCouldn't be overwrited!");
+        }
+
+        // Verify if the output file was successfully overwrited
+        if (files_handler.outputFileExists(file_name))
+        {          
+            Debug.Log(file_name + "\nOutput overwrite successful!");
+        }
+        else
+        {
+            Debug.Log(file_name + "\nCouldn't be overwrited in Outputs!");
         }
     }
 

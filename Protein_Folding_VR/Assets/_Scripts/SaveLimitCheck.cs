@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Tests the saved files limit number.
 /// </summary>
-public class SaveTestLimit : MonoBehaviour
+public class SaveLimitCheck : MonoBehaviour
 {
     [SerializeField]
     private GameObject save_panel = default;
@@ -35,7 +35,7 @@ public class SaveTestLimit : MonoBehaviour
         else
         {
             // Show Error message
-            Debug.Log("Save files limit!");
+            Debug.Log("Save files limit reached!");
             gameObject.GetComponent<NotifySaveFilesLimit>().notifySaveFilesLimit("Can't Save:\nSave files limit reached!\nTry removing some save file.");
         }
     }

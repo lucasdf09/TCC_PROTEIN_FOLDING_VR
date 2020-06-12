@@ -52,6 +52,9 @@ public class ConfirmRemoveSave : MonoBehaviour
         string file_name = gameObject.GetComponent<GameListButton>().Button_text;
         files_handler.removeSaveFile(file_name);
 
+        //Remove the output file
+        files_handler.removeOutputFile(file_name);
+
         // Check the remotion and notify the player
         if (!files_handler.saveFileExists(file_name))
         {
@@ -60,6 +63,16 @@ public class ConfirmRemoveSave : MonoBehaviour
         else
         {
             gameObject.GetComponent<NotifyRemove>().notifyRemove(file_name + "\nCouldn't be removed!");
+        }
+
+        // Check the remotion of the output file and notify the player
+        if (!files_handler.outputFileExists(file_name))
+        {
+            Debug.Log(file_name + "\nOutput successfully removed!!");
+        }
+        else
+        {
+            Debug.Log(file_name + "\nCouldn't be removed from Outputs!");
         }
     }
 

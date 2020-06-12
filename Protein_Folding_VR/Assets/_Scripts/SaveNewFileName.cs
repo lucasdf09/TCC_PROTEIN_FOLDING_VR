@@ -62,6 +62,10 @@ public class SaveNewFileName : MonoBehaviour
         {
             Debug.Log("Verify: " + file_name + " OK");
             files_handler.saveGame(file_name);
+
+            // Save an output file
+            files_handler.saveOutput(file_name);
+            
             // Verify if the file was successfully saved
             if (files_handler.saveFileExists(file_name))
             {
@@ -73,6 +77,17 @@ public class SaveNewFileName : MonoBehaviour
             else
             {
                 gameObject.GetComponent<NotifySave>().notifySave(file_name + "\nCouldn't be saved!");
+            }
+
+            // Verify if the output file was successfully saved
+            if (files_handler.outputFileExists(file_name))
+            {
+                string file_path = Path.Combine(GameFilesHandler.Outputs_folder, file_name + ".txt");
+                Debug.Log(file_path + "\nOutput successful!");               
+            }
+            else
+            {
+                Debug.Log(file_name + "\nCouldn't be saved in Outputs!");
             }
         }       
     }
