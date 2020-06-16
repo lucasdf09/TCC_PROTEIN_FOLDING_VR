@@ -309,7 +309,5 @@ public class StructureInitialization : MonoBehaviour
         //residues_structure[0].GetComponent<Rigidbody>().isKinematic = true;
     }
 
-    
-
-
+//  End of StructureInitialization
 }

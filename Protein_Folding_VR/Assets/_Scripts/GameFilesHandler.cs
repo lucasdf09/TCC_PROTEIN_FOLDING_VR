@@ -565,6 +565,12 @@ public class GameFilesHandler : MonoBehaviour
         save_slot.residues_coords[save_slot.n_mol - 1] = StructureInitialization.residues_structure[save_slot.n_mol - 1].transform.position;
         save_slot.residues_rotations[save_slot.n_mol - 1] = StructureInitialization.residues_structure[save_slot.n_mol - 1].transform.rotation;
 
+        //GameObject player = GameObject.FindWithTag("Player");
+        //save_slot.player_position = player.transform.position;
+        //save_slot.player_rotation = player.transform.rotation;
+        save_slot.camera_position = PlayerController.camera_position;
+        save_slot.camera_rotation = PlayerController.camera_rotation;
+
         // Convert to Json format
         string json = JsonUtility.ToJson(save_slot);
 
@@ -616,6 +622,19 @@ public class GameFilesHandler : MonoBehaviour
             }
             StructureInitialization.residues_coords[load_slot.n_mol - 1] = load_slot.residues_coords[load_slot.n_mol - 1];
             StructureInitialization.residues_rotations[load_slot.n_mol - 1] = load_slot.residues_rotations[load_slot.n_mol - 1];
+
+            //GameObject player = GameObject.FindWithTag("Player");
+            //player.transform.SetPositionAndRotation(load_slot.player_position, load_slot.player_rotation);
+            //GameObject camera = GameObject.FindWithTag("MainCamera");
+            //GameObject camera = Camera.main;
+            //Camera.main.transform.SetPositionAndRotation(load_slot.camera_position, load_slot.camera_rotation);
+            //camera.transform.SetPositionAndRotation(load_slot.camera_position, load_slot.camera_rotation);
+            //camera.transform.position = load_slot.camera_position;
+            //camera.transform.rotation = load_slot.camera_rotation;
+            PlayerController.camera_position = load_slot.camera_position;
+            PlayerController.camera_rotation = load_slot.camera_rotation;
+            Debug.Log("Camera position: " + load_slot.camera_position);
+            Debug.Log("Camera rotation: " + load_slot.camera_rotation);
         }
         else
         {

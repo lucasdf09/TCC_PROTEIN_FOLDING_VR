@@ -20,6 +20,10 @@ public class SaveData
     public Quaternion[] residues_rotations;
     public Vector3[] bonds_coords;
     public Quaternion[] bonds_rotations;
+    //public Vector3 player_position;
+    //public Quaternion player_rotation;
+    public Vector3 camera_position;
+    public Quaternion camera_rotation;
 
     /*
     private string file_name;

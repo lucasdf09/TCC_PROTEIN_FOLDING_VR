@@ -17,7 +17,6 @@ public class PlayerController : MonoBehaviour
     public float rotation_angle;            // Rotation angle rate (to move around the structure)
     public float zoom_smooth;               // Zoom speed rate
     public float pivot_smooth;              // Pivot change position speed rate
-    public Transform camera_transform;      // Camera position and rotation reference 
     public GameObject menu_container;       // Menu container object reference
     public GameObject keyboard_container;   // Keyboard container object reference
     public GameObject structure;            // Structure object reference
@@ -38,6 +37,8 @@ public class PlayerController : MonoBehaviour
     public static float rg_all;             // All residues Radius of Gyration (R.G.)
     public static float rg_h;               // Hydrophobic residues R.G. 
     public static float rg_p;               // Polar residues R.G.
+    public static Vector3 camera_position;      // Camera position reference for saving.
+    public static Quaternion camera_rotation;   // Camera rotation reference for saving.
 
     private static Color color_end;         // Color to blink with the original
     private static Color orange_color;      // Orange color;
@@ -73,13 +74,15 @@ public class PlayerController : MonoBehaviour
         //best_energy = 0.0f;
         potential_energy = 0.0f;
         // Deactivate player interaction until initialization finish
+        reticle_pointer.SetActive(false);
         select_mode = false;
         move_mode = false;
+        Physics.autoSimulation = false;
     }
 
     private void Start()
     {
-        Physics.autoSimulation = false;
+        //Physics.autoSimulation = false;
 
         target = null;
         particles = StructureInitialization.residues_structure;
@@ -131,7 +134,9 @@ public class PlayerController : MonoBehaviour
         setParametersText();
         setInitialPosition();
         // Activate the player interaction
+        reticle_pointer.SetActive(true);
         select_mode = true;
+
     }
 
     /// <summary>
@@ -264,18 +269,6 @@ public class PlayerController : MonoBehaviour
         float r_ij;
         float u_LJ_pair;
         Vector3 dr1, dr2, dr3;
-
-
-        /*
-        for (var i = 0; i < n_mol - 2; i++)
-        {
-            dr1 = particles[i + 1].GetComponent<Transform>().transform.position - particles[i].GetComponent<Transform>().transform.position;
-            dr2 = particles[i + 2].GetComponent<Transform>().transform.position - particles[i + 1].GetComponent<Transform>().transform.position;
-
-            u_bond += Vector3.Dot(dr1, dr2);
-        }
-        */
-
         // Bond (partial) and Tosion Energy.
         for (var i = 0; i < n_mol - 3; i++)
         {
@@ -286,12 +279,10 @@ public class PlayerController : MonoBehaviour
             u_bond += Vector3.Dot(dr1, dr2);
             u_torsion += (-0.5f) * Vector3.Dot(dr1, dr3);
         }
-
         // Remaining Bond Energy.
         dr1 = particles[n_mol - 2] - particles[n_mol - 3];
         dr2 = particles[n_mol - 1] - particles[n_mol - 2];
         u_bond += Vector3.Dot(dr1, dr2);
-
         //Lennard-Jones Energy.
         for (var i = 0; i < n_mol - 2; i++)
         {
@@ -362,14 +353,22 @@ public class PlayerController : MonoBehaviour
                 // Hide the strucure from player view 
                 structure.SetActive(false);
                 // Set the Game Menu in front of the player view using the camera as reference
-                menu_container.transform.position = camera_transform.position + camera_transform.forward * 2;
-                menu_container.transform.rotation = camera_transform.rotation;
+                menu_container.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2;
+                menu_container.transform.rotation = Camera.main.transform.rotation;
                 menu_container.SetActive(true);
                 // Set the Keyboard in front of the player view using the camera as reference
-                keyboard_container.transform.position = camera_transform.position + camera_transform.forward * 2;                
-                keyboard_container.transform.rotation = camera_transform.rotation;
+                keyboard_container.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2;                
+                keyboard_container.transform.rotation = Camera.main.transform.rotation;
                 // Rotate the Keyboard to a better position for the player interaction
                 keyboard_container.transform.Rotate(30, 0, 0);
+
+                // Get the camera positioning to restore it when load a game
+                //camera_position = Camera.main.transform.localPosition;
+                //camera_rotation = Camera.main.transform.localRotation;
+                camera_position = Camera.main.transform.position;
+                camera_rotation = Camera.main.transform.rotation;
+                Debug.Log("Camera position is equal? " + Equals(camera_position, Camera.main.transform.position));
+                Debug.Log("Camera rotation is equal? " + Equals(camera_rotation, Camera.main.transform.rotation));          
             }
         }
 
@@ -404,7 +403,6 @@ public class PlayerController : MonoBehaviour
             //calculateBondVariation(false);
             refreshScoreboard();
             calculateBestEnergy();
-
         }    
 
         // Replace the residues to the original place
@@ -677,38 +675,59 @@ public class PlayerController : MonoBehaviour
             avg += particles[i].transform.position;
         }
         center_mass = avg / n_mol;
-        // Calculate the distance to center mass until the further and closer residues
-        float further = 0.0f;
-        float closer = n_mol;
-        Vector3 further_residue = Vector3.right;
-        Vector3 closer_residue = Vector3.up;
-        for (var i = 0; i < n_mol; i++)
-        {
-            var distance = Vector3.Distance(center_mass, particles[i].transform.position);
-            if (distance > further)
-            {
-                further = distance;
-                further_residue = particles[i].transform.position;
-            }
-            if (distance < closer)
-            {
-                closer = distance;
-                closer_residue = particles[i].transform.position;
-            }
-        }
-        // Calculate the perpendicular direction
-        Vector3 player_position = Vector3.Cross(further_residue, closer_residue);
-        player_position = player_position.normalized * further * 2.0f;
-        //Debug.Log("Player position vector: " + player_position);
-        //Debug.Log("Camera center mass: " + center_mass);
         // Set the camera pivot position of the sphere orbitation
         camera_pivot.transform.position = center_mass;
-        // Move the position of the player (camera) to the calculated position
-        transform.Translate(player_position);
-        //Debug.Log("Camera transform before: " + camera_transform.rotation);
-        transform.LookAt(camera_pivot.transform);
-        camera_transform.LookAt(camera_pivot.transform);
-        //Debug.Log("Camera transform after: " + camera_transform.rotation);
+      
+        // New Game camera initialization
+        if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.New_game)))
+        {
+            // Calculate the distance to center mass until the further and closer residues
+            float further = 0.0f;
+            float closer = n_mol;
+            Vector3 further_residue = Vector3.right;
+            Vector3 closer_residue = Vector3.up;
+            for (var i = 0; i < n_mol; i++)
+            {
+                var distance = Vector3.Distance(center_mass, particles[i].transform.position);
+                if (distance > further)
+                {
+                    further = distance;
+                    further_residue = particles[i].transform.position;
+                }
+                if (distance < closer)
+                {
+                    closer = distance;
+                    closer_residue = particles[i].transform.position;
+                }
+            }
+            // Calculate the perpendicular direction
+            Vector3 player_position = Vector3.Cross(further_residue, closer_residue);
+            player_position = player_position.normalized * further * 2.0f;
+            //Debug.Log("Player position vector: " + player_position);
+            //Debug.Log("Camera center mass: " + center_mass);
+            // Move the position of the player (camera) to the calculated position
+            transform.Translate(player_position);
+            //Debug.Log("Camera transform before: " + Camera.main.transform.rotation);
+            //Move the field of vision to see the structure
+            transform.LookAt(camera_pivot.transform);
+            Camera.main.transform.LookAt(camera_pivot.transform);
+            Debug.Log("NEW GAME set initial position complete.");
+        }
+        // Load Game camera initialization
+        else if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.Saved_game)))
+        {
+            /*
+            Camera.main.transform.SetPositionAndRotation(camera_position, camera_rotation);
+            Camera.main.transform.localPosition = camera_position;
+            Camera.main.transform.localRotation = camera_rotation;
+            */
+            gameObject.transform.SetPositionAndRotation(camera_position, camera_rotation);
+            Debug.Log("Camera position: " + camera_position);
+            Debug.Log("Camera rotation: " + camera_rotation);
+            Debug.Log("Camera position is equal? " + Equals(camera_position, gameObject.transform.position));
+            Debug.Log("Camera rotation is equal? " + Equals(camera_rotation, gameObject.transform.rotation));
+            Debug.Log("LOAD GAME set initial position complete.");
+        }
     }
 
 
