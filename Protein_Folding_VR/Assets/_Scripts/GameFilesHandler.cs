@@ -123,7 +123,7 @@ public class GameFilesHandler : MonoBehaviour
         saved_game = "Saved_Game";
 
         // Folders files limit initialization
-        inputs_limit = 5;
+        //inputs_limit = 10;
         saves_limit = 5;
         
         // PlayerPrefs fields initialization
@@ -132,7 +132,6 @@ public class GameFilesHandler : MonoBehaviour
         PlayerPrefs.SetString(saved_game, null);
 
         // Game Files Folders initialization
-
         // Intermediary folder to contain the game's files
         string game_files_folder = "_GameFiles";
 
@@ -181,7 +180,7 @@ public class GameFilesHandler : MonoBehaviour
             Debug.Log(f.Name);
         }
 
-        // IF Inputs folder empty: copy the standard new game structures to Inputs folder
+        // If Inputs folder empty: copy the standard new game structures to Inputs folder
         if (info.Length == 0)
         {
             Debug.Log("Inputs empty!");
@@ -193,7 +192,7 @@ public class GameFilesHandler : MonoBehaviour
             }
         }
         
-        // If Inputs folder not empty: verify if the standards new game structures exists
+        // Else, if Inputs folder not empty: verify if the standards new game structures exists
         else
         {
             Debug.Log("Inputs NOT empty!");
@@ -302,7 +301,7 @@ public class GameFilesHandler : MonoBehaviour
         }
     }
 
-    // Functions used in game
+    // Methods used in game
 
     // Public methods to access the game files directories
 
@@ -511,11 +510,11 @@ public class GameFilesHandler : MonoBehaviour
     /// <summary>
     /// Returns a text file contents into a string.
     /// </summary>
-    /// <param name="file_path">File path to be readen.</param>
+    /// <param name="file_path">File path to be read.</param>
     /// <returns>String with the file contents.</returns>
     public string readTxtFile(string file_path)
     {
-        Debug.Log("StructureInitialization.readTxtFile()");
+        Debug.Log("GameFilesHandler.readTxtFile()");
 
         Debug.Log("File path: " + file_path);
 
