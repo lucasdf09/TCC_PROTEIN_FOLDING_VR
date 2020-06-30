@@ -15,14 +15,8 @@ public class PlayerController : MonoBehaviour
     public GameObject reticle_pointer;      // Reticle Pointer reference
     public GameObject camera_pivot;         // Camera Pivot reference
     public float rotation_angle;            // Rotation angle rate (to move around the structure)
-    /*
-    public float zoom_factor;                
-    public float fov_min;
-    public float fov_max;
-    */
     public float zoom_smooth;               // Zoom speed rate
     public float pivot_smooth;              // Pivot change position speed rate
-    public Transform camera_transform;      // Camera position and rotation reference 
     public GameObject menu_container;       // Menu container object reference
     public GameObject keyboard_container;   // Keyboard container object reference
     public GameObject structure;            // Structure object reference
@@ -36,6 +30,15 @@ public class PlayerController : MonoBehaviour
     public static float score;              // Diference between the Start Best Energy and the actual
     public static float saved_score;        // Score loaded from a saved file to set a new Best Energy start parameter
     public static float best_energy;        // Best Potential Energy reference for score calculation
+    public static float potential_energy;   // 3D AB off-lattice model Potential Energy 
+    public static float bond_energy;        // 3D AB off-lattice model Bond Energy
+    public static float torsion_energy;     // 3D AB off-lattice model Torsion Energy
+    public static float lj_energy;          // 3D AB off-lattice model Lennard-Jones Energy
+    public static float rg_all;             // All residues Radius of Gyration (R.G.)
+    public static float rg_h;               // Hydrophobic residues R.G. 
+    public static float rg_p;               // Polar residues R.G.
+    public static Vector3 camera_position;      // Camera position reference for saving.
+    public static Quaternion camera_rotation;   // Camera rotation reference for saving.
 
     private static Color color_end;         // Color to blink with the original
     private static Color orange_color;      // Orange color;
@@ -44,15 +47,22 @@ public class PlayerController : MonoBehaviour
     private Color color_aux;                // Auxiliar color object to store the residue own color during blink        
     private string sequence;                // AB Protein sequence 
 
-    private float potential_energy;         // 3D AB off-lattice model Potential Energy 
-    private float rg_all;                   // All residues Radius of Gyration (R.G.)
-    private float rg_h;                     // Hydrophobic residues R.G. 
-    private float rg_p;                     // Polar residues R.G.
+    //private float potential_energy;         // 3D AB off-lattice model Potential Energy 
+    //private float rg_all;                   // All residues Radius of Gyration (R.G.)
+    //private float rg_h;                     // Hydrophobic residues R.G. 
+    //private float rg_p;                     // Polar residues R.G.
     private Vector3 center_mass;            // Residues Center of Mass cartesian coordinates
 
     // DEBUG
+    int calc_distance = 3;
+    int var_residue = 3;
+    int var_bond = 0;
     Vector3[] res_variation;                // Variation of the residues
     Vector3[] bond_variation;               // Variation of the bonds
+    //float first_energy = 0.0f;
+    private GameObject[] bonds;
+    int counter;
+
 
     // Awake is called before Start().
     private void Awake()
@@ -61,15 +71,30 @@ public class PlayerController : MonoBehaviour
         color_end = Color.yellow;
         orange_color = new Color(1.0f, 0.64f, 0.0f);
         score = 0.0f;
-        best_energy = 0.0f;
+        //best_energy = 0.0f;
         potential_energy = 0.0f;
         // Deactivate player interaction until initialization finish
+        reticle_pointer.SetActive(false);
         select_mode = false;
         move_mode = false;
+        Physics.autoSimulation = false;
     }
 
     private void Start()
     {
+        //Physics.autoSimulation = false;
+
+        target = null;
+        particles = StructureInitialization.residues_structure;
+
+        bonds = StructureInitialization.bonds_structure;
+
+        n_mol = StructureInitialization.n_mol;
+        sequence = StructureInitialization.sequence;     
+
+        //calculatePotentialEnergy();
+        //best_energy = potential_energy;
+        //calculateRg();
         // Call initializeGame function in the next frame. 
         Invoke("initializeGame", 0);
     }
@@ -79,19 +104,205 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void initializeGame()
     {
+        /*
         target = null;
         particles = StructureInitialization.residues_structure;
+
+        bonds = StructureInitialization.bonds_structure;
+
         n_mol = StructureInitialization.n_mol;
         sequence = StructureInitialization.sequence;
-        setScoreText();
+        */
+
+        //counter = ((n_mol * 2) - 1);
+        //counter = 1;
+
         initializeParameters();
+
+        /*
+        for (var i = 0; i < 1000; i++)
+        {
+            Physics.Simulate(Time.fixedDeltaTime);
+            Debug.Log("Step");
+        }
+        */
+
+        //Physics.autoSimulation = true;
+
+        calculatePotentialEnergy();
+        setScoreText();
         setParametersText();
         setInitialPosition();
-        //setCameraPivot();
         // Activate the player interaction
+        reticle_pointer.SetActive(true);
         select_mode = true;
+
     }
 
+    /// <summary>
+    /// Initializes the structures parameters. 
+    /// </summary>
+    private void initializeParameters()
+    {
+        // New Game initialization
+        if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.New_game)))
+        {
+            calculatePotentialEnergy();
+            best_energy = potential_energy;
+        }
+
+        //Physics.autoSimulation = true;
+
+        //first_energy = potential_energy;
+        //Physics.autoSimulation = false;
+        //Debug.Log("Pre Simulation Step!");
+        //var step = 0;
+        //counter = ((n_mol * 2) - 1);
+        //counter = 1;
+        /*
+        do
+        {         
+            best_energy = potential_energy;
+            Physics.Simulate(Time.fixedDeltaTime);
+            Debug.Log("Simulation Running");
+            calculatePotentialEnergy();
+            // Debug stuff
+            //calculateDistance();
+            Debug.Log("Step: " + ++step);
+            calculateResidueVariation(true);
+            //calculateBondVariation();            
+        } while (best_energy != potential_energy);
+        */
+        /*
+        do
+        {            
+            if ((counter % 2) != 0)
+            {
+                //particles[(counter / 2)].GetComponent<Rigidbody>().isKinematic = false;
+                particles[(counter / 2)].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Res[" + (counter / 2) + "]");
+            }
+            if((counter % 2) == 0)
+            {
+                //bonds[(counter / 2) - 1].GetComponent<Rigidbody>().isKinematic = false;
+                bonds[(counter / 2) - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Bond[" + (counter / 2 - 1) + "]");
+            }          
+            if (counter > n_mol)
+            {
+                //bonds[counter - n_mol - 1].GetComponent<Rigidbody>().isKinematic = false;
+                bonds[counter - n_mol - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Bond[" + (counter - n_mol - 1) + "]");
+            }
+            else if (counter <= n_mol)
+            {
+                //particles[counter - 1].GetComponent<Rigidbody>().isKinematic = false;
+                particles[counter - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                Debug.Log("Counter Res[" + (counter - 1) + "]");             
+            }
+            //counter--;
+            //counter++;          
+            for (var i = 0; i < 20; i++)
+            {
+                Physics.Simulate(Time.fixedDeltaTime);
+                Debug.Log("Step: " + ++step);
+            }           
+            do
+            {
+                best_energy = potential_energy;
+                for (var i = 0; i < 1; i++)
+                    Physics.Simulate(Time.fixedDeltaTime);
+                //calculatePotentialEnergy();
+                refreshScoreboard();
+                Debug.Log("Step: " + ++step);
+            } while (best_energy != potential_energy);
+            //refreshScoreboard();
+        } while (counter > 0);
+        //} while (counter < n_mol * 2);
+        */
+        //Physics.autoSimulation = true;
+        //calculateRg();
+        //best_energy = first_energy;
+        /*
+        for (var i = 0; i < n_mol; i++)
+            particles[i].GetComponent<Rigidbody>().isKinematic = false;
+        for (var i = 0; i < n_mol - 1; i++)
+            bonds[i].GetComponent<Rigidbody>().isKinematic = false;
+        */
+
+        foreach (var residue in StructureInitialization.residues_structure)
+            //residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            residue.GetComponent<Rigidbody>().isKinematic = false;
+
+        foreach (var bond in StructureInitialization.bonds_structure)
+            //bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            bond.GetComponent<Rigidbody>().isKinematic = false;
+
+        var energy = 0.0f;
+        calculatePotentialEnergy();
+        var step = 0;
+
+        do
+        {
+            energy = potential_energy;
+            Physics.Simulate(Time.fixedDeltaTime);
+            calculatePotentialEnergy();
+            Debug.Log("Step: " + ++step);           
+        } while (energy != potential_energy);
+        //} while (!Mathf.Approximately(energy - potential_energy, Mathf.Epsilon));
+
+        Physics.autoSimulation = true;
+
+        Debug.Log("initializeParameters() Finished");
+        Debug.Log("Best Energy = " + best_energy.ToString("F12"));        
+        Debug.Log("Potential Energy = " + potential_energy.ToString("F12"));
+
+        //best_energy = potential_energy;        
+    }
+
+    private void calculateBestEnergy()
+    {
+        Vector3[] particles = StructureInitialization.residues_coords;
+        float u_bond = 0.0f;
+        float u_torsion = 0.0f;
+        float u_LJ = 0.0f;
+        float r_ij;
+        float u_LJ_pair;
+        Vector3 dr1, dr2, dr3;
+        // Bond (partial) and Tosion Energy.
+        for (var i = 0; i < n_mol - 3; i++)
+        {
+            dr1 = particles[i + 1] - particles[i];
+            dr2 = particles[i + 2] - particles[i + 1];
+            dr3 = particles[i + 3] - particles[i + 2];
+
+            u_bond += Vector3.Dot(dr1, dr2);
+            u_torsion += (-0.5f) * Vector3.Dot(dr1, dr3);
+        }
+        // Remaining Bond Energy.
+        dr1 = particles[n_mol - 2] - particles[n_mol - 3];
+        dr2 = particles[n_mol - 1] - particles[n_mol - 2];
+        u_bond += Vector3.Dot(dr1, dr2);
+        //Lennard-Jones Energy.
+        for (var i = 0; i < n_mol - 2; i++)
+        {
+            for (var j = i + 2; j < n_mol; j++)
+            {
+                r_ij = Vector3.Distance(particles[i], particles[j]);
+                u_LJ_pair = 4.0f * (Mathf.Pow(r_ij, -12.0f) - Mathf.Pow(r_ij, -6.0f));
+                if (sequence[i] != 'A' || sequence[j] != 'A')
+                {
+                    u_LJ_pair = 0.5f * u_LJ_pair;
+                }
+                u_LJ += u_LJ_pair;
+            }
+        }
+        //best_energy = u_bond + u_torsion + u_LJ;
+        Debug.Log("Calc Best Energy = " + (u_bond + u_torsion + u_LJ).ToString("F12"));
+        Debug.Log("Is Equal? " + string.Equals(best_energy.ToString(), (u_bond + u_torsion + u_LJ).ToString()));
+    }
+
+    // To process the non-playable interaction
     private void Update()
     {
         // SELECT MODE
@@ -116,11 +327,7 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Select mode: " + select_mode);
                 Debug.Log("Move mode: " + move_mode);
                 reticle_pointer.SetActive(false);
-                refreshScoreboard();
-
-                // DEBUG
-                //calculateDistance();
-                //calculateVariation();               
+                refreshScoreboard();              
             }
 
             // Blink the residue on gaze
@@ -146,14 +353,22 @@ public class PlayerController : MonoBehaviour
                 // Hide the strucure from player view 
                 structure.SetActive(false);
                 // Set the Game Menu in front of the player view using the camera as reference
-                menu_container.transform.position = camera_transform.position + camera_transform.forward * 2;
-                menu_container.transform.rotation = camera_transform.rotation;
+                menu_container.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2;
+                menu_container.transform.rotation = Camera.main.transform.rotation;
                 menu_container.SetActive(true);
                 // Set the Keyboard in front of the player view using the camera as reference
-                keyboard_container.transform.position = camera_transform.position + camera_transform.forward * 2;                
-                keyboard_container.transform.rotation = camera_transform.rotation;
+                keyboard_container.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2;                
+                keyboard_container.transform.rotation = Camera.main.transform.rotation;
                 // Rotate the Keyboard to a better position for the player interaction
                 keyboard_container.transform.Rotate(30, 0, 0);
+
+                // Get the camera positioning to restore it when load a game
+                //camera_position = Camera.main.transform.localPosition;
+                //camera_rotation = Camera.main.transform.localRotation;
+                camera_position = Camera.main.transform.position;
+                camera_rotation = Camera.main.transform.rotation;
+                Debug.Log("Camera position is equal? " + Equals(camera_position, Camera.main.transform.position));
+                Debug.Log("Camera rotation is equal? " + Equals(camera_rotation, Camera.main.transform.rotation));          
             }
         }
 
@@ -178,13 +393,32 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // DEBUG
-        //refreshScoreboard();
-        //calculateDistance();
-        //calculateVariation();
+        //***********************************************************************************************
+        // Debug Stuff
+
+        // Refresh the score and show the residues and bonds positions
+        if (Input.GetKeyDown("p"))
+        {
+            //calculateResidueVariation(false);
+            //calculateBondVariation(false);
+            refreshScoreboard();
+            calculateBestEnergy();
+        }    
+
+        // Replace the residues to the original place
+        if (Input.GetKeyDown("u"))
+        {
+            for (var i = 0; i < n_mol; i++)
+            {              
+                //particles[i].GetComponent<Rigidbody>().transform.Translate(StructureInitialization.residues_coords[i]);
+                //particles[i].transform.Translate(StructureInitialization.residues_coords[i], Space.World); 
+                //particles[i].GetComponent<Rigidbody>().transform.position = StructureInitialization.residues_coords[i];
+                particles[i].transform.position = StructureInitialization.residues_coords[i];                
+            }
+        }
     }
 
-    // To process the camera movement
+    // Process the camera movements.
     private void LateUpdate()
     {
         if (select_mode)
@@ -207,87 +441,11 @@ public class PlayerController : MonoBehaviour
             if (Input.GetAxis("Z-axis") != 0)
             {
                 transform.Translate(Vector3.forward * Time.deltaTime * zoom_smooth * Input.GetAxis("Z-axis"));
-            }
-            /*
-            // Zoom in
-            if (Input.GetKey("e"))
-            {
-                // Move the player object in the Z direction
-                transform.Translate(new Vector3(0,0,1) * Time.deltaTime * zoom_smooth);
-            }
-            // Zoom out
-            else if (Input.GetKey("q"))
-            {
-                // Move the player object in the Z direction
-                transform.Translate(new Vector3(0, 0, -1) * Time.deltaTime * zoom_smooth);
-            }
-            */
-            // Debug stuff
-            if (Input.GetKey("p"))
-            {
-                foreach (GameObject particle in particles)
-                {
-                    Debug.Log("Is Visible: " + particle.GetComponent<Renderer>().isVisible.ToString());
-                }
-            }
+            }           
         }
     }
 
-
-    /*
-    // Load game routine
-    void loadGame(string load_file)
-    {
-        Debug.Log("Load key pressed!");
-        // Deactivate player interaction
-        reticle_pointer.SetActive(false);
-        select_mode = false;
-        move_mode = false;
-
-        //Physics.autoSimulation = false;
-
-        gameObject.GetComponent<StructureInitialization>().destroyStructure();
-        gameObject.GetComponent<SaveHandler>().Load(load_file);
-        gameObject.GetComponent<StructureInitialization>().loadStructure();
-
-        target = null;
-        particles = StructureInitialization.residues_structure;
-        n_mol = StructureInitialization.n_mol;
-        sequence = StructureInitialization.sequence;
-        refreshScoreboard();
-        setCameraPivot();
-        // Activate the player interaction
-        select_mode = true;
-
-        Debug.Log("Saved Score: " + saved_score.ToString("F8"));
-
-        reticle_pointer.SetActive(true);
-
-        //Physics.autoSimulation = true;
-
-        //  Debug stuff
-        //res_variation = new Vector3[n_mol];
-        //bond_variation = new Vector3[n_mol - 1];
-        //calculateDistance();
-        //calculateVariation();
-    }
-    */
-
-
-
-    // Like an image zoom, NOT IN USE!!!
-    /*
-    private void cameraZoom(float signal)
-    {
-        float fov = Camera.main.fieldOfView;
-        fov += zoom_factor * signal;
-        fov = Mathf.Clamp(fov, fov_min, fov_max);
-        //Camera.main.fieldOfView = fov;
-        Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, fov, Time.deltaTime * zoom_smooth);
-    }
-    */
-
-
+    // Process the residue movements.
     private void FixedUpdate()
     {
         // MOVE MODE
@@ -295,14 +453,17 @@ public class PlayerController : MonoBehaviour
         // Manipulate a residues position using the joystick input
         if (move_mode)
         {
+            // Movement in horizontal axis (X axis)
             if (Input.GetAxisRaw("Horizontal") != 0)
             {
                 target.transform.Translate(Vector3.right * delta * Input.GetAxisRaw("Horizontal") * Time.deltaTime, Camera.main.transform);
             }
+            // Movement in vertical axis (Y axis)
             if (Input.GetAxisRaw("Vertical") != 0)
             {
                 target.transform.Translate(Vector3.up * delta * Input.GetAxisRaw("Vertical") * Time.deltaTime, Camera.main.transform);
             }
+            // Movemento in Z axis
             if (Input.GetAxisRaw("Z-axis") != 0)
             {
                 target.transform.Translate(Vector3.forward * delta * Input.GetAxisRaw("Z-axis") * Time.deltaTime, Camera.main.transform);
@@ -321,27 +482,6 @@ public class PlayerController : MonoBehaviour
     {
         float lerp = Mathf.PingPong(Time.time, blink_duration) / blink_duration;
         rend.material.color = Color.Lerp(target_color, color_blink, lerp);
-    }
-
-    /// <summary>
-    /// Initializes the structures parameters. 
-    /// </summary>
-    private void initializeParameters()
-    {
-        calculatePotentialEnergy();
-        float first_energy = potential_energy;
-        Physics.autoSimulation = false;
-        Debug.Log("Pre Simulation Step!");
-        do
-        {
-            best_energy = potential_energy;
-            Physics.Simulate(Time.fixedDeltaTime);
-            Debug.Log("Simulation Step!");
-            calculatePotentialEnergy();
-        } while (best_energy != potential_energy);
-        Physics.autoSimulation = true;
-        calculateRg();
-        Debug.Log("initializeParameters() Finished.\n Best_energy = " + best_energy + "\nFirst_energy = " + first_energy);
     }
 
     /// <summary>
@@ -408,6 +548,9 @@ public class PlayerController : MonoBehaviour
             }
         }
         potential_energy = u_bond + u_torsion + u_LJ;
+        bond_energy = u_bond;
+        torsion_energy = u_torsion;
+        lj_energy = u_LJ;
     }
 
     /// <summary>
@@ -473,7 +616,8 @@ public class PlayerController : MonoBehaviour
     {
         // A good score must be a positive value.
         score = best_energy - potential_energy;
-        if (Mathf.Approximately(score, Mathf.Epsilon))
+        //if (Mathf.Approximately(score, Mathf.Epsilon))
+        if (score.ToString("F3").Equals("0,000"))
         {
             score = 0.0f;
             score_text.color = Color.white;
@@ -483,7 +627,12 @@ public class PlayerController : MonoBehaviour
             // Conditional expression. Orange if score is negative, green if score is positive.
             score_text.color = Mathf.Sign(score) < 0 ? orange_color : Color.green;
         }
-        score_text.text = "Score: " + score.ToString();
+        //score_text.text = "Score: " + score.ToString();
+        score_text.text = "Score: " + score.ToString("F3");
+
+        Debug.Log("Score Text:");
+        Debug.Log("Best Energy = " + best_energy.ToString("F12"));
+        Debug.Log("Potential Energy = " + potential_energy.ToString("F12"));
     }
 
     /// <summary>
@@ -491,10 +640,10 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void setParametersText()
     {
-        string p_energy = "Potential Energy: " + potential_energy.ToString();
-        string rg_a = "Rg: " + rg_all.ToString();
-        string r_h = "Rg H: " + rg_h.ToString();
-        string r_p = "Rg P: " + rg_p.ToString();
+        string p_energy = "Potential Energy: " + potential_energy.ToString("F3");
+        string rg_a = "Rg: " + rg_all.ToString("F3");
+        string r_h = "Rg H: " + rg_h.ToString("F3");
+        string r_p = "Rg P: " + rg_p.ToString("F3");
         parameters_text.text = p_energy + "\n" + rg_a + "\n" + r_h + "\n" + r_p;
     }
 
@@ -504,18 +653,13 @@ public class PlayerController : MonoBehaviour
     void setCameraPivot()
     {
         Vector3 avg = new Vector3(0.0f, 0.0f, 0.0f);
-
         for (var i = 0; i < n_mol; i++)
         {
             avg += particles[i].transform.position;
         }
-
         center_mass = avg / n_mol;
-
-        Debug.Log("Camera center mass: " + center_mass);
-
+        //Debug.Log("Camera center mass: " + center_mass);
         //camera_pivot.transform.position = center_mass * Time.deltaTime * pivot_smooth;
-
         camera_pivot.transform.position = center_mass;
     }
 
@@ -526,51 +670,64 @@ public class PlayerController : MonoBehaviour
     void setInitialPosition()
     {
         Vector3 avg = new Vector3(0.0f, 0.0f, 0.0f);
-
         for (var i = 0; i < n_mol; i++)
         {
             avg += particles[i].transform.position;
         }
-
         center_mass = avg / n_mol;
-
-        // Calculate the distance to center mass until the further and closer residues
-        float further = 0.0f;
-        float closer = n_mol;
-        Vector3 further_residue = Vector3.right;
-        Vector3 closer_residue = Vector3.up;
-
-        for (var i = 0; i < n_mol; i++)
-        {
-            var distance = Vector3.Distance(center_mass, particles[i].transform.position);
-            if (distance > further)
-            {
-                further = distance;
-                further_residue = particles[i].transform.position;
-            }
-            if (distance < closer)
-            {
-                closer = distance;
-                closer_residue = particles[i].transform.position;
-            }
-        }
-
-        // Calculate the perpendicular direction
-        Vector3 player_position = Vector3.Cross(further_residue, closer_residue);
-        player_position = player_position.normalized * further * 2.0f;
-        Debug.Log("Player position vector: " + player_position);
-
-        Debug.Log("Camera center mass: " + center_mass);
         // Set the camera pivot position of the sphere orbitation
         camera_pivot.transform.position = center_mass;
-
-        // Move the position of the player (camera) to the calculated position
-        transform.Translate(player_position);
-
-        Debug.Log("Camera transform before: " + camera_transform.rotation);
-        transform.LookAt(camera_pivot.transform);
-        camera_transform.LookAt(camera_pivot.transform);
-        Debug.Log("Camera transform after: " + camera_transform.rotation);
+      
+        // New Game camera initialization
+        if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.New_game)))
+        {
+            // Calculate the distance to center mass until the further and closer residues
+            float further = 0.0f;
+            float closer = n_mol;
+            Vector3 further_residue = Vector3.right;
+            Vector3 closer_residue = Vector3.up;
+            for (var i = 0; i < n_mol; i++)
+            {
+                var distance = Vector3.Distance(center_mass, particles[i].transform.position);
+                if (distance > further)
+                {
+                    further = distance;
+                    further_residue = particles[i].transform.position;
+                }
+                if (distance < closer)
+                {
+                    closer = distance;
+                    closer_residue = particles[i].transform.position;
+                }
+            }
+            // Calculate the perpendicular direction
+            Vector3 player_position = Vector3.Cross(further_residue, closer_residue);
+            player_position = player_position.normalized * further * 2.0f;
+            //Debug.Log("Player position vector: " + player_position);
+            //Debug.Log("Camera center mass: " + center_mass);
+            // Move the position of the player (camera) to the calculated position
+            transform.Translate(player_position);
+            //Debug.Log("Camera transform before: " + Camera.main.transform.rotation);
+            //Move the field of vision to see the structure
+            transform.LookAt(camera_pivot.transform);
+            Camera.main.transform.LookAt(camera_pivot.transform);
+            Debug.Log("NEW GAME set initial position complete.");
+        }
+        // Load Game camera initialization
+        else if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.Saved_game)))
+        {
+            /*
+            Camera.main.transform.SetPositionAndRotation(camera_position, camera_rotation);
+            Camera.main.transform.localPosition = camera_position;
+            Camera.main.transform.localRotation = camera_rotation;
+            */
+            gameObject.transform.SetPositionAndRotation(camera_position, camera_rotation);
+            Debug.Log("Camera position: " + camera_position);
+            Debug.Log("Camera rotation: " + camera_rotation);
+            Debug.Log("Camera position is equal? " + Equals(camera_position, gameObject.transform.position));
+            Debug.Log("Camera rotation is equal? " + Equals(camera_rotation, gameObject.transform.rotation));
+            Debug.Log("LOAD GAME set initial position complete.");
+        }
     }
 
 
@@ -586,7 +743,11 @@ public class PlayerController : MonoBehaviour
             //distance = Vector3.Distance(particles[i].transform.position, particles[i + 1].transform.position);
             distance = Vector3.Distance(particles[i].GetComponent<Transform>().transform.position, particles[i + 1].GetComponent<Transform>().transform.position);
             //Debug.Log("Redidue " + i.ToString() + " = " + particles[i].transform.position.ToString("F8"));
-            Debug.Log("Bond " + i.ToString() + " = " + distance.ToString("F8"));
+            if (i == calc_distance)
+            {
+                Debug.Log("Distance particle " + i.ToString() + " to " + (i + 1).ToString() + " = " + distance.ToString("F8"));
+            }
+            //Debug.Log("Distance particle " + i.ToString() + " to " + (i + 1).ToString() + " = " + distance.ToString("F8"));
             //Debug.Log(particles[i].GetComponent<Transform>().transform.position.ToString("F8"));
             //Debug.Log(particles[i].transform.position.ToString("F8"));
         }
@@ -594,36 +755,65 @@ public class PlayerController : MonoBehaviour
     }
 
     // Calculates the position variation of a residue or a bond, between its initial and actual position 
-    void calculateVariation()
+    void calculateResidueVariation(bool single)
     {
-        Debug.Log("CALCULATE VARIATION:");
-        float variation;
+        Debug.Log("CALCULATE RESIDUES VARIATION:");
 
-
-        // Residues variation
-        //Debug.Log("Residue Variation:");
-        for (var i = 0; i < n_mol; i++)
+        if (single)
         {
-            //Debug.Log("ResiduePos[" + i + "]: " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
-            //Debug.Log("ResidueCoords[" + i + "]: " + StructureInitialization.res_coords[i].ToString("F8"));         
-            variation = Vector3.Distance(particles[i].transform.position, StructureInitialization.residues_coords[i]);
-            Debug.Log("Variation ResCoord[" + i + "]: " + variation.ToString("F8"));
-            //Debug.Log("Var Variation Residue[" + i + "]: " + (variation - Vector3.Distance(StructureInitialization.res_coords[i], res_variation[i])).ToString("F8"));
-            //Debug.Log("Pos Variation Residue[" + i + "]: " + Vector3.Distance(res_variation[i], particles[i].transform.position).ToString("F8"));
-            //res_variation[i] = particles[i].transform.position;
-
+            Debug.Log("R C[" + var_residue + "]: " + StructureInitialization.residues_coords[var_residue].ToString("F8"));
+            Debug.Log("R P[" + var_residue + "]: " + particles[var_residue].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+            //var variation = Vector3.Distance(particles[i].transform.position, StructureInitialization.residues_coords[i]);
+            var variation = StructureInitialization.residues_coords[var_residue] - particles[var_residue].transform.position;
+            Debug.Log("Var R[" + var_residue + "]: " + variation.ToString("F8"));
         }
-        // Bonds variation
-        //Debug.Log("Bond Variation:");
-        for (var i = 0; i < n_mol - 1; i++)
+        else
         {
-            //Debug.Log("BondPos[" + i + "]: " + StructureInitialization.bond_structure[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
-            //Debug.Log("BondCoords[" + i + "]: " + StructureInitialization.bond_coords[i].ToString("F8"));
-            variation = Vector3.Distance(StructureInitialization.bonds_structure[i].transform.position, StructureInitialization.bonds_coords[i]);
-            Debug.Log("Variation BondCoord[" + i + "]: " + variation.ToString("F8"));
-            //Debug.Log("Var Variation Bond[" + i + "]: " + (variation - Vector3.Distance(StructureInitialization.bond_coords[i], bond_variation[i])).ToString("F8"));
-            //Debug.Log("Pos Variation Bond[" + i + "]: " + Vector3.Distance(bond_variation[i], StructureInitialization.bond_structure[i].transform.position).ToString("F8"));
-            //bond_variation[i] = StructureInitialization.bond_structure[i].transform.position;
+            for (var i = 0; i < n_mol; i++)
+            {
+              
+                //Debug.Log("R C[" + i + "]: " + StructureInitialization.residues_coords[i].ToString("F8"));
+                //Debug.Log("R P[" + i + "]: " + particles[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+                //var variation = Vector3.Distance(particles[i].transform.position, StructureInitialization.residues_coords[i]);
+                var variation = StructureInitialization.residues_coords[i] - particles[i].transform.position;
+                Debug.Log("Var R[" + i + "]: " + variation.ToString("F8"));
+                //Debug.Log("Variation ResCoord[" + i + "]: " + variation.ToString("F8"));
+                //Debug.Log("Var Variation Residue[" + i + "]: " + (variation - Vector3.Distance(StructureInitialization.res_coords[i], res_variation[i])).ToString("F8"));
+                //Debug.Log("Pos Variation Residue[" + i + "]: " + Vector3.Distance(res_variation[i], particles[i].transform.position).ToString("F8"));
+                //res_variation[i] = particles[i].transform.position;
+            }
         }
     }
+
+    void calculateBondVariation(bool single)
+    {
+        Debug.Log("CALCULATE BONDS VARIATION:");
+
+        if (single)
+        {
+            Debug.Log("B C[" + var_bond + "]: " + StructureInitialization.bonds_coords[var_bond].ToString("F8"));
+            Debug.Log("B P[" + var_bond + "]: " + StructureInitialization.bonds_structure[var_bond].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+            //var variation = Vector3.Distance(StructureInitialization.bonds_structure[i].transform.position, StructureInitialization.bonds_coords[i]);
+            var variation = StructureInitialization.bonds_coords[var_bond] - StructureInitialization.bonds_structure[var_bond].transform.position;
+            Debug.Log("Var B[" + var_bond + "]: " + variation.ToString("F8"));
+        }
+        else
+        {
+            for (var i = 0; i < n_mol - 1; i++)
+            {
+                //Debug.Log("B C[" + i + "]: " + StructureInitialization.bonds_coords[i].ToString("F8"));
+                //Debug.Log("B P[" + i + "]: " + StructureInitialization.bonds_structure[i].GetComponent<Rigidbody>().transform.position.ToString("F8"));
+                //var variation = Vector3.Distance(StructureInitialization.bonds_structure[i].transform.position, StructureInitialization.bonds_coords[i]);
+                var variation = StructureInitialization.bonds_coords[i] - StructureInitialization.bonds_structure[i].transform.position;
+                Debug.Log("Var B[" + i + "]: " + variation.ToString("F8"));
+
+                //Debug.Log("Variation BondCoord[" + i + "]: " + variation.ToString("F8"));
+                //Debug.Log("Var Variation Bond[" + i + "]: " + (variation - Vector3.Distance(StructureInitialization.bond_coords[i], bond_variation[i])).ToString("F8"));
+                //Debug.Log("Pos Variation Bond[" + i + "]: " + Vector3.Distance(bond_variation[i], StructureInitialization.bond_structure[i].transform.position).ToString("F8"));
+                //bond_variation[i] = StructureInitialization.bond_structure[i].transform.position;
+            }
+        }        
+    }
+
+// End of PlayerController
 }

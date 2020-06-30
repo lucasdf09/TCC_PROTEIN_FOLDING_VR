@@ -123,7 +123,7 @@ public class GameFilesHandler : MonoBehaviour
         saved_game = "Saved_Game";
 
         // Folders files limit initialization
-        inputs_limit = 50;
+        //inputs_limit = 10;
         saves_limit = 5;
         
         // PlayerPrefs fields initialization
@@ -132,7 +132,6 @@ public class GameFilesHandler : MonoBehaviour
         PlayerPrefs.SetString(saved_game, null);
 
         // Game Files Folders initialization
-
         // Intermediary folder to contain the game's files
         string game_files_folder = "_GameFiles";
 
@@ -181,7 +180,7 @@ public class GameFilesHandler : MonoBehaviour
             Debug.Log(f.Name);
         }
 
-        // IF Inputs folder empty: copy the standard new game structures to Inputs folder
+        // If Inputs folder empty: copy the standard new game structures to Inputs folder
         if (info.Length == 0)
         {
             Debug.Log("Inputs empty!");
@@ -193,7 +192,7 @@ public class GameFilesHandler : MonoBehaviour
             }
         }
         
-        // If Inputs folder not empty: verify if the standards new game structures exists
+        // Else, if Inputs folder not empty: verify if the standards new game structures exists
         else
         {
             Debug.Log("Inputs NOT empty!");
@@ -302,7 +301,7 @@ public class GameFilesHandler : MonoBehaviour
         }
     }
 
-    // Functions used in game
+    // Methods used in game
 
     // Public methods to access the game files directories
 
@@ -409,6 +408,16 @@ public class GameFilesHandler : MonoBehaviour
     }
 
     /// <summary>
+    /// Checks if a file name exists in Outputs folder.
+    /// </summary>
+    /// <param name="file_name">File name (without path).</param>
+    /// <returns>True if the file exists.</returns>
+    public bool outputFileExists(string file_name)
+    {
+        return fileExists(file_name, ".txt", outputs_folder);
+    }
+
+    /// <summary>
     /// Checks if a file name exists in Saves folder.
     /// </summary>
     /// <param name="file_name">File name (without path).</param>
@@ -417,7 +426,6 @@ public class GameFilesHandler : MonoBehaviour
     {
         return fileExists(file_name, ".json", saves_folder);
     }
-
 
     /*
     /// <summary>
@@ -467,6 +475,15 @@ public class GameFilesHandler : MonoBehaviour
     }
 
     /// <summary>
+    /// Remove a file from Outputs folder.
+    /// </summary>
+    /// <param name="file_name">File name (without path and extension).</param>
+    public void removeOutputFile(string file_name)
+    {
+        removeFile(file_name, ".txt", outputs_folder);
+    }
+
+    /// <summary>
     /// Remove a file from Saves folder.
     /// </summary>
     /// <param name="file_name">File name (without path and extension).</param>
@@ -493,11 +510,11 @@ public class GameFilesHandler : MonoBehaviour
     /// <summary>
     /// Returns a text file contents into a string.
     /// </summary>
-    /// <param name="file_path">File path to be readen.</param>
+    /// <param name="file_path">File path to be read.</param>
     /// <returns>String with the file contents.</returns>
     public string readTxtFile(string file_path)
     {
-        Debug.Log("StructureInitialization.readTxtFile()");
+        Debug.Log("GameFilesHandler.readTxtFile()");
 
         Debug.Log("File path: " + file_path);
 
@@ -546,6 +563,12 @@ public class GameFilesHandler : MonoBehaviour
         }
         save_slot.residues_coords[save_slot.n_mol - 1] = StructureInitialization.residues_structure[save_slot.n_mol - 1].transform.position;
         save_slot.residues_rotations[save_slot.n_mol - 1] = StructureInitialization.residues_structure[save_slot.n_mol - 1].transform.rotation;
+
+        //GameObject player = GameObject.FindWithTag("Player");
+        //save_slot.player_position = player.transform.position;
+        //save_slot.player_rotation = player.transform.rotation;
+        save_slot.camera_position = PlayerController.camera_position;
+        save_slot.camera_rotation = PlayerController.camera_rotation;
 
         // Convert to Json format
         string json = JsonUtility.ToJson(save_slot);
@@ -598,11 +621,82 @@ public class GameFilesHandler : MonoBehaviour
             }
             StructureInitialization.residues_coords[load_slot.n_mol - 1] = load_slot.residues_coords[load_slot.n_mol - 1];
             StructureInitialization.residues_rotations[load_slot.n_mol - 1] = load_slot.residues_rotations[load_slot.n_mol - 1];
+
+            //GameObject player = GameObject.FindWithTag("Player");
+            //player.transform.SetPositionAndRotation(load_slot.player_position, load_slot.player_rotation);
+            //GameObject camera = GameObject.FindWithTag("MainCamera");
+            //GameObject camera = Camera.main;
+            //Camera.main.transform.SetPositionAndRotation(load_slot.camera_position, load_slot.camera_rotation);
+            //camera.transform.SetPositionAndRotation(load_slot.camera_position, load_slot.camera_rotation);
+            //camera.transform.position = load_slot.camera_position;
+            //camera.transform.rotation = load_slot.camera_rotation;
+            PlayerController.camera_position = load_slot.camera_position;
+            PlayerController.camera_rotation = load_slot.camera_rotation;
+            Debug.Log("Camera position: " + load_slot.camera_position);
+            Debug.Log("Camera rotation: " + load_slot.camera_rotation);
         }
         else
         {
             Debug.Log("LOAD: File not found!");
         }
+    }
+
+    /// <summary>
+    /// Saves the actual structure information of the game into a Text file.
+    /// </summary>
+    /// <param name="output_name">File name (without extension).</param>
+    public void saveOutput(string output_name)
+    {
+        string output_file = Path.Combine(outputs_folder, output_name + ".txt");
+
+        Debug.Log("SaveHandler Saving Output!");
+        Debug.Log("Output file: " + output_file);
+
+        string output_text = "";
+
+        string zeros = "D" + (StructureInitialization.n_mol - 1).ToString().Length;
+
+        string spaces = "";
+
+        for (var i = 0; i < StructureInitialization.n_mol; i++)
+        {
+            output_text += i.ToString(zeros);
+
+            if (StructureInitialization.residues_coords[i].x < 0)
+                spaces = "   ";
+            else
+                spaces = "    ";
+            output_text += spaces + StructureInitialization.residues_coords[i].x.ToString("F12");
+
+            if (StructureInitialization.residues_coords[i].y < 0)
+                spaces = "   ";
+            else
+                spaces = "    ";
+            output_text += spaces + StructureInitialization.residues_coords[i].y.ToString("F12");
+
+            if (StructureInitialization.residues_coords[i].z < 0)
+                spaces = "   ";
+            else
+                spaces = "    ";
+            output_text += spaces + StructureInitialization.residues_coords[i].z.ToString("F12") + "\n";
+        }
+        output_text += "\n";
+        output_text += "BestEnergy = " + PlayerController.best_energy.ToString() + "\n";
+        output_text += "Score = " + PlayerController.score.ToString() + "\n";
+        output_text += "\n";
+        output_text += "PotentialEnergy = " + PlayerController.potential_energy.ToString() + "\n";
+        output_text += "BondEnergy = " + PlayerController.bond_energy.ToString() + "\n";
+        output_text += "TorsionEnergy = " + PlayerController.torsion_energy.ToString() + "\n";
+        output_text += "Lennard-JonesEnergy = " + PlayerController.lj_energy.ToString() + "\n";
+        output_text += "\n";
+        output_text += "RgAll = " + PlayerController.rg_all.ToString() + "\n";
+        output_text += "RgH = " + PlayerController.rg_h.ToString() + "\n";
+        output_text += "RgP = " + PlayerController.rg_p.ToString() + "\n";
+        output_text += "\n";
+        output_text += "Molecules = " + StructureInitialization.n_mol.ToString() + "\n";
+        output_text += "Sequence = " + StructureInitialization.sequence.ToString() + "\n";
+
+        File.WriteAllText(output_file, output_text);
     }
 
 

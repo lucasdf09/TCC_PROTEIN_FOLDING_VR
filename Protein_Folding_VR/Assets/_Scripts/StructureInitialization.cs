@@ -1,26 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 using UnityEditor;
 using System.IO;
 using System;
 using System.Globalization;
 
-//using UnityEngine.Networking;
 
 /// <summary>
 /// Structure (protein) attributes and methods.
 /// </summary>
 public class StructureInitialization : MonoBehaviour
-{
-    public static int n_mol;
+{   
     public GameObject residue;                      // Residue Prefab refernce
     public GameObject bond;                         // Bond Prefab reference
     public GameObject first;                        // First Prefab reference
     public Transform residues;                      // Instatitated Parent reference
     public Transform bonds;                         // Instatitated Parent reference
     public Transform first_ref;                     // Instatitated Parent reference
+
+    public static int n_mol;                        // Residue number 
     public static GameObject[] residues_structure;  // Array to store residues objects
     public static GameObject[] bonds_structure;     // Array to store bonds objects
     public static GameObject first_mol;             // Object to store first object
@@ -34,7 +33,9 @@ public class StructureInitialization : MonoBehaviour
 
     private GameFilesHandler files_handler;         // Game Files Handler reference.
 
+
     // Start is called before the first frame update.
+    // Runs before PlayerController initializeGame()
     private void Start()
     {
         // Get the reference to the GameFilesHandler game object
@@ -67,7 +68,7 @@ public class StructureInitialization : MonoBehaviour
         }
         else
         {
-            Debug.Log("StructureInit Error: No File Loaded!");
+            Debug.Log("StructureInitialization Error: No File Loaded!");
         }
     }
 
@@ -93,7 +94,7 @@ public class StructureInitialization : MonoBehaviour
         pos_offset.x = float.Parse(words[1], CultureInfo.InvariantCulture.NumberFormat);
         pos_offset.y = float.Parse(words[2], CultureInfo.InvariantCulture.NumberFormat);
         pos_offset.z = float.Parse(words[3], CultureInfo.InvariantCulture.NumberFormat);
-        Debug.Log("Position offset: " + $"<{pos_offset}>");
+        Debug.Log("Position offset: " + pos_offset);
 
         // Initialize the structure in the center of the Scene with the first residue in Vector3 (0, 0, 0)
         residues_coords = new Vector3[n_mol];
@@ -116,16 +117,23 @@ public class StructureInitialization : MonoBehaviour
         bonds_structure = new GameObject[n_mol - 1];
         bonds_coords = new Vector3[n_mol - 1];
         bonds_rotations = new Quaternion[n_mol - 1];
-        initializeResidues();
+
+        initializeResidues();       
         initializeBonds();
-        asignResiduesJoints();
-        asignBondsJoints();
+
+        lockStructure();
+
+        //assignResiduesJoints();
+        assignBondsJoints();
+        assignBondFixedJoints();
+
         setResiduesColor();
         markFirstResidue();
     }
 
     /// <summary>
-    /// Destroys a structure objects.
+    /// Destroys a structure objects. 
+    /// Not in Use.
     /// </summary>
     public void destroyStructure()
     {
@@ -150,8 +158,13 @@ public class StructureInitialization : MonoBehaviour
         bonds_structure = new GameObject[n_mol - 1];
         loadResidues();
         loadBonds();
-        asignResiduesJoints();
-        asignBondsJoints();
+
+        lockStructure();
+
+        //assignResiduesJoints();
+        assignBondsJoints();
+        assignBondFixedJoints();
+
         setResiduesColor();
         markFirstResidue();
     }
@@ -209,22 +222,38 @@ public class StructureInitialization : MonoBehaviour
     }
 
     /// <summary>
-    /// Asigns the residues joints.
+    /// Locks the residues and bonds setting the Rigidbody components as kinematic. 
     /// </summary>
-    private void asignResiduesJoints()
+    private void lockStructure()
     {
-        // The first residue ([0]) is conneced to the world origin coordinate
+        foreach (var residue in residues_structure)
+            residue.GetComponent<Rigidbody>().isKinematic = true;
+
+        foreach (var bond in bonds_structure)
+            bond.GetComponent<Rigidbody>().isKinematic = true;
+    }
+
+    /// <summary>
+    /// Assigns the residues joints.
+    /// </summary>
+    //private void asignResiduesJoints()
+    public void assignResiduesJoints()
+    {
+        // The first residue ([0]) is conneced to the world origin coordinate - by default
         // The other residues are connected to the bond that precede them
-        for (var i = 1; i < n_mol; i++)
+        //for (var i = 1; i < n_mol; i++)
+        for (var i = n_mol - 1; i > 0; i--)
         {
             residues_structure[i].GetComponent<FixedJoint>().connectedBody = bonds_structure[i - 1].GetComponent<Rigidbody>();
         }
     }
 
     /// <summary>
-    /// Asigns the bonds joints.
+    /// Assigns the bonds configurable joints. 
+    /// Connects a bond joint with the previous bond.
+    /// Except for the first bond.
     /// </summary>
-    private void asignBondsJoints()
+    private void assignBondsJoints()
     {
         // The first bond is connected to the first residue
         bonds_structure[0].GetComponent<ConfigurableJoint>().connectedBody = residues_structure[0].GetComponent<Rigidbody>();
@@ -234,7 +263,19 @@ public class StructureInitialization : MonoBehaviour
             bonds_structure[i].GetComponent<ConfigurableJoint>().connectedBody = bonds_structure[i - 1].GetComponent<Rigidbody>();
         }
     }
-    
+
+    /// <summary>
+    /// Assigns the bonds fixed joints.
+    /// Connects a bonds joint with the next residue. 
+    /// </summary>
+    private void assignBondFixedJoints()
+    {
+        for (var i = 0; i < n_mol - 1; i++)
+        {
+            bonds_structure[i].GetComponent<FixedJoint>().connectedBody = residues_structure[i + 1].GetComponent<Rigidbody>();
+        }
+    }
+
     /// <summary>
     /// Sets the residues color.
     /// </summary>
@@ -260,7 +301,13 @@ public class StructureInitialization : MonoBehaviour
     /// </summary>
     private void markFirstResidue()
     {
-        first_mol = Instantiate(first, residues_coords[0], Quaternion.identity, first_ref);
+        //first_mol = Instantiate(first, residues_structure[0].transform.position, Quaternion.identity, first_ref);
+        first_mol = Instantiate(first, residues_structure[0].transform.position, Quaternion.identity, residues_structure[0].transform);
         first_mol.name = "First0";
+        //residues_structure[0].transform.SetParent(first_mol.transform);
+        //first_mol.GetComponent<FixedJoint>().connectedBody = residues_structure[0].GetComponent<Rigidbody>();
+        //residues_structure[0].GetComponent<Rigidbody>().isKinematic = true;
     }
+
+//  End of StructureInitialization
 }
