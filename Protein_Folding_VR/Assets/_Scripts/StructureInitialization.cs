@@ -48,7 +48,7 @@ public class StructureInitialization : MonoBehaviour
             string file_name = PlayerPrefs.GetString(GameFilesHandler.New_game);
 
             // Get the name of the original protein file and set a reference name 
-            origin_name = Path.GetFileName(file_name);
+            origin_name = Path.GetFileNameWithoutExtension(file_name);
 
             // Read data in a Txt file to a string
             string read_data = files_handler.readTxtFile(file_name);

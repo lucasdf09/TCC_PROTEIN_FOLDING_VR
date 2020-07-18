@@ -8,6 +8,10 @@
 7    1   -2    2
 8    2   -2    2
 
+
+
+Sequence = AAAAAAAAA
+
 BestEnergy = -25.495327
 Step = 2489780
 rGAll = 1.018984
@@ -16,5 +20,3 @@ rGP = 1.047454
 Processing Time = 480.000000s
 
 Molecules = 9
-
-Sequence = AAAAAAAAB

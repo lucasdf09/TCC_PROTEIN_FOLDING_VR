@@ -22,6 +22,8 @@ public class PlayerController : MonoBehaviour
     public GameObject structure;            // Structure object reference
     public float delta;                     // Residue translation rate
     public float blink_duration;            // Blink period increasing rate;
+    public GameObject toggle_score;         // Reference to score toggle in Inspector
+    public GameObject toggle_parameters;    // Reference to parameters toggle in Inspector
 
     public static bool select_mode;         // Flag to signal the select residue mode
     public static bool move_mode;           // Flag to signal the residue movement mode
@@ -37,8 +39,12 @@ public class PlayerController : MonoBehaviour
     public static float rg_all;             // All residues Radius of Gyration (R.G.)
     public static float rg_h;               // Hydrophobic residues R.G. 
     public static float rg_p;               // Polar residues R.G.
-    public static Vector3 camera_position;      // Camera position reference for saving.
-    public static Quaternion camera_rotation;   // Camera rotation reference for saving.
+    public static Vector3 camera_position;          // Camera position reference for saving
+    public static Quaternion camera_rotation;       // Camera rotation reference for saving
+    public static GameObject score_display;         // Score display position reference
+    public static GameObject parameters_display;    // Parameters display position reference
+    public static GameObject score_toggle;          // Score toggle button reference
+    public static GameObject parameters_toggle;     // Parameters toggle button reference
 
     private static Color color_end;         // Color to blink with the original
     private static Color orange_color;      // Orange color;
@@ -46,12 +52,8 @@ public class PlayerController : MonoBehaviour
     private int n_mol;                      // Number of molecules
     private Color color_aux;                // Auxiliar color object to store the residue own color during blink        
     private string sequence;                // AB Protein sequence 
-
-    //private float potential_energy;         // 3D AB off-lattice model Potential Energy 
-    //private float rg_all;                   // All residues Radius of Gyration (R.G.)
-    //private float rg_h;                     // Hydrophobic residues R.G. 
-    //private float rg_p;                     // Polar residues R.G.
     private Vector3 center_mass;            // Residues Center of Mass cartesian coordinates
+    private GameFilesHandler files_handler; // Game Files Handler reference.
 
     // DEBUG
     int calc_distance = 3;
@@ -73,28 +75,42 @@ public class PlayerController : MonoBehaviour
         score = 0.0f;
         //best_energy = 0.0f;
         potential_energy = 0.0f;
+
         // Deactivate player interaction until initialization finish
         reticle_pointer.SetActive(false);
         select_mode = false;
         move_mode = false;
         Physics.autoSimulation = false;
+
     }
 
     private void Start()
     {
-        //Physics.autoSimulation = false;
-
         target = null;
         particles = StructureInitialization.residues_structure;
-
         bonds = StructureInitialization.bonds_structure;
-
         n_mol = StructureInitialization.n_mol;
-        sequence = StructureInitialization.sequence;     
+        sequence = StructureInitialization.sequence;
 
-        //calculatePotentialEnergy();
-        //best_energy = potential_energy;
-        //calculateRg();
+        score_display = score_text.gameObject;
+        parameters_display = parameters_text.gameObject;
+        score_toggle = toggle_score;
+        parameters_toggle = toggle_parameters;
+        // Get the reference to the GameFilesHandler game object
+        GameObject game_files = GameObject.FindGameObjectWithTag("GameFiles");
+        files_handler = game_files.GetComponent<GameFilesHandler>();
+        //  Check if there is a settings file saved
+        if (files_handler.settingsFileExists(GameFilesHandler.Display_file))
+        {
+            Debug.Log("PlayerController: Display file found!");
+            // Load settings saved in previous use
+            files_handler.loadSettings(GameFilesHandler.Display_file);
+        }
+        else
+        {
+            Debug.Log("PlayerController: Display file NOT found!");
+        }
+
         // Call initializeGame function in the next frame. 
         Invoke("initializeGame", 0);
     }
@@ -395,7 +411,6 @@ public class PlayerController : MonoBehaviour
 
         //***********************************************************************************************
         // Debug Stuff
-
         // Refresh the score and show the residues and bonds positions
         if (Input.GetKeyDown("p"))
         {
@@ -404,18 +419,6 @@ public class PlayerController : MonoBehaviour
             refreshScoreboard();
             calculateBestEnergy();
         }    
-
-        // Replace the residues to the original place
-        if (Input.GetKeyDown("u"))
-        {
-            for (var i = 0; i < n_mol; i++)
-            {              
-                //particles[i].GetComponent<Rigidbody>().transform.Translate(StructureInitialization.residues_coords[i]);
-                //particles[i].transform.Translate(StructureInitialization.residues_coords[i], Space.World); 
-                //particles[i].GetComponent<Rigidbody>().transform.position = StructureInitialization.residues_coords[i];
-                particles[i].transform.position = StructureInitialization.residues_coords[i];                
-            }
-        }
     }
 
     // Process the camera movements.
@@ -620,7 +623,7 @@ public class PlayerController : MonoBehaviour
         if (score.ToString("F3").Equals("0,000"))
         {
             score = 0.0f;
-            score_text.color = Color.white;
+            score_text.color = Color.black;
         }
         else
         {

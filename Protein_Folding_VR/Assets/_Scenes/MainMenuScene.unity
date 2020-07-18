@@ -1520,26 +1520,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
-        type: 3}
-      propertyPath: game_files_handler
-      value: 
-      objectReference: {fileID: 2097151191}
-    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
-        type: 3}
-      propertyPath: type
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
-        type: 3}
-      propertyPath: files_handler
-      value: 
-      objectReference: {fileID: 2097151191}
-    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
-        type: 3}
-      propertyPath: message_text
-      value: 
-      objectReference: {fileID: 812900178}
     - target: {fileID: 1429793442739461952, guid: e678817a03d71e440bbd5221adc86508,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1745,6 +1725,26 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[3].m_MethodName
       value: SetActive
       objectReference: {fileID: 0}
+    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
+        type: 3}
+      propertyPath: game_files_handler
+      value: 
+      objectReference: {fileID: 2097151191}
+    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
+        type: 3}
+      propertyPath: type
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
+        type: 3}
+      propertyPath: files_handler
+      value: 
+      objectReference: {fileID: 2097151191}
+    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
+        type: 3}
+      propertyPath: message_text
+      value: 
+      objectReference: {fileID: 812900178}
     - target: {fileID: 892715708563705122, guid: e678817a03d71e440bbd5221adc86508,
         type: 3}
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -1845,26 +1845,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
-        type: 3}
-      propertyPath: game_files_handler
-      value: 
-      objectReference: {fileID: 2097151191}
-    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
-        type: 3}
-      propertyPath: type
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
-        type: 3}
-      propertyPath: files_handler
-      value: 
-      objectReference: {fileID: 2097151191}
-    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
-        type: 3}
-      propertyPath: message_text
-      value: 
-      objectReference: {fileID: 1042660020}
     - target: {fileID: 1429793442739461952, guid: e678817a03d71e440bbd5221adc86508,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2070,6 +2050,26 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[3].m_MethodName
       value: SetActive
       objectReference: {fileID: 0}
+    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
+        type: 3}
+      propertyPath: game_files_handler
+      value: 
+      objectReference: {fileID: 2097151191}
+    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
+        type: 3}
+      propertyPath: type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
+        type: 3}
+      propertyPath: files_handler
+      value: 
+      objectReference: {fileID: 2097151191}
+    - target: {fileID: 1429793444025552083, guid: e678817a03d71e440bbd5221adc86508,
+        type: 3}
+      propertyPath: message_text
+      value: 
+      objectReference: {fileID: 1042660020}
     - target: {fileID: 892715708563705122, guid: e678817a03d71e440bbd5221adc86508,
         type: 3}
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[4].m_Target

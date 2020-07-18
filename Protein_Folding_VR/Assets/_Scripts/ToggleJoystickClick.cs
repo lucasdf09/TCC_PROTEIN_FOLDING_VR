@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// Raise the "Click" EventSystem when the player is looking at the game button (with the Reticle Pointer - RP)
+/// Raise the "Click" EventSystem when the player is looking at the game toggle button (with the Reticle Pointer - RP)
 /// and press the "Fire1" joystick button.
 /// </summary>
-public class ButtonJoystickClick : MonoBehaviour
+public class ToggleJoystickClick : MonoBehaviour
 {
-    private bool gazed_at = false;      // Flag to track the RP over the button
-    private bool button_down = false;   // Flag to store the button press
+    private bool gazed_at = false;      // Flag to track the RP over the toggle button
+    private bool button_down = false;   // Flag to store the toggle button press
 
     // Update is called once per frame
     void Update()
@@ -33,7 +33,7 @@ public class ButtonJoystickClick : MonoBehaviour
         else if (gazed_at && button_down && Input.GetButtonUp("Submit"))
         {
             //Debug.Log("Button TRUE");
-            gazed_at = false;
+            //gazed_at = false;
             button_down = false;
             //Debug.Log("Click: Pointer up!");
             // Rise a Pointer Click Up event, that can be catched by the Event Trigger
@@ -57,7 +57,7 @@ public class ButtonJoystickClick : MonoBehaviour
         else if (gazed_at && button_down && Input.GetButtonUp("Fire1"))
         {
             Debug.Log("Button TRUE");
-            gazed_at = false;
+            //gazed_at = false;
             button_down = false;
             Debug.Log("Click: Pointer up!");
             // Rise a Pointer Click Up event, that can be catched by the Event Trigger
