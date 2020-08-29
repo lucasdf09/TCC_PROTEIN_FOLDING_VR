@@ -236,8 +236,8 @@ public class StructureInitialization : MonoBehaviour
     /// <summary>
     /// Assigns the residues joints.
     /// </summary>
-    //private void asignResiduesJoints()
-    public void assignResiduesJoints()
+    private void asignResiduesJoints()
+    //public void assignResiduesJoints()
     {
         // The first residue ([0]) is conneced to the world origin coordinate - by default
         // The other residues are connected to the bond that precede them

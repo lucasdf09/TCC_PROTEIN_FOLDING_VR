@@ -150,7 +150,7 @@ public class GameFilesHandler : MonoBehaviour
         display_file = "Display_settings";
 
         // Folders files limit initialization
-        //inputs_limit = 10;
+        inputs_limit = 0;
         saves_limit = 5;
         
         // PlayerPrefs fields initialization

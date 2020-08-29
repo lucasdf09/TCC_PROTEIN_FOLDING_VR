@@ -11,8 +11,8 @@ public class GameListButton : MonoBehaviour
     [SerializeField]
     private Text button_text = default;                     // Button text
 
-    [SerializeField]
-    private GameListController list_controller = default;   // Reference to parent Game List Controller script
+    //[SerializeField]
+    //private GameListController list_controller = default;   // Reference to parent Game List Controller script
 
     private string button_file;                             // Game file name associated with the button
 
