@@ -67,6 +67,8 @@ public class PlayerController : MonoBehaviour
     private int list_size;                      // Movements record list size
     private bool moved_flag;                    // Flag to signal movement
     private bool undo_flag;                     // Flag to signal undo operation
+    private float last_energy;
+    private bool updating_score;
 
 
     // DEBUG
@@ -94,7 +96,6 @@ public class PlayerController : MonoBehaviour
         select_mode = false;
         move_mode = false;
         Physics.autoSimulation = false;
-
     }
 
     private void Start()
@@ -110,12 +111,14 @@ public class PlayerController : MonoBehaviour
         */
 
         undo_list = new List<PlayState>();
-        redo_list = new List<PlayState>();
+        //redo_list = new List<PlayState>();
         undo_index = 0;
-        redo_index = 0;
+        //redo_index = 0;
         list_size = 1048576;
         moved_flag = false;
         undo_flag = false;
+        last_energy = 0.0f;
+        updating_score = false;
 
         // Structure references initialization
         particles = StructureInitialization.residues_structure;
@@ -304,7 +307,9 @@ public class PlayerController : MonoBehaviour
         } while (energy != potential_energy);
         //} while (!Mathf.Approximately(energy - potential_energy, Mathf.Epsilon));
 
-        //Physics.autoSimulation = true;
+        Physics.autoSimulation = true;
+
+        last_energy = potential_energy;    
 
         Debug.Log("initializeParameters() Finished");
         Debug.Log("Best Energy = " + best_energy.ToString("F12"));        
@@ -494,7 +499,7 @@ public class PlayerController : MonoBehaviour
         // Manipulate a residues position using the joystick input
         if (move_mode)
         {
-            moved_flag = false;
+            //moved_flag = false;
             // Movement in horizontal axis (X axis)
             if (Input.GetAxisRaw("Horizontal") != 0)
             {
@@ -511,7 +516,7 @@ public class PlayerController : MonoBehaviour
                 moved_flag = true;
                 //insertState();
             }
-            // Movemento in Z axis
+            // Movement in Z axis
             if (Input.GetAxisRaw("Z-axis") != 0)
             {
                 Vector3 translation = Vector3.forward * delta * Input.GetAxisRaw("Z-axis") * Time.deltaTime;
@@ -520,112 +525,36 @@ public class PlayerController : MonoBehaviour
                 //insertState();
             }
 
-            //
+            // Structure save state routine
             if (moved_flag)
             {
-                unlockStructure();
-                // Wait until the structure energy stabilizes
-                //Physics.autoSimulation = false;
-                /*
-                var energy = 0.0f;
-                calculatePotentialEnergy();
-                var step = 0;
-                do
-                {
-                    energy = potential_energy;
-                    Physics.Simulate(Time.fixedDeltaTime);
-                    calculatePotentialEnergy();
-                    Debug.Log("Step: " + ++step);
-                } while (energy != potential_energy);
-                */
-                stabilizeStructure();
+                moved_flag = false;
                 // Remove all the next operations stored in undo_list
                 if (undo_flag)
                 {
+                    undo_flag = false;
+                    unlockStructure();
+                    // Clear the redo stack
                     undo_list.RemoveRange(undo_index, (undo_list.Count - undo_index));
-                }              
+                }                              
                 // Saves actual structure state
-                insertState();
+                //insertState();
+                if (!updating_score)
+                {
+                    StartCoroutine("updateScore");
+                }
             }
-            //
-            else
-            {
-                // Block to Undo/Redo
-                // Undo
-                if (Input.GetButton("B"))
-                {
-                    if (undo_index > 1)
-                    {                        
-                        //Physics.autoSimulation = false;
-                        undo_index--;
-                        Debug.Log("Undo index: " + undo_index);
-                        /*
-                        // Return the strucutre to the previous configuration
-                        for (var i = 0; i < n_mol; i++)
-                        {
-                            particles[i].transform.position = residues_list[moves_index][i];
-                            particles[i].transform.rotation = res_rot_list[moves_index][i];
-                            if(i < n_mol - 1)
-                            {
-                                bonds[i].transform.position = bonds_list[moves_index][i];
-                                bonds[i].transform.rotation = bond_rot_list[moves_index][i];
-                            }                           
-                        }
-                        */
-                        // load the strucutre state
-                        loadPlayState(undo_list[undo_index - 1]);
-                        // add the state at the top of the redo stack
-                        //redo_list.Add(undo_list[undo_index]);
-                        //redo_index = 0;
-                        lockStructure();
-                        stabilizeStructure();
-                        undo_flag = true;
-                    }                   
-                }
-                // Redo
-                else if (Input.GetButton("A"))
-                {
-                    if (undo_index < undo_list.Count)
-                    {                       
-                        // Disable the physics update
-                        //Physics.autoSimulation = false;
-                        /*
-                        // Reapply the current movement
-                        for (var i = 0; i < n_mol; i++)
-                        {
-                            particles[i].transform.position = residues_list[moves_index][i];
-                            particles[i].transform.rotation = res_rot_list[moves_index][i];
-                            if (i < n_mol - 1)
-                            {
-                                bonds[i].transform.position = bonds_list[moves_index][i];
-                                bonds[i].transform.rotation = bond_rot_list[moves_index][i];
-                            }
-                        }
-                        */
-                        loadPlayState(undo_list[undo_index]);
-                        Debug.Log("Redo index: " + undo_index);
-                        undo_index++;
-                        lockStructure();
-                        stabilizeStructure();
-                        undo_flag = true;
-                    }                    
-                }
-            }            
-            refreshScoreboard();
         }
-        //
+        // Undo/Redo operations
         else if (select_mode)
-        {
-            // Block to Undo/Redo
+        {           
             // Undo
             if (Input.GetButton("B"))
             {
                 if (undo_index > 1)
                 {
-                    //Physics.autoSimulation = false;
                     undo_index--;
                     Debug.Log("Undo index: " + undo_index);
-
                     // Return the strucutre to the previous configuration
                     loadPlayState(undo_list[undo_index - 1]);
                     lockStructure();
@@ -639,9 +568,6 @@ public class PlayerController : MonoBehaviour
             {
                 if (undo_index < undo_list.Count)
                 {
-                    // Disable the physics update
-                    //Physics.autoSimulation = false;
-
                     // Reapply the current movement                  
                     loadPlayState(undo_list[undo_index]);
                     Debug.Log("Redo index: " + undo_index);
@@ -653,25 +579,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="state"></param>
-    private void loadPlayState(PlayState state)
-    {
-        for (var i = 0; i < n_mol; i++)
-        {
-            particles[i].transform.position = state.residues_position[i];
-            particles[i].transform.rotation = state.residues_rotation[i];
-            if (i < n_mol - 1)
-            {
-                bonds[i].transform.position = state.bonds_position[i];
-                bonds[i].transform.rotation = state.bonds_rotation[i];
-            }
-        }
-    }
+    }  
 
     /// <summary>
     /// Locks the residues and bonds setting the Rigidbody components as kinematic. 
@@ -698,10 +606,35 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator updateScore()
+    {
+        updating_score = true;
+
+        var energy = 0.0f;
+        while (energy != potential_energy)
+        {
+            energy = potential_energy;
+            //calculatePotentialEnergy();
+            refreshScoreboard();
+            yield return null;
+        }
+        yield return new WaitForSeconds(0.25f);
+        refreshScoreboard();
+        updating_score = false;
+        insertState();
+    }
+
+    /// <summary>
     /// Runs simulation steps until the structure energy is stabilized.
     /// </summary>
     private void stabilizeStructure()
     {
+        // Wait until the structure energy stabilizes
+        Physics.autoSimulation = false;
+
         var energy = 0.0f;
         calculatePotentialEnergy();
         var step = 0;
@@ -712,6 +645,8 @@ public class PlayerController : MonoBehaviour
             calculatePotentialEnergy();
             Debug.Log("Step: " + ++step);
         } while (energy != potential_energy);
+
+        Physics.autoSimulation = true;
     }
 
     /// <summary>
@@ -726,6 +661,24 @@ public class PlayerController : MonoBehaviour
             Vector3 translation = direction * delta * Input.GetAxisRaw(axis) * Time.deltaTime;
             target.transform.Translate(translation, Camera.main.transform);
             insertState();
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="state"></param>
+    private void loadPlayState(PlayState state)
+    {
+        for (var i = 0; i < n_mol; i++)
+        {
+            particles[i].transform.position = state.residues_position[i];
+            particles[i].transform.rotation = state.residues_rotation[i];
+            if (i < n_mol - 1)
+            {
+                bonds[i].transform.position = state.bonds_position[i];
+                bonds[i].transform.rotation = state.bonds_rotation[i];
+            }
         }
     }
 
