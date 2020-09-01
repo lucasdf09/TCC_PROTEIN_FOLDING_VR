@@ -55,20 +55,12 @@ public class PlayerController : MonoBehaviour
     private Vector3 center_mass;                // Residues Center of Mass cartesian coordinates
     private GameFilesHandler files_handler;     // Game Files Handler reference
 
-    private List<Vector3[]> residues_list;      // Residues positions record list
-    private List<Vector3[]> bonds_list;         // Bonds positions record list
-    private List<Quaternion[]> res_rot_list;    //
-    private List<Quaternion[]> bond_rot_list;   //
-
     private List<PlayState> undo_list;          //
-    private List<PlayState> redo_list;          //
     private int undo_index;                     // Counter to the array position
-    private int redo_index;                     //
     private int list_size;                      // Movements record list size
     private bool moved_flag;                    // Flag to signal movement
     private bool undo_flag;                     // Flag to signal undo operation
-    private float last_energy;
-    private bool updating_score;
+    private bool updating_score;                //
 
 
     // DEBUG
@@ -103,21 +95,11 @@ public class PlayerController : MonoBehaviour
         // Player attributes initialization
         target = null;
 
-        /*
-        residues_list = new List<Vector3[]>();
-        bonds_list = new List<Vector3[]>();
-        res_rot_list = new List<Quaternion[]>();
-        bond_rot_list = new List<Quaternion[]>();
-        */
-
         undo_list = new List<PlayState>();
-        //redo_list = new List<PlayState>();
         undo_index = 0;
-        //redo_index = 0;
         list_size = 1048576;
         moved_flag = false;
         undo_flag = false;
-        last_energy = 0.0f;
         updating_score = false;
 
         // Structure references initialization
@@ -307,9 +289,7 @@ public class PlayerController : MonoBehaviour
         } while (energy != potential_energy);
         //} while (!Mathf.Approximately(energy - potential_energy, Mathf.Epsilon));
 
-        Physics.autoSimulation = true;
-
-        last_energy = potential_energy;    
+        Physics.autoSimulation = true;    
 
         Debug.Log("initializeParameters() Finished");
         Debug.Log("Best Energy = " + best_energy.ToString("F12"));        
@@ -506,7 +486,6 @@ public class PlayerController : MonoBehaviour
                 Vector3 translation = Vector3.right * delta * Input.GetAxisRaw("Horizontal") * Time.deltaTime;
                 target.transform.Translate(translation, Camera.main.transform);
                 moved_flag = true;
-                //insertState();
             }
             // Movement in vertical axis (Y axis)
             if (Input.GetAxisRaw("Vertical") != 0)
@@ -514,7 +493,6 @@ public class PlayerController : MonoBehaviour
                 Vector3 translation = Vector3.up * delta * Input.GetAxisRaw("Vertical") * Time.deltaTime;
                 target.transform.Translate(translation, Camera.main.transform);
                 moved_flag = true;
-                //insertState();
             }
             // Movement in Z axis
             if (Input.GetAxisRaw("Z-axis") != 0)
@@ -522,7 +500,6 @@ public class PlayerController : MonoBehaviour
                 Vector3 translation = Vector3.forward * delta * Input.GetAxisRaw("Z-axis") * Time.deltaTime;
                 target.transform.Translate(translation, Camera.main.transform);
                 moved_flag = true;
-                //insertState();
             }
 
             // Structure save state routine
@@ -612,16 +589,17 @@ public class PlayerController : MonoBehaviour
     private IEnumerator updateScore()
     {
         updating_score = true;
-
         var energy = 0.0f;
         while (energy != potential_energy)
         {
             energy = potential_energy;
             //calculatePotentialEnergy();
             refreshScoreboard();
-            yield return null;
+            insertState();
+            //yield return null;
+            yield return new WaitForSeconds(0.1f); 
         }
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.3f);
         refreshScoreboard();
         updating_score = false;
         insertState();
@@ -634,7 +612,6 @@ public class PlayerController : MonoBehaviour
     {
         // Wait until the structure energy stabilizes
         Physics.autoSimulation = false;
-
         var energy = 0.0f;
         calculatePotentialEnergy();
         var step = 0;
@@ -695,64 +672,19 @@ public class PlayerController : MonoBehaviour
         // List isn't full
         if (undo_index < list_size)
         {
-            /*
-            // Get the residues and bonds current postions         
-            for (var i = 0; i < n_mol; i++)
-            {
-                residues_positon[i] = particles[i].transform.position;
-                residues_rotation[i] = particles[i].transform.rotation;
-                if(i < n_mol - 1)
-                {
-                    bonds_position[i] = bonds[i].transform.position;
-                    bonds_rotation[i] = bonds[i].transform.rotation;
-                }               
-            }
-            
-            residues_list.Insert(moves_index, residues_positon);
-            bonds_list.Insert(moves_index, bonds_position);
-            res_rot_list.Insert(moves_index, residues_rotation);
-            bond_rot_list.Insert(moves_index, bonds_rotation);          
-            undo_list.Insert(moves_index, new PlayState(residues_positon, bonds_position, residues_rotation, bonds_rotation));
-            */
-
+            // Get the residues and bonds current postions
+            // Insert the positions state to the list (at the last list index used)
             undo_list.Insert(undo_index, getPlayState());
             undo_index++;
             Debug.Log("Insert index: " + undo_index);
         }
-
         // List is full
         else
         {
             // Remove the first element of the list (in the bottom of the stack)
-            /*
-            residues_list.RemoveAt(0);
-            bonds_list.RemoveAt(0);
-            res_rot_list.RemoveAt(0);
-            bond_rot_list.RemoveAt(0);
-            */
             undo_list.RemoveAt(0);
-
-            /*
             // Get the residues and bonds current postions
-            for (var i = 0; i < n_mol; i++)
-            {
-                residues_positon[i] = particles[i].transform.position;
-                residues_rotation[i] = particles[i].transform.rotation;
-                if (i < n_mol - 1)
-                {
-                    bonds_position[i] = bonds[i].transform.position;
-                    bonds_rotation[i] = bonds[i].transform.rotation;
-                }
-            }
             // Add the positions state to the list (in the top of the stack)
-            
-            residues_list.Add(residues_positon);
-            bonds_list.Add(bonds_position);
-            res_rot_list.Add(residues_rotation);
-            bond_rot_list.Add(bonds_rotation);           
-            undo_list.Add(new PlayState(residues_positon, bonds_position, residues_rotation, bonds_rotation));
-            */
-
             undo_list.Add(getPlayState());
             Debug.Log("Insert index: " + undo_index);
         }
@@ -769,7 +701,6 @@ public class PlayerController : MonoBehaviour
         Vector3[] bonds_position = new Vector3[n_mol - 1];
         Quaternion[] residues_rotation = new Quaternion[n_mol];
         Quaternion[] bonds_rotation = new Quaternion[n_mol - 1];
-
         // Get the residues and bonds current postions         
         for (var i = 0; i < n_mol; i++)
         {
