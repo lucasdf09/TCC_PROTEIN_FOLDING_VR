@@ -17,7 +17,7 @@ public class NotifyAdjustDisplay : MonoBehaviour
     GameObject adjusting_object = default;      // Object reference to adjusting object
 
     [SerializeField]
-    string adjusting_name = default;           // Object reference to adjusting object name in game
+    string adjusting_name = default;            // Object reference to adjusting object name in game
 
     [SerializeField]
     GameObject toggle_button = default;         // Adjusting object toogle button reference
@@ -34,7 +34,6 @@ public class NotifyAdjustDisplay : MonoBehaviour
     /// <summary>
     /// Opens a modal window to show the adjust score instructions.
     /// </summary>
-    /// <param name="message">Status message.</param>
     public void notifyAdjustPosition()
     {
         if (toggle_button.GetComponent<Toggle>().isOn)
@@ -46,8 +45,7 @@ public class NotifyAdjustDisplay : MonoBehaviour
         {
             string message = "Can't adjust " + adjusting_name + ".\nThe object display needs to be visible to be adjusted.";
             modal_panel.Notify(message, noOkFunction);
-        }
-        
+        }       
     }
 
     /// <summary>

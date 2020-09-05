@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Implements the screen displays position. 
+/// Implements the screen displays reset position. 
 /// </summary>
 public class ConfirmResetDisplay : MonoBehaviour
 {
