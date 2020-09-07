@@ -5,4 +5,4 @@ Trabalho de Conclusão de Curso - Engenharia de Computação
 
 Autores: Juliano Eloi e Lucas Destefani Fabri
 
-Palavras-chave: Dobramento de proteínas, Realidade Virtual, Gamification.
+Ferramenta Computacional para Visualização e Manipulação de Proteínas usando um Modelo Coarse Grained e Realidade Virtual.
