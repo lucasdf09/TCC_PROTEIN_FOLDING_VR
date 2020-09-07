@@ -1,6 +1,8 @@
 # TCC_PROTEIN_FOLDING_VR
+Universidade Tecnológica Federal do Paraná - UTFPR
 
-TCC UTFPR Juliano Eloi e Lucas Destefani Fabri
+Trabalho de Conclusão de Curso de Engenharia de Computação
 
+Autores: Juliano Eloi e Lucas Destefani Fabri
 
-Dobramento de proteínas.
+Palavras-chave: Dobramento de proteínas, Realidade Virtual, Gamification.
