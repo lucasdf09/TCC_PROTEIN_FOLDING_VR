@@ -9,15 +9,16 @@ public class ConfirmAdjustGameView : MonoBehaviour
 {
     private ModalPanel modal_panel;         // Modal panel refernce
     private Quaternion previous_rotation;   // Player rotation before the adjust
+    private Vector3 light_position;         // Directinal light position before adjust
 
     [SerializeField]
-    GameObject player = default;            // Reference to player object
+    private GameObject player = default;        // Reference to player object
 
     [SerializeField]
-    private GameObject structure = default; // Reference to the structure
+    private GameObject structure = default;     // Reference to the structure
 
     [SerializeField]
-    GameObject menu_panel = default;        // Reference to return panel
+    private GameObject menu_panel = default;    // Reference to return panel
 
     private void Awake()
     {
@@ -27,9 +28,10 @@ public class ConfirmAdjustGameView : MonoBehaviour
     /// <summary>
     /// Send to the Modal Panel to set up the Buttons and Functions to call.
     /// </summary>
-    public void confirmAdjustGameView(Quaternion previous_rotation)
+    public void confirmAdjustGameView(Quaternion previous_rotation, Vector3 light_position)
     {
         this.previous_rotation = previous_rotation;
+        this.light_position = light_position;
         structure.SetActive(false);
         string question = "Would you like to maintain the adjusted game view (Ok) or discart (Cancel)?";
         modal_panel.Confirm(question, okFunction, cancelFunction);

@@ -15,6 +15,15 @@ public class CoroutineAdjustGameView : MonoBehaviour
 
     private Quaternion previous_rotation;               // Player rotation before the adjust
 
+    private Vector3 light_position;                     // Directioanl light position before the adjust
+    private Quaternion light_rotation;                  // Directioanl light rotation before the adjust
+
+    [SerializeField]
+    private GameObject directional_light = default;     // Directional light object reference
+
+    [SerializeField]
+    private GameObject camera_pivot = default;          // Camera pivot object reference
+
     [SerializeField]
     private GameObject menu_container = default;        // Menu container object reference
 
@@ -31,6 +40,10 @@ public class CoroutineAdjustGameView : MonoBehaviour
         this.structure = structure;
         this.caller_button = caller_button;
         previous_rotation = gameObject.transform.rotation;
+
+        light_position = directional_light.transform.position;
+        light_rotation = directional_light.transform.rotation;
+
         StartCoroutine("adjustGameView");
     }
 
@@ -44,20 +57,31 @@ public class CoroutineAdjustGameView : MonoBehaviour
         {
             if (Input.GetAxis("Horizontal") != 0)
             {
+                //var angle = angle_rate * Input.GetAxisRaw("Horizontal") * Time.deltaTime;
                 gameObject.transform.Rotate(Vector3.up, angle_rate * Input.GetAxisRaw("Horizontal") * Time.deltaTime);
+                //gameObject.transform.Rotate(Vector3.up, angle);
+                //directional_light.transform.RotateAround(gameObject.transform.position, Vector3.up, angle);
             }
             if (Input.GetAxis("Vertical") != 0)
             {
+                //var angle = angle_rate * Input.GetAxisRaw("Vertical") * Time.deltaTime;
                 gameObject.transform.Rotate(Vector3.left, angle_rate * Input.GetAxisRaw("Vertical") * Time.deltaTime);
+                //gameObject.transform.Rotate(Vector3.right, angle);
+                //directional_light.transform.RotateAround(gameObject.transform.position, Vector3.right, angle);
             }
             if (Input.GetAxis("Z-axis") != 0)
             {
+                //var angle = angle_rate * Input.GetAxisRaw("Z-axis") * Time.deltaTime;
                 gameObject.transform.Rotate(Vector3.forward, angle_rate * Input.GetAxisRaw("Z-axis") * Time.deltaTime);
+                //gameObject.transform.Rotate(Vector3.forward, angle, );
+                //directional_light.transform.RotateAround(gameObject.transform.position, Vector3.forward, angle);
             }
             yield return null;
         }
         Debug.Log("Coroutine adjust while loop ended.");
-        
+
+        directional_light.transform.LookAt(camera_pivot.transform);
+
         // Hide the strucure from player view 
         structure.SetActive(false);
         // Set the Game Menu in front of the player view using the camera as reference
@@ -76,6 +100,6 @@ public class CoroutineAdjustGameView : MonoBehaviour
         PlayerController.camera_position = Camera.main.transform.position;
         PlayerController.camera_rotation = Camera.main.transform.rotation;
 
-        caller_button.GetComponent<ConfirmAdjustGameView>().confirmAdjustGameView(previous_rotation);
+        caller_button.GetComponent<ConfirmAdjustGameView>().confirmAdjustGameView(previous_rotation, light_position);
     }
 }
