@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 /// <summary>
 /// Raise the "Click" EventSystem when the player is looking at the game button (with the Reticle Pointer - RP)
-/// and press the "Fire1" joystick button
+/// and press the "Fire1" joystick button.
 /// </summary>
 public class ButtonJoystickClick : MonoBehaviour
 {

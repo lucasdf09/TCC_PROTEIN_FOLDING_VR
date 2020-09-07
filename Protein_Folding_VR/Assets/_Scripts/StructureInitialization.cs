@@ -48,7 +48,7 @@ public class StructureInitialization : MonoBehaviour
             string file_name = PlayerPrefs.GetString(GameFilesHandler.New_game);
 
             // Get the name of the original protein file and set a reference name 
-            origin_name = Path.GetFileName(file_name);
+            origin_name = Path.GetFileNameWithoutExtension(file_name);
 
             // Read data in a Txt file to a string
             string read_data = files_handler.readTxtFile(file_name);
@@ -236,8 +236,8 @@ public class StructureInitialization : MonoBehaviour
     /// <summary>
     /// Assigns the residues joints.
     /// </summary>
-    //private void asignResiduesJoints()
-    public void assignResiduesJoints()
+    private void asignResiduesJoints()
+    //public void assignResiduesJoints()
     {
         // The first residue ([0]) is conneced to the world origin coordinate - by default
         // The other residues are connected to the bond that precede them

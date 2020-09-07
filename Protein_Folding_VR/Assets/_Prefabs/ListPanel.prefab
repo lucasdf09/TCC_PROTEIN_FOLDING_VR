@@ -214,6 +214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a94a899b95545941a1d7c0399b49e1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  axis: Vertical
   step: 0.7
 --- !u!114 &1429793442731305257
 MonoBehaviour:
@@ -227,6 +228,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 262b21d0770479944a1e559047721c13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  reset_value: 1
 --- !u!1 &1429793442739461953
 GameObject:
   m_ObjectHideFlags: 0
@@ -1428,14 +1430,6 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 0}
-    - target: {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
-      propertyPath: message
-      value: 'Would you like to start a new game with:  '
-      objectReference: {fileID: 0}
-    - target: {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
-      propertyPath: parent_panel
-      value: 
-      objectReference: {fileID: 1429793442739461953}
     - target: {fileID: 4705784395157348531, guid: 34973dfa7d78e22478fb936ed415f0b5,
         type: 3}
       propertyPath: m_Color.r
@@ -1451,6 +1445,14 @@ PrefabInstance:
       propertyPath: m_Color.b
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
+      propertyPath: message
+      value: 'Would you like to start a new game with:  '
+      objectReference: {fileID: 0}
+    - target: {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
+      propertyPath: parent_panel
+      value: 
+      objectReference: {fileID: 1429793442739461953}
     m_RemovedComponents:
     - {fileID: 865174243, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}
     - {fileID: 2220619733035829955, guid: 34973dfa7d78e22478fb936ed415f0b5, type: 3}

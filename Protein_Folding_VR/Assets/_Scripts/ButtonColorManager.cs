@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Manages the color effects in the buttons during the user actions 
+/// Manages the color effects in the buttons during the user actions. 
 /// </summary>
-public class ColorButtonManager : MonoBehaviour
+public class ButtonColorManager : MonoBehaviour
 {
     public static Color normal_color;
     public static Color highlight_color;
@@ -42,7 +42,6 @@ public class ColorButtonManager : MonoBehaviour
     {
         gameObject.GetComponent<Image>().color = highlight_color;
         gameObject.GetComponentInChildren<Text>().color = highlight_text;
-
     }
 
     /// <summary>

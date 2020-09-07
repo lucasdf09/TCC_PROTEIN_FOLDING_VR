@@ -5,6 +5,7 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.Networking;
 using System;
+using UnityEngine.UI;
 
 /// <summary>
 /// Sets the directory path names used in the game.
@@ -13,17 +14,19 @@ using System;
 public class GameFilesHandler : MonoBehaviour
 {
     // PlayerPrefs string names
-    private static string new_game;   // Key associated with new game files from inputs folder
-    private static string saved_game;    // Key associated with saved game files from saves folder
+    private static string new_game;         // Key associated with new game files from inputs folder
+    private static string saved_game;       // Key associated with saved game files from saves folder
+    private static string display_file;     // Display settings file name
 
     // Folder limit files
     private static int inputs_limit;        // Limit number of input files
     private static int saves_limit;         // Limit number of save files  
 
     // The folders used to manipulate user data
-    private static string inputs_folder;    //  Folder to store the files of raw structures
-    private static string outputs_folder;   //  Folder to store the files of structures to be exported
-    private static string saves_folder;     //  Folder to store the files of saved structures
+    private static string inputs_folder;    // Folder to store the files of raw structures
+    private static string outputs_folder;   // Folder to store the files of structures to be exported
+    private static string saves_folder;     // Folder to store the files of saved structures
+    private static string settings_folder;  // Folder to store the files of game settings
            
 
     // PlayerPrefs names properties
@@ -49,7 +52,19 @@ public class GameFilesHandler : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Returns the name of the file with the display settings data.
+    /// </summary>
+    public static string Display_file
+    {
+        get
+        {
+            return display_file;
+        }
+    }
+
     // Folders attributes properties
+
     /// <summary>
     /// Returns the folder with files of the raw structures.
     /// </summary>
@@ -80,6 +95,17 @@ public class GameFilesHandler : MonoBehaviour
         get
         {
             return saves_folder;
+        }
+    }
+
+    /// <summary>
+    /// Returns the folder with files of game settings.
+    /// </summary>
+    public static string Settings_folder
+    {
+        get
+        {
+            return settings_folder;
         }
     }
 
@@ -121,9 +147,10 @@ public class GameFilesHandler : MonoBehaviour
         // Key strings initialization
         new_game = "New_Game";
         saved_game = "Saved_Game";
+        display_file = "Display_settings";
 
         // Folders files limit initialization
-        //inputs_limit = 10;
+        inputs_limit = 0;
         saves_limit = 5;
         
         // PlayerPrefs fields initialization
@@ -132,7 +159,7 @@ public class GameFilesHandler : MonoBehaviour
         PlayerPrefs.SetString(saved_game, null);
 
         // Game Files Folders initialization
-        // Intermediary folder to contain the game's files
+        // Main folder to contain the game's files
         string game_files_folder = "_GameFiles";
 
 #if UNITY_EDITOR
@@ -146,16 +173,18 @@ public class GameFilesHandler : MonoBehaviour
         inputs_folder = Path.Combine(game_files_folder, "Inputs");
         outputs_folder = Path.Combine(game_files_folder, "Outputs");
         saves_folder = Path.Combine(game_files_folder, "Saves");
+        settings_folder = Path.Combine(game_files_folder, "Settings");
 
         // Verify the folders existance
         folderCheck(game_files_folder);
         folderCheck(inputs_folder);
         folderCheck(outputs_folder);
         folderCheck(saves_folder);
+        folderCheck(settings_folder);
 
         // Check if files in Streaming Assets have already been copied to the Inputs folder
         // Read the string with the names of the pre-loaded structures
-        string string_file = readFromStreamingAssets("Input_File_Names.txt");
+        string string_file = readFromStreamingAssets("Default_Input_File_Names.txt");
         Debug.Log(string_file);
 
         // Split the names of the input files in Input_File_Names to a string array
@@ -333,6 +362,15 @@ public class GameFilesHandler : MonoBehaviour
     }
 
     /// <summary>
+    /// Count the files in Settings folder.
+    /// </summary>
+    /// <returns>Directory files amount.</returns>
+    public static int countSettingsFolder()
+    {
+        return countDirectory(settings_folder, "*.json");
+    }
+
+    /// <summary>
     /// Count the files of a specific type in a directory.
     /// </summary>
     /// <param name="path">Directory path.</param>
@@ -372,6 +410,15 @@ public class GameFilesHandler : MonoBehaviour
     }
 
     /// <summary>
+    /// Returns the Settings folder content.
+    /// </summary>
+    /// <returns>Directory file names list.</returns>
+    public string[] readSettingsFolder()
+    {
+        return readDirectory(settings_folder, "*.json");
+    }
+
+    /// <summary>
     /// Reads a directory and returns a list of files with type extension.
     /// </summary>
     /// <param name="path">Directory path.</param>
@@ -400,7 +447,7 @@ public class GameFilesHandler : MonoBehaviour
     /// <summary>
     /// Checks if a file name exists in Inputs folder.
     /// </summary>
-    /// <param name="file_name">File name (without path).</param>
+    /// <param name="file_name">File name (without path and without extension).</param>
     /// <returns>True if the file exists.</returns>
     public bool inputFileExists(string file_name)
     {
@@ -410,7 +457,7 @@ public class GameFilesHandler : MonoBehaviour
     /// <summary>
     /// Checks if a file name exists in Outputs folder.
     /// </summary>
-    /// <param name="file_name">File name (without path).</param>
+    /// <param name="file_name">File name (without path and without extension).</param>
     /// <returns>True if the file exists.</returns>
     public bool outputFileExists(string file_name)
     {
@@ -420,37 +467,22 @@ public class GameFilesHandler : MonoBehaviour
     /// <summary>
     /// Checks if a file name exists in Saves folder.
     /// </summary>
-    /// <param name="file_name">File name (without path).</param>
+    /// <param name="file_name">File name (without path and without extension).</param>
     /// <returns>True if the file exists.</returns>
     public bool saveFileExists(string file_name)
     {
         return fileExists(file_name, ".json", saves_folder);
     }
 
-    /*
     /// <summary>
-    /// Checks if a file name exists in a file names array.
+    /// Checks if a file name exists in Settings folder.
     /// </summary>
-    /// <param name="file_name">File name (without path).</param>
-    /// <param name="file_extension">File extension.</param>
-    /// <param name="files">Files array.</param>
+    /// <param name="file_name">File name (without path and without extension).</param>
     /// <returns>True if the file exists.</returns>
-    private bool fileExists(string file_name, string file_extension, string [] files)
+    public bool settingsFileExists(string file_name)
     {
-        //string[] files = files_handler.readSavesFolder();
-        Debug.Log("fileExists:\n");
-        foreach (string file in files)
-        {
-            Debug.Log(file);
-            if (file.Equals(file_name + file_extension))
-            {
-                return true;
-            }
-        }
-        return false;
+        return fileExists(file_name, ".json", settings_folder);
     }
-    */
-
 
     /// <summary>
     /// Checks if a file name exists in a file names array.
@@ -490,6 +522,15 @@ public class GameFilesHandler : MonoBehaviour
     public void removeSaveFile(string file_name)
     {
         removeFile(file_name, ".json", saves_folder);
+    }
+
+    /// <summary>
+    /// Remove a file from Settings folder.
+    /// </summary>
+    /// <param name="file_name">File name (without path and extension).</param>
+    public void removeSettingsFile(string file_name)
+    {
+        removeFile(file_name, ".json", settings_folder);
     }
 
     /// <summary>
@@ -539,7 +580,7 @@ public class GameFilesHandler : MonoBehaviour
     {
         string save_file = Path.Combine(saves_folder, save_name + ".json");
 
-        Debug.Log("SaveHandler Saving!");
+        Debug.Log("GameFilesHandler Saving!");
         Debug.Log("Save file: " + save_file);
 
         // Save the game state
@@ -563,10 +604,6 @@ public class GameFilesHandler : MonoBehaviour
         }
         save_slot.residues_coords[save_slot.n_mol - 1] = StructureInitialization.residues_structure[save_slot.n_mol - 1].transform.position;
         save_slot.residues_rotations[save_slot.n_mol - 1] = StructureInitialization.residues_structure[save_slot.n_mol - 1].transform.rotation;
-
-        //GameObject player = GameObject.FindWithTag("Player");
-        //save_slot.player_position = player.transform.position;
-        //save_slot.player_rotation = player.transform.rotation;
         save_slot.camera_position = PlayerController.camera_position;
         save_slot.camera_rotation = PlayerController.camera_rotation;
 
@@ -588,10 +625,9 @@ public class GameFilesHandler : MonoBehaviour
     /// <param name="load_name">File path.</param>
     public void loadGame(string load_name)
     {
-        //string load_file = save_folder + load_name;
         string load_file = load_name;
 
-        Debug.Log("SaveHandler Loading!");
+        Debug.Log("GameFilesHandler Loading!");
         Debug.Log("Load file: " + load_file);
 
         if (File.Exists(load_file))
@@ -599,9 +635,6 @@ public class GameFilesHandler : MonoBehaviour
             string json = File.ReadAllText(load_file);
             SaveData load_slot = new SaveData();
             load_slot = JsonUtility.FromJson<SaveData>(json);
-
-            // DEBUG
-            // printSaveData("LOAD", load_slot);
 
             StructureInitialization.origin_name = load_slot.origin_name;
             StructureInitialization.n_mol = load_slot.n_mol;
@@ -621,15 +654,6 @@ public class GameFilesHandler : MonoBehaviour
             }
             StructureInitialization.residues_coords[load_slot.n_mol - 1] = load_slot.residues_coords[load_slot.n_mol - 1];
             StructureInitialization.residues_rotations[load_slot.n_mol - 1] = load_slot.residues_rotations[load_slot.n_mol - 1];
-
-            //GameObject player = GameObject.FindWithTag("Player");
-            //player.transform.SetPositionAndRotation(load_slot.player_position, load_slot.player_rotation);
-            //GameObject camera = GameObject.FindWithTag("MainCamera");
-            //GameObject camera = Camera.main;
-            //Camera.main.transform.SetPositionAndRotation(load_slot.camera_position, load_slot.camera_rotation);
-            //camera.transform.SetPositionAndRotation(load_slot.camera_position, load_slot.camera_rotation);
-            //camera.transform.position = load_slot.camera_position;
-            //camera.transform.rotation = load_slot.camera_rotation;
             PlayerController.camera_position = load_slot.camera_position;
             PlayerController.camera_rotation = load_slot.camera_rotation;
             Debug.Log("Camera position: " + load_slot.camera_position);
@@ -649,7 +673,7 @@ public class GameFilesHandler : MonoBehaviour
     {
         string output_file = Path.Combine(outputs_folder, output_name + ".txt");
 
-        Debug.Log("SaveHandler Saving Output!");
+        Debug.Log("GameFilesHandler Saving Output!");
         Debug.Log("Output file: " + output_file);
 
         string output_text = "";
@@ -697,6 +721,63 @@ public class GameFilesHandler : MonoBehaviour
         output_text += "Sequence = " + StructureInitialization.sequence.ToString() + "\n";
 
         File.WriteAllText(output_file, output_text);
+    }
+
+    /// <summary>
+    /// Saves the display settings into a file.
+    /// </summary>
+    /// <param name="save_name">File name (without path and extension).</param>
+    public void saveSettings(string save_name)
+    {
+        string save_file = Path.Combine(settings_folder, save_name + ".json");
+
+        Debug.Log("Saving Settings!");
+        Debug.Log("Save file: " + save_file);
+
+        // Save the setting
+        SettingsData save_slot = new SettingsData();
+        save_slot.score_position = PlayerController.score_display.GetComponent<RectTransform>().localPosition;
+        save_slot.score_rotation = PlayerController.score_display.GetComponent<RectTransform>().localRotation;
+        save_slot.score_toogle = PlayerController.score_toggle.GetComponent<Toggle>().isOn;
+        save_slot.parameters_postiton = PlayerController.parameters_display.GetComponent<RectTransform>().localPosition;
+        save_slot.parameters_rotation = PlayerController.parameters_display.GetComponent<RectTransform>().localRotation;
+        save_slot.parameters_toogle = PlayerController.parameters_toggle.GetComponent<Toggle>().isOn;
+
+        // Convert to Json format
+        string json = JsonUtility.ToJson(save_slot);
+
+        // Write Json string to a file
+        File.WriteAllText(save_file, json);
+    }
+
+    /// <summary>
+    /// Loads the display settings from a file.
+    /// </summary>
+    /// <param name="load_name">File name (without path and extension).</param>
+    public void loadSettings(string load_name)
+    {
+        string load_file = Path.Combine(settings_folder, load_name + ".json");
+
+        Debug.Log("Loading Settings!");
+        Debug.Log("Load file: " + load_file);
+
+        if (File.Exists(load_file))
+        {
+            string json = File.ReadAllText(load_file);
+            SettingsData load_slot = new SettingsData();
+            load_slot = JsonUtility.FromJson<SettingsData>(json);
+
+            PlayerController.score_display.GetComponent<RectTransform>().localPosition = load_slot.score_position;
+            PlayerController.score_display.GetComponent<RectTransform>().localRotation = load_slot.score_rotation;
+            PlayerController.score_toggle.GetComponent<Toggle>().isOn = load_slot.score_toogle;
+            PlayerController.parameters_display.GetComponent<RectTransform>().localPosition = load_slot.parameters_postiton;
+            PlayerController.parameters_display.GetComponent<RectTransform>().localRotation = load_slot.parameters_rotation;
+            PlayerController.parameters_toggle.GetComponent<Toggle>().isOn = load_slot.parameters_toogle;
+        }
+        else
+        {
+            Debug.Log("LOAD: File not found!");
+        }
     }
 
 
