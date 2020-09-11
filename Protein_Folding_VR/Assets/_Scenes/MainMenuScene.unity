@@ -803,6 +803,8 @@ GameObject:
   - component: {fileID: 406531369}
   - component: {fileID: 406531371}
   - component: {fileID: 406531374}
+  - component: {fileID: 406531373}
+  - component: {fileID: 406531375}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -866,6 +868,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickText: {fileID: 544399116}
+--- !u!114 &406531373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 406531368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9be30954170178e4a96626394494491d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  menu_panel: {fileID: 311813755}
 --- !u!114 &406531374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -878,6 +893,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5bcd518bde54904d960ef7931ed5d29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &406531375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 406531368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e40ac954acadb63459b7290e519e8155, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  menu_panel: {fileID: 311813755}
 --- !u!1001 &407033545
 PrefabInstance:
   m_ObjectHideFlags: 0

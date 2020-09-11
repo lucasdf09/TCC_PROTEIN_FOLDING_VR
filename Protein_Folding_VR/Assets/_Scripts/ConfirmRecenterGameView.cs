@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 
+/// Class that implements the modal panel calling to confirm the Game recenter operation.
 /// </summary>
 public class ConfirmRecenterGameView : MonoBehaviour
 {
@@ -21,16 +21,16 @@ public class ConfirmRecenterGameView : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// Calls the modal panel and sets a string question.
     /// </summary>
     public void confirmRecenterGameView()
     {
-        string question = "To recenter your view, place your head in the new position and press the MENU joystick button.";
+        string question = "To recenter your view, place your head in the new position and press the MENU joystick button. This operation can't be undone!";
         modal_panel.Confirm(question, okFunction, cancelFunction);
     }
 
     /// <summary>
-    /// 
+    /// Starts the Game recenter coroutine.
     /// </summary>
     private void okFunction()
     {
@@ -38,7 +38,7 @@ public class ConfirmRecenterGameView : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// Return to previous menu panel.
     /// </summary>
     private void cancelFunction()
     {
