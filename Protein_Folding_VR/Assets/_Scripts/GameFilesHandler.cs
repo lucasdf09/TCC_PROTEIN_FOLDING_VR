@@ -17,6 +17,7 @@ public class GameFilesHandler : MonoBehaviour
     private static string new_game;         // Key associated with new game files from inputs folder
     private static string saved_game;       // Key associated with saved game files from saves folder
     private static string display_file;     // Display settings file name
+    private static string about_file_path;  // Application information file path
 
     // Folder limit files
     private static int inputs_limit;        // Limit number of input files
@@ -27,7 +28,7 @@ public class GameFilesHandler : MonoBehaviour
     private static string outputs_folder;   // Folder to store the files of structures to be exported
     private static string saves_folder;     // Folder to store the files of saved structures
     private static string settings_folder;  // Folder to store the files of game settings
-           
+    private static string tutorials_folder; // Folder to store the files of tutorials files          
 
     // PlayerPrefs names properties
     /// <summary>
@@ -60,6 +61,17 @@ public class GameFilesHandler : MonoBehaviour
         get
         {
             return display_file;
+        }
+    }
+
+    /// <summary>
+    /// Returns the path to the file with the application information text.
+    /// </summary>
+    public static string About_file_path
+    {
+        get
+        {
+            return about_file_path;
         }
     }
 
@@ -110,6 +122,17 @@ public class GameFilesHandler : MonoBehaviour
     }
 
     /// <summary>
+    /// Returns the folder with tutorials game files.
+    /// </summary>
+    public static string Tutorials_folder
+    {
+        get
+        {
+            return tutorials_folder;
+        }
+    }
+
+    /// <summary>
     /// Limit number of input files.
     /// </summary>
     public static int Inputs_limit
@@ -148,6 +171,7 @@ public class GameFilesHandler : MonoBehaviour
         new_game = "New_Game";
         saved_game = "Saved_Game";
         display_file = "Display_settings";
+        about_file_path = "About_Application.txt";
 
         // Folders files limit initialization
         inputs_limit = 0;
@@ -174,6 +198,9 @@ public class GameFilesHandler : MonoBehaviour
         outputs_folder = Path.Combine(game_files_folder, "Outputs");
         saves_folder = Path.Combine(game_files_folder, "Saves");
         settings_folder = Path.Combine(game_files_folder, "Settings");
+        tutorials_folder = Path.Combine(game_files_folder, "Tutorials");
+
+        //about_file_path = Path.Combine(, about_file_path + ".txt");
 
         // Verify the folders existance
         folderCheck(game_files_folder);
@@ -181,21 +208,23 @@ public class GameFilesHandler : MonoBehaviour
         folderCheck(outputs_folder);
         folderCheck(saves_folder);
         folderCheck(settings_folder);
+        folderCheck(tutorials_folder);
 
         // Check if files in Streaming Assets have already been copied to the Inputs folder
+        /*
         // Read the string with the names of the pre-loaded structures
         string string_file = readFromStreamingAssets("Default_Input_File_Names.txt");
         Debug.Log(string_file);
 
-        // Split the names of the input files in Input_File_Names to a string array
+        // Split the names of the input files in Default_Input_File_Names to a string array
         string[] input_files = string_file.Split(new char[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-        Debug.Log("Input_File_Names.txt string[] size: " + input_files.Length);
-        /*
+        Debug.Log("Default_Input_File_Names.txt string[] size: " + input_files.Length);
+        
         foreach (string input in input_files)
         {
             Debug.Log(input);
         }
-        */
+        
 
         // Check if there are files in Inputs folder
         DirectoryInfo inputs_directory = new DirectoryInfo(inputs_folder);
@@ -245,8 +274,80 @@ public class GameFilesHandler : MonoBehaviour
                 }
             }
         }
+        */
+        initializeFolderFiles(inputs_folder, "Default_Input_File_Names.txt");
+        initializeFolderFiles(tutorials_folder, "Default_Tutorial_File_Names.txt");
+
         Debug.Log("GameFilesHandler END!!!");
     }
+
+
+    private void initializeFolderFiles(string folder_path, string default_folder_file_names)
+    {
+        // Read the string with the names of the default folder file names
+        Debug.Log("InitializeFolderFiles: " + Path.GetFileName(folder_path));
+        string string_file = readFromStreamingAssets(default_folder_file_names, Path.GetFileName(folder_path));
+        Debug.Log(string_file);
+        
+        // Split the names of the file names in default folder file names to a string array
+        string[] default_files = string_file.Split(new char[] { '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        Debug.Log("Default_Input_File_Names.txt string[] size: " + default_files.Length);
+        
+        foreach (string input in default_files)
+        {
+            Debug.Log(input);
+        }       
+
+        // Check if there are files in folder path
+        DirectoryInfo folder_info = new DirectoryInfo(folder_path);
+        FileInfo[] info = folder_info.GetFiles("*.txt");
+        Debug.Log("Folder path size: " + info.Length);
+
+        // Debug stuff
+        foreach (FileInfo f in info)
+        {
+            Debug.Log(f.Name);
+        }
+
+        // If folder path is empty: copy the default folder file names to folder path
+        if (info.Length == 0)
+        {
+            Debug.Log("Folder path's empty!");
+
+            // Copy the files in StreamingAssets > Inputs to GameFiles > Inputs 
+            foreach (string file in default_files)
+            {
+                copyFileToFolder(file, folder_path);
+            }
+        }
+
+        // Else, if Inputs folder not empty: verify if the standards new game structures exists
+        else
+        {
+            Debug.Log("Folder path's NOT empty!");
+
+            // Verify if the folder path has all the default files in StreamingAssets
+            foreach (string file_name in default_files)
+            {
+                bool flag = false;
+                Debug.Log("Searching: " + file_name);
+                foreach (FileInfo file in info)
+                {
+                    if (file.Name.Equals(file_name))
+                    {
+                        flag = true;
+                        Debug.Log("Found: " + file.Name);
+                    }
+                }
+                if (!flag)
+                {
+                    //copyToInputs(file_name);
+                    copyFileToFolder(file_name, folder_path);
+                }
+            }
+        }
+    }
+
 
     /// <summary>
     /// Copy a file to Inputs folder.
@@ -265,6 +366,24 @@ public class GameFilesHandler : MonoBehaviour
     }
 
     /// <summary>
+    /// Copy a file to a folder.
+    /// </summary>
+    /// <param name="file_name">File name (only).</param>
+    /// <param name="file_folder">Folder where the file is stored.</param>
+    private void copyFileToFolder(string file_name, string file_folder)
+    {
+        // Copy file to GameFile > file_folder               
+        string new_file = readFromStreamingAssets(file_name, Path.GetFileName(file_folder));
+        Debug.Log("Copy File to Folder - " + file_name + " : " + new_file);
+        string new_file_path = Path.Combine(file_folder, file_name);
+
+        Debug.Log("Saving: " + new_file_path + " in " + file_folder);
+
+        File.WriteAllText(new_file_path, new_file);
+    }
+
+
+    /// <summary>
     /// Reads an input Text file into a string, only for files in StreamingAssets > Inputs folder.
     /// </summary>
     /// <param name="file_path">File name to be read in StreamingAssets > Inputs folder.</param>
@@ -274,6 +393,55 @@ public class GameFilesHandler : MonoBehaviour
         string file_path = Path.Combine(Application.streamingAssetsPath, "Inputs", file_name);
         Debug.Log("Reading From Streaming Assets");
     
+        //var file_path = Path.Combine(Application.streamingAssetsPath, file_name);
+
+        Debug.Log("File path: " + file_path);
+
+#if UNITY_EDITOR
+        try
+        {
+            string read_data = File.ReadAllText(file_path);
+            return read_data;
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e);
+            return null;
+        }
+
+        // Loads the file path in a special location that can be accessed in the application
+        // More information search for "Streaming Assets"
+#elif UNITY_ANDROID
+        try
+        {
+            UnityWebRequest webRequest = UnityWebRequest.Get(file_path);
+            webRequest.SendWebRequest();
+            while (!webRequest.isDone)
+            {
+            }
+            return webRequest.downloadHandler.text;
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e);
+            return null;
+        }
+#endif
+
+    }
+
+
+    /// <summary>
+    /// Reads a Text file into a string, only for files in StreamingAssets > Inputs folder/Tutorials folder.
+    /// </summary>
+    /// <param name="file_name">File name to be read in Streaming Assets.</param>
+    /// <param name="file_folder">Folder where the file is stored.</param>
+    /// <returns></returns>
+    private string readFromStreamingAssets(string file_name, string file_folder)
+    {
+        string file_path = Path.Combine(Application.streamingAssetsPath, file_folder, file_name);
+        Debug.Log("Reading " + file_name + " From Streaming Assets");
+
         //var file_path = Path.Combine(Application.streamingAssetsPath, file_name);
 
         Debug.Log("File path: " + file_path);
@@ -371,6 +539,15 @@ public class GameFilesHandler : MonoBehaviour
     }
 
     /// <summary>
+    /// Count the files in Tutorials folder.
+    /// </summary>
+    /// <returns>Directory files amount.</returns>
+    public static int countTutorialsFolder()
+    {
+        return countDirectory(tutorials_folder, "*.txt");
+    }
+
+    /// <summary>
     /// Count the files of a specific type in a directory.
     /// </summary>
     /// <param name="path">Directory path.</param>
@@ -416,6 +593,15 @@ public class GameFilesHandler : MonoBehaviour
     public string[] readSettingsFolder()
     {
         return readDirectory(settings_folder, "*.json");
+    }
+
+    /// <summary>
+    /// Returns the Tutorials folder content. 
+    /// </summary>
+    /// <returns>Directory file names list.</returns>
+    public string[] readTutorialsFolder()
+    {
+        return readDirectory(tutorials_folder, "*.txt");
     }
 
     /// <summary>
@@ -485,6 +671,16 @@ public class GameFilesHandler : MonoBehaviour
     }
 
     /// <summary>
+    /// Checks if a file name exists in Tutorials folder.
+    /// </summary>
+    /// <param name="file_name">File name (without path and without extension).</param>
+    /// <returns>True if the file exists.</returns>
+    public bool tutorialsFileExists(string file_name)
+    {
+        return fileExists(file_name, ".txt", tutorials_folder);
+    }
+
+    /// <summary>
     /// Checks if a file name exists in a file names array.
     /// </summary>
     /// <param name="file_name">File name (without path).</param>
@@ -531,6 +727,15 @@ public class GameFilesHandler : MonoBehaviour
     public void removeSettingsFile(string file_name)
     {
         removeFile(file_name, ".json", settings_folder);
+    }
+
+    /// <summary>
+    /// Remove a file from Tutorials folder.
+    /// </summary>
+    /// <param name="file_name">File name (without path and extension).</param>
+    public void removeTutorialsFile(string file_name)
+    {
+        removeFile(file_name, ".txt", tutorials_folder);
     }
 
     /// <summary>
@@ -780,6 +985,15 @@ public class GameFilesHandler : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Reads and returns the About Application file content.
+    /// </summary>
+    /// <returns>About Application file content.</returns>
+    public string getAboutText()
+    {
+        return readFromStreamingAssets(about_file_path, "About");
+    }
 
 
     // Debug methods

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 /// <summary>
-/// Creates the a list of buttons, with the files that can be loaded
+/// Creates a list of buttons, with the files that can be loaded.
 /// </summary>
 public class GameListController : MonoBehaviour
 {
