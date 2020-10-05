@@ -1,0 +1,16 @@
+1-What a protein is.txt
+2-Use the joystick.txt
+3-Start a new game.txt
+4-Move a residue.txt
+5-Punctuation.txt
+6-Undo and Redo.txt
+7-Adjust the camera.txt
+8-Save a new game.txt
+9-Load a saved game.txt
+10-Overwrite.txt
+11-First gameplay.txt
+12-Add new input files.txt
+13-Adjust display.txt
+14-Find the output files.txt
+15-Recenter the head.txt
+16-Remove a saved file.txt

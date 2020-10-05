@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 
+/// Class that implements the recenter operation in game scene.
 /// </summary>
 public class CoroutineRecenterGameView : MonoBehaviour
 {
-    private GameObject return_menu;                     // Reference to the menu to return in the end
+    private GameObject return_menu;                     // Reference to the menu to return after the recenter
 
     [SerializeField]
-    private GameObject structure = default;             // Reference to the structure
+    private GameObject structure = default;             // Reference to the structure object
 
     [SerializeField]
     private GameObject menu_container = default;        // Menu container object reference
@@ -18,17 +18,23 @@ public class CoroutineRecenterGameView : MonoBehaviour
     [SerializeField]
     private GameObject keyboard_container = default;    // Keyboard container object reference
 
-
+    /// <summary>
+    /// Starts the recenterGameView coroutine.
+    /// </summary>
+    /// <param name="return_menu">Reference to the menu to return after the recenter.</param>
     public void startRecenterGameView(GameObject return_menu)
     {
         this.return_menu = return_menu;
         StartCoroutine("recenterGameView");
     }
 
-
+    /// <summary>
+    /// Waits until the MENU button press to recenter the game viewpoint and adjust the menu objects position and orientation.
+    /// </summary>
+    /// <returns>Always null.</returns>
     private IEnumerator recenterGameView()
     {
-        // Show the structure to player view
+        // Show the structure
         structure.SetActive(true);
 
         while (!Input.GetButtonDown("D"))
@@ -36,32 +42,28 @@ public class CoroutineRecenterGameView : MonoBehaviour
             // Wait the MENU joystick button click
             yield return null;
         }
-        Debug.Log("Coroutine adjust while loop ended.");
+        Debug.Log("Coroutine recenterGameView loop ended.");
 
         // Hide the strucure from player view 
         structure.SetActive(false);
 
-        // Use the current position and orientation to center the view
+        // Use the current position and orientation to recenter the view
         UnityEngine.XR.InputTracking.Recenter();
 
-        /*
-        // Set the Game Menu in front of the player view using the camera as reference
-        menu_container.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2;
-        menu_container.transform.rotation = Camera.main.transform.rotation;
-        //menu_container.SetActive(true);
-        // Set the Keyboard in front of the player view using the camera as reference
-        keyboard_container.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2;
-        keyboard_container.transform.rotation = Camera.main.transform.rotation;
+        // Set the Game Menu in front of the player view
+        menu_container.transform.position = gameObject.transform.position + gameObject.transform.forward * 2;
+        menu_container.transform.rotation = gameObject.transform.rotation;
+        // Set the Keyboard in front of the player view
+        keyboard_container.transform.position = gameObject.transform.position + gameObject.transform.forward * 2;
+        keyboard_container.transform.rotation = gameObject.transform.rotation;
         // Rotate the Keyboard to a better position for the player interaction
         keyboard_container.transform.Rotate(30, 0, 0);
 
-        // Get the camera positioning to restore it when load a game
-        //camera_position = Camera.main.transform.localPosition;
-        //camera_rotation = Camera.main.transform.localRotation;
-        PlayerController.camera_position = Camera.main.transform.position;
-        PlayerController.camera_rotation = Camera.main.transform.rotation;
-        */
+        // Get the camera positioning to restore it when load a game after a saving
+        PlayerController.camera_position = gameObject.transform.localPosition;
+        PlayerController.camera_rotation = gameObject.transform.localRotation;
 
+        // Show the menu panel
         return_menu.SetActive(true);
     }
 }

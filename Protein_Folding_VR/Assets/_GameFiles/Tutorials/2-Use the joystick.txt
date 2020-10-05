@@ -1,0 +1,13 @@
+Turn-on the joystick and set Games-Android function pressing @ + B for 3 seconds.
+Genericaly the joystick buttons have the present functionalities.
+In Main Menu:
+Use the C joystick button to make the click.
+Use the thumbstick as arrows directional.
+In Game Play:
+Use the thumbstick and frontal buttons to move the camera (in Select Mode) or a residue (in Move Mode).
+Use the C joystick button to select or deselect a residue.
+Use the D joystick button to access the Game Menu.
+Use the B joystick button to perform the Undo.
+Use the A joystick button to perform the Redo.
+The function of a button can change depending of the operation in progress.
+Additional functionalities are informed during the operation.
