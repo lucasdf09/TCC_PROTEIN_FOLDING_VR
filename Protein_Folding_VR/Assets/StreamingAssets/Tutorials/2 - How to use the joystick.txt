@@ -1,1 +1,0 @@
-Use the thumbstick to manipulate the X and Y axis. 

@@ -1,0 +1,14 @@
+Basic instructions to begin a gameplay:
+1-Use the Gaze Point as a mouse pointer
+2-Click using the C joystick button
+3-In Main Menu choose the New Game button
+4-Choose a New Game structure in the list
+5-Select one residue
+6-Press C joystick button to enter Move Mode
+7-Move the residue using the thumbstick and front buttons
+8-A good punctuation must be positive (green)
+9-Use B/A joystick buttons to Undo/Redo operations
+10-Press C joystick button to exit Move Mode and enter Select Mode
+11-Adjust the camera the thumbstick and front buttons
+12-Access the Game Menu using the D joystick button
+13-Read the other tutorials for further informations

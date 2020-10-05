@@ -1,0 +1,6 @@
+To Recenter the headgear view orientation in Main Menu:
+Click the Options button, select Recenter View.
+Click Ok, place your head in the new desired position and press the D joystick button.
+TO Recenter in Game Menu:
+Enter in Options, then Display Settings and Recenter View. 
+Click Ok, place your head in the new desired position and press the D joystick button.  
