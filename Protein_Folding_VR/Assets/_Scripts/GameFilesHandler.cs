@@ -278,7 +278,7 @@ public class GameFilesHandler : MonoBehaviour
         initializeFolderFiles(inputs_folder, "Default_Input_File_Names.txt");
         initializeFolderFiles(tutorials_folder, "Default_Tutorial_File_Names.txt");
 
-        Debug.Log("GameFilesHandler END!!!");
+        Debug.Log("GameFilesHandler: Initialization END!!!");
     }
 
 

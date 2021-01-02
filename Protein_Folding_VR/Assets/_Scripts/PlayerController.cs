@@ -55,12 +55,12 @@ public class PlayerController : MonoBehaviour
     private Vector3 center_mass;                // Residues Center of Mass cartesian coordinates
     private GameFilesHandler files_handler;     // Game Files Handler reference
 
-    private List<PlayState> undo_list;          //
+    private List<PlayState> undo_list;          // List that contains the structure states
     private int undo_index;                     // Counter to the array position
     private int list_size;                      // Movements record list size
     private bool moved_flag;                    // Flag to signal movement
     private bool undo_flag;                     // Flag to signal undo operation
-    private bool updating_score;                //
+    private bool updating_score;                // Flag to signal the updating structure coroutine calls
 
 
     // DEBUG
@@ -583,13 +583,14 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// Stabilizes the structure residues positions, adds states to the undo/redo list and updates the scoreboard.
     /// </summary>
     /// <returns></returns>
     private IEnumerator updateScore()
     {
         updating_score = true;
         var energy = 0.0f;
+        // stabilizes structure
         while (energy != potential_energy)
         {
             energy = potential_energy;

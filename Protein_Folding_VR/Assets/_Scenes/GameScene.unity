@@ -2302,7 +2302,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 0, y: 3e-45, z: 7.19e-42, w: 1.05e-43}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -3358,6 +3358,16 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 82.5
       objectReference: {fileID: 0}
+    - target: {fileID: 8682705495001731674, guid: a5c34a4a9847c6f4199e83bc12db3790,
+        type: 3}
+      propertyPath: m_Text
+      value: Display Settings
+      objectReference: {fileID: 0}
+    - target: {fileID: 5393999885067022827, guid: a5c34a4a9847c6f4199e83bc12db3790,
+        type: 3}
+      propertyPath: m_Text
+      value: Prefab Button
+      objectReference: {fileID: 0}
     - target: {fileID: 8682705496752833096, guid: a5c34a4a9847c6f4199e83bc12db3790,
         type: 3}
       propertyPath: m_ChildControlHeight
@@ -3377,16 +3387,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Spacing
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8682705495001731674, guid: a5c34a4a9847c6f4199e83bc12db3790,
-        type: 3}
-      propertyPath: m_Text
-      value: Display Settings
-      objectReference: {fileID: 0}
-    - target: {fileID: 5393999885067022827, guid: a5c34a4a9847c6f4199e83bc12db3790,
-        type: 3}
-      propertyPath: m_Text
-      value: Prefab Button
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5c34a4a9847c6f4199e83bc12db3790, type: 3}
@@ -21569,16 +21569,6 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[3].callback.m_PersistentCalls.m_Calls.Array.data[3].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
-    - target: {fileID: 8682705496752833096, guid: a5c34a4a9847c6f4199e83bc12db3790,
-        type: 3}
-      propertyPath: m_ChildControlHeight
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8682705496752833096, guid: a5c34a4a9847c6f4199e83bc12db3790,
-        type: 3}
-      propertyPath: m_ChildForceExpandHeight
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8682705495001731674, guid: a5c34a4a9847c6f4199e83bc12db3790,
         type: 3}
       propertyPath: m_Text
@@ -21588,6 +21578,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Text
       value: How to Play
+      objectReference: {fileID: 0}
+    - target: {fileID: 8682705496752833096, guid: a5c34a4a9847c6f4199e83bc12db3790,
+        type: 3}
+      propertyPath: m_ChildControlHeight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8682705496752833096, guid: a5c34a4a9847c6f4199e83bc12db3790,
+        type: 3}
+      propertyPath: m_ChildForceExpandHeight
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5c34a4a9847c6f4199e83bc12db3790, type: 3}
