@@ -36,7 +36,7 @@ public class SaveLimitCheck : MonoBehaviour
         {
             // Show Error message
             Debug.Log("Save files limit reached!");
-            gameObject.GetComponent<NotifySaveFilesLimit>().notifySaveFilesLimit("Can't Save:\nSave files limit reached!\nTry removing some save file.");
+            gameObject.GetComponent<NotifySaveFilesLimit>().notifySaveFilesLimit("Can't Save:\nSave files limit reached!\nRemove some save file and try again.");
         }
     }
 }

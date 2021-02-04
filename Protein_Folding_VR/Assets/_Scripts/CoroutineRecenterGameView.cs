@@ -29,7 +29,7 @@ public class CoroutineRecenterGameView : MonoBehaviour
     }
 
     /// <summary>
-    /// Waits until the MENU button press to recenter the game viewpoint and adjust the menu objects position and orientation.
+    /// Waits until the D button press to recenter the game viewpoint and adjust the menu objects position and orientation.
     /// </summary>
     /// <returns>Always null.</returns>
     private IEnumerator recenterGameView()

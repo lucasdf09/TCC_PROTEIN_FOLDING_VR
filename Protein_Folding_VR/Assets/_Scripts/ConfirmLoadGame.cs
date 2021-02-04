@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using System.IO;
 
 /// <summary>
-/// Implements the method to be confirmed by a modal window when a saved file game button is clicked
+/// Implements the method to be confirmed by a modal window when a saved file game button is clicked to be loaded.
 /// </summary>
 public class ConfirmLoadGame : MonoBehaviour
 {
@@ -25,7 +25,7 @@ public class ConfirmLoadGame : MonoBehaviour
     }
 
     /// <summary>
-    /// Send to the Modal Panel to set up the Buttons and Functions to call
+    /// Send to the Modal Panel to set up the Buttons and Functions to call.
     /// </summary>
     public void confirmGame()
     {
@@ -34,7 +34,7 @@ public class ConfirmLoadGame : MonoBehaviour
     }
 
     /// <summary>
-    /// Load the Game Scene
+    /// Load the Game Scene.
     /// </summary>
     private void okFunction()
     {
@@ -44,7 +44,7 @@ public class ConfirmLoadGame : MonoBehaviour
     }
 
     /// <summary>
-    /// Return to the New Game Panel
+    /// Return to the New Game Panel.
     /// </summary>
     private void cancelFunction()
     {

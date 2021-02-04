@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-//using System.Globalization;
+
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -23,7 +23,7 @@ public class VerifyInputFile : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// Calls the modal panel to notify the verification result.
     /// </summary>
     public void verifyInputFile()
     {

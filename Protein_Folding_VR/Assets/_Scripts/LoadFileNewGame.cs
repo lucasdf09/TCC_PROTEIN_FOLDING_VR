@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Load the new game structure to be played
+/// Load the new game structure to be played.
 /// </summary>
 public class LoadFileNewGame : MonoBehaviour
 {
     /// <summary>
-    /// Store the new game structure file name associated with the button (when clicked)
-    /// into a Player Prefs field
+    /// Store the new game structure file name associated with the button (when clicked) into a Player Prefs field.
     /// </summary>
     public void LoadName()
     {

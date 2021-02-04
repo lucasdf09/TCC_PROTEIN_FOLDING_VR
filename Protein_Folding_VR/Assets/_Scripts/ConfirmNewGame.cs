@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using System.IO;
 
 /// <summary>
-/// Implements the method to be confirmed by a modal window when a new file game button is clicked.
+/// Implements the method to be confirmed by a modal window when a new game button is clicked.
 /// </summary>
 public class ConfirmNewGame : MonoBehaviour
 {

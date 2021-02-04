@@ -18,7 +18,7 @@ public class SelectResidueOnGaze : MonoBehaviour
         {
             PlayerController.target_color = gameObject.GetComponent<Renderer>().material.color;
             PlayerController.target = gameObject;
-            Debug.Log("Pointer ENTER");
+            //Debug.Log("Pointer ENTER");
         }      
     }
 
@@ -32,6 +32,6 @@ public class SelectResidueOnGaze : MonoBehaviour
             PlayerController.target.GetComponent<Renderer>().material.color = PlayerController.target_color;
             PlayerController.target = null;
         }   
-        Debug.Log("Pointer EXIT");
+        //Debug.Log("Pointer EXIT");
     }
 }

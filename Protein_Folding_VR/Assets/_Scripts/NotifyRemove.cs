@@ -13,7 +13,7 @@ public class NotifyRemove : MonoBehaviour
     GameObject next_panel = default;                // Reference to panel to show after closing
 
     [SerializeField]
-    GameListController list_controller = default;   // Reference to Game List.
+    GameListController list_controller = default;   // Reference to Game List
 
     private void Awake()
     {

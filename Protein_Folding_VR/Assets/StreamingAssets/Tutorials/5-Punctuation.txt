@@ -1,8 +1,8 @@
 The punctuation is calculated from the difference between the calculated potential energies.
 When a New Game is started the potential energy of the structure is calculated and stored.
-Then, each time the structure is modified, the potential energy is calculated again. 
+Then, each time the structure is modified, the potential energy is recalculated. 
 From the diference between the initial energy and current energy, the score is obtained.
 The score formula is: Score = Initial Energy - Current Energy.
-If the score is positive, the current energy is less then initial energy.
-Else if the score is negative, the current energy is greater then initial energy.
-The positve score is represented in green and the negative in orange.
+If the score is positive, the current energy is smaller then the initial energy.
+Else, if the score is negative, the current energy is greater then the initial energy.
+Yet, the positve score is represented in green and the negative in orange.

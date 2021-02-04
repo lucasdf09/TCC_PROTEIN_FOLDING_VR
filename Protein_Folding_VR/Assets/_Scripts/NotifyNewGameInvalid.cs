@@ -34,7 +34,4 @@ public class NotifyNewGameInvalid : MonoBehaviour
     {
         next_panel.SetActive(true);
     }
-
-
-
 }

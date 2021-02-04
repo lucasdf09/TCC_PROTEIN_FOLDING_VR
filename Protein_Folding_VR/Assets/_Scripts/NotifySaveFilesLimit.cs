@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class NotifySaveFilesLimit : MonoBehaviour
 {
-    private ModalPanel modal_panel;             // Reference to Modal Panel
+    private ModalPanel modal_panel;         // Reference to Modal Panel
 
     [SerializeField]
     GameObject next_panel = default;        // Reference to the panel that called the notification

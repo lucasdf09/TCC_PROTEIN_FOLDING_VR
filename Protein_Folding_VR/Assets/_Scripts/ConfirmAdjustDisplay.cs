@@ -25,7 +25,6 @@ public class ConfirmAdjustDisplay : MonoBehaviour
     GameObject menu_panel = default;        // Reference to return panel
 
  
-
     private void Awake()
     {
         modal_panel = ModalPanel.Instance();
@@ -41,7 +40,7 @@ public class ConfirmAdjustDisplay : MonoBehaviour
     {
         this.origin_position = origin_position;
         player_canvas.SetActive(false);
-        string question = "Would you like to save the " + adjusting_name + " positon (Ok) or discart (Cancel)?";
+        string question = "Would you like to maintain the " + adjusting_name + " positon (Ok) or discart (Cancel)?";
         modal_panel.Confirm(question, okFunction, cancelFunction);
     }
 
@@ -50,7 +49,6 @@ public class ConfirmAdjustDisplay : MonoBehaviour
     /// </summary>
     private void okFunction()
     {
-        //files_handler.saveSettings(GameFilesHandler.Display_file);
         menu_panel.SetActive(true);
     }
 

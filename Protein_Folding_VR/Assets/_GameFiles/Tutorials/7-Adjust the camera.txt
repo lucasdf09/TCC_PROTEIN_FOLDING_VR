@@ -1,3 +1,0 @@
-To adjust the position of the camera enter in Select Mode.
-Then, use the thumbstick button of the joystick to rotate the structure in the X and Y axes.
-To zoom the camera, use the Upper front (zoom in) and Bottom front (zoom out) joystick buttons.

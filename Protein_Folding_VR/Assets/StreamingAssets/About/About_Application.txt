@@ -1,20 +1,4 @@
 Protein Folding VR
 Version 1.0
 Authors: Lucas D. Fabri, Juliano Eloi
-Made with Unity
-Protein Folding VR
-Version 1.0
-Authors: Lucas D. Fabri, Juliano Eloi
-Made with Unity
-Protein Folding VR
-Version 1.0
-Authors: Lucas D. Fabri, Juliano Eloi
-Made with Unity
-Protein Folding VR
-Version 1.0
-Authors: Lucas D. Fabri, Juliano Eloi
-Made with Unity
-Protein Folding VR
-Version 1.0
-Authors: Lucas D. Fabri, Juliano Eloi
-Made with Unity
+Made with Unity 2019.2

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Class that implements the modal panel calling to confirm the Game recenter operation.
+/// Class that implements the modal panel calling to confirm the Game - Recenter View operation.
 /// </summary>
 public class ConfirmRecenterGameView : MonoBehaviour
 {
@@ -25,7 +25,7 @@ public class ConfirmRecenterGameView : MonoBehaviour
     /// </summary>
     public void confirmRecenterGameView()
     {
-        string question = "To recenter your view, place your head in the new position and press the MENU joystick button. This operation can't be undone!";
+        string question = "To recenter your view, place your head in the new position and press joystick button D. This operation can't be undone!";
         modal_panel.Confirm(question, okFunction, cancelFunction);
     }
 

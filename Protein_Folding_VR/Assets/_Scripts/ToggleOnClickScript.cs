@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Triggers an click event in the toggle button attached to the script game object.
+/// Triggers a click event in the toggle button attached to the script game object.
 /// </summary>
 public class ToggleOnClickScript : MonoBehaviour
 {

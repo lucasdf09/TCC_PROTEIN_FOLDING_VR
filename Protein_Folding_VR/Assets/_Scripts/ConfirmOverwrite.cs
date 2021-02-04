@@ -10,7 +10,7 @@ public class ConfirmOverwrite : MonoBehaviour
 {
     private ModalPanel modal_panel;             // Modal panel refernce
 
-    private GameFilesHandler files_handler;     //Reference to Game Files Handler
+    private GameFilesHandler files_handler;     // Reference to Game Files Handler
 
     [SerializeField]
     GameObject previous_panel = default;        // Panel to return reference
@@ -25,7 +25,7 @@ public class ConfirmOverwrite : MonoBehaviour
     }
 
     /// <summary>
-    /// Set the modal window behaviour for an overwrite oeration.
+    /// Set the modal window behaviour for an overwrite operation.
     /// </summary>
     public void confirmOverwrite()
     {

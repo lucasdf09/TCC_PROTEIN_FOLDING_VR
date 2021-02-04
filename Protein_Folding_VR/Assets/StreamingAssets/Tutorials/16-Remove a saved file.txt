@@ -1,4 +1,4 @@
-To remove a saved file, enter the Game Menu and Click Save button.
-Choose the Remove button. 
+To remove a saved file, enter the Game Menu and click in the button Save.
+Choose the Remove button.
 In the list of the saved files, select the file to be removed and click.
 Confirm or cancel the operation.

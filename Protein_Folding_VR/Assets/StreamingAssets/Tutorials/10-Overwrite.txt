@@ -1,4 +1,4 @@
-During the gameplay, in Select Mode, press the D joystick button to enter the Game Menu. 
-Click the Save button.
-Choose the Overwrite button if there is a saved game.
-Click Ok to overwrite the saved file or Cancel to return without save.
+During the gameplay, in Select Mode, press the D joystick button to enter in Game Menu. 
+Select the Save button.
+Choose the Overwrite button, if there is a saved game.
+Click Ok to overwrite the saved file or Cancel to return.

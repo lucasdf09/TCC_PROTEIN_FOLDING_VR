@@ -1,4 +1,0 @@
-Use the Gaze Point to select a residue, then press the joystick button C to enter in Move Mode.
-Once in Move Mode use the thumbstick to move the residue in X (Horizontal) and Y (Vertical) axes.
-To move in Z axis use the Upper front (begin close) and Bottom front (move away) joystick buttons.
-To end the Move Mode press C button again.

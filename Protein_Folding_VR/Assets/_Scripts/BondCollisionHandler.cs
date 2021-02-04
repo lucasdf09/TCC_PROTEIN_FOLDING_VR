@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Ignores the collision between the bond and his neighbour residue - which is kind of attached to it.
+/// Ignores the collision between the bond and the neighbour residue - which is kind of attached to it.
 /// </summary>
 public class BondCollisionHandler : MonoBehaviour
 {

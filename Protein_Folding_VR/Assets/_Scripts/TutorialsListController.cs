@@ -73,47 +73,24 @@ public class TutorialsListController : MonoBehaviour
             // Sort the array with the names alphanumerically
             //var sorted_names = file_names.OrderBy(file => file).ToArray();
             var sorted_names = file_names.OrderBy(file => PadNumbers(file)).ToArray();
-            Debug.Log("Sorted Names:");
-            foreach (string name in sorted_names)
-            {
-                Debug.Log(name);
-            }
+
             file_names = sorted_names;
 
             // Create buttons
-            Debug.Log("Buttons_list BUTTONS");
+            //Debug.Log("Buttons_list BUTTONS");
             foreach (string name in file_names)
             {
-                Debug.Log(name);
-                //GameObject button = Instantiate(list_button) as GameObject;
+                //Debug.Log(name);
                 GameObject button = Instantiate(list_button, list_button.transform.parent) as GameObject;
                 button.SetActive(true);
 
-                //Debug.Log("Name only: " + name.Split('.')[0]);
-                //Debug.Log("Name : " + Path.GetFileNameWithoutExtension(name));
-
                 button.name = Path.GetFileNameWithoutExtension(name);
 
-                //button.GetComponent<GameListButton>().setText(name);
                 button.GetComponent<GameListButton>().Button_text = Path.GetFileNameWithoutExtension(name);
 
                 button.GetComponent<GameListButton>().Button_file = Path.Combine(file_path, name);
 
-                //button.transform.SetParent(list_button.transform.parent, false);
-
                 buttons_list.Add(button);
-            }
-
-            // Debug stuff
-            Debug.Log("Buttons names:");
-            foreach (GameObject button in buttons_list)
-            {
-                Debug.Log(button.name);
-            }
-            Debug.Log("Buttons Files:");
-            foreach (GameObject button in buttons_list)
-            {
-                Debug.Log(button.GetComponent<GameListButton>().Button_file);
             }
         }
     }

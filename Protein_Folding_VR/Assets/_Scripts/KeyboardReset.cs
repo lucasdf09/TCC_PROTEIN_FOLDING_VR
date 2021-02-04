@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Reset the keyboard to the standard layout
+/// <summary>
+/// Implements the method to reset the keyboard to the standard layout.
+/// </summary>
 public class KeyboardReset : MonoBehaviour
 {
     [SerializeField]
@@ -14,6 +16,9 @@ public class KeyboardReset : MonoBehaviour
     [SerializeField]
     private GameObject numerical_keyboard = default;
 
+    /// <summary>
+    /// Reset the keyboard to the standard layout.
+    /// </summary>
     public void resetKeyboard()
     {
         standard_keyboard.SetActive(true);

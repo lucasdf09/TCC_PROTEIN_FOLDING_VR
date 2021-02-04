@@ -23,7 +23,7 @@ public class KeyboardSpaceInput : MonoBehaviour
     /// </summary>
     public void sendSpace()
     {
-        Debug.Log("Character: " + gameObject.GetComponentInChildren<Text>().text);
+        //Debug.Log("Character: " + gameObject.GetComponentInChildren<Text>().text);
         // Character insertion
         text_input.text += ' ';
         // Caret position update

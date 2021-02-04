@@ -58,6 +58,4 @@ public class ConfirmResetDisplay : MonoBehaviour
     {
         menu_panel.SetActive(true);
     }
-
-
 }

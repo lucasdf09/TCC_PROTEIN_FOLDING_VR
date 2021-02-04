@@ -16,6 +16,6 @@ public class ScrollbarReset : MonoBehaviour
     public void resetScrollbar()
     {      
         gameObject.GetComponent<Scrollbar>().value = reset_value;
-        Debug.Log("Scrollbar: " + gameObject.GetComponent<Scrollbar>().value);
+        //Debug.Log("Scrollbar: " + gameObject.GetComponent<Scrollbar>().value);
     }
 }

@@ -23,7 +23,7 @@ public class KeyboardButtonInput : MonoBehaviour
     /// </summary>
     public void sendCharacter()
     {
-        Debug.Log("Character: " + gameObject.GetComponentInChildren<Text>().text);
+        //Debug.Log("Character: " + gameObject.GetComponentInChildren<Text>().text);
         // Character insertion
         text_input.text += gameObject.GetComponentInChildren<Text>().text;
         // Caret position update

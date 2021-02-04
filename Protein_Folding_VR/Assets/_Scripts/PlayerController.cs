@@ -21,17 +21,17 @@ public class PlayerController : MonoBehaviour
     public GameObject keyboard_container;   // Keyboard container object reference
     public GameObject structure;            // Structure object reference
     public float delta;                     // Residue translation rate
-    public float blink_duration;            // Blink period increasing rate;
-    public GameObject toggle_score;         // Reference to score toggle in Inspector
-    public GameObject toggle_parameters;    // Reference to parameters toggle in Inspector
+    public float blink_duration;            // Blink period increasing rate
+    public GameObject toggle_score;         // Reference to Score toggle
+    public GameObject toggle_parameters;    // Reference to Parameters toggle
 
     public static bool select_mode;         // Flag to signal the select residue mode
     public static bool move_mode;           // Flag to signal the residue movement mode
     public static GameObject target;        // Gazed/Selected residue reference
     public static Color target_color;       // Target residue color reference
-    public static float score;              // Diference between the Start Best Energy and the actual
-    public static float saved_score;        // Score loaded from a saved file to set a new Best Energy start parameter
-    public static float best_energy;        // Best Potential Energy reference for score calculation
+    public static float score;              // Diference between the initial best energy and the actual
+    public static float saved_score;        // Score loaded from a saved file to set a new best energy start parameter
+    public static float best_energy;        // Best potential energy reference for score calculation
     public static float potential_energy;   // 3D AB off-lattice model Potential Energy 
     public static float bond_energy;        // 3D AB off-lattice model Bond Energy
     public static float torsion_energy;     // 3D AB off-lattice model Torsion Energy
@@ -43,12 +43,13 @@ public class PlayerController : MonoBehaviour
     public static Quaternion camera_rotation;       // Camera rotation reference for saving
     public static GameObject score_display;         // Score display position reference
     public static GameObject parameters_display;    // Parameters display position reference
-    public static GameObject score_toggle;          // Score toggle button reference
-    public static GameObject parameters_toggle;     // Parameters toggle button reference
+    public static GameObject score_toggle_button;          // Score toggle button reference
+    public static GameObject parameters_toggle_button;     // Parameters toggle button reference
 
     private static Color color_end;             // Color to blink with the original
     private static Color orange_color;          // Orange color;
     private GameObject[] particles;             // Reference to residues
+    private GameObject[] bonds;                 // Reference to bonds
     private int n_mol;                          // Number of molecules
     private Color color_aux;                    // Auxiliar color object to store the residue own color during blink        
     private string sequence;                    // AB Protein sequence 
@@ -64,14 +65,14 @@ public class PlayerController : MonoBehaviour
 
 
     // DEBUG
+    /*
     int calc_distance = 3;
     int var_residue = 3;
     int var_bond = 0;
     Vector3[] res_variation;                    // Variation of the residues
     Vector3[] bond_variation;                   // Variation of the bonds
-    private GameObject[] bonds;
     int counter;
-
+    */
 
     // Awake is called before Start().
     private void Awake()
@@ -80,7 +81,6 @@ public class PlayerController : MonoBehaviour
         color_end = Color.yellow;
         orange_color = new Color(1.0f, 0.64f, 0.0f);
         score = 0.0f;
-        //best_energy = 0.0f;
         potential_energy = 0.0f;
 
         // Deactivate player interaction until initialization finish
@@ -90,11 +90,13 @@ public class PlayerController : MonoBehaviour
         Physics.autoSimulation = false;
     }
 
+
     private void Start()
     {   
         // Player attributes initialization
         target = null;
 
+        // Undo attributes initialization
         undo_list = new List<PlayState>();
         undo_index = 0;
         list_size = 1048576;
@@ -111,11 +113,12 @@ public class PlayerController : MonoBehaviour
         // Display references initialization
         score_display = score_text.gameObject;
         parameters_display = parameters_text.gameObject;
-        score_toggle = toggle_score;
-        parameters_toggle = toggle_parameters;
+        score_toggle_button = toggle_score;
+        parameters_toggle_button = toggle_parameters;
+        
         // Get the reference to the GameFilesHandler game object
         GameObject game_files = GameObject.FindGameObjectWithTag("GameFiles");
-        files_handler = game_files.GetComponent<GameFilesHandler>();
+        files_handler = game_files.GetComponent<GameFilesHandler>();       
         //  Check if there is a settings file saved
         if (files_handler.settingsFileExists(GameFilesHandler.Display_file))
         {
@@ -132,214 +135,61 @@ public class PlayerController : MonoBehaviour
         Invoke("initializeGame", 0);
     }
 
+
     /// <summary>
-    /// Initialize the game and the player status
+    /// Initialize the game and the player status.
     /// </summary>
     private void initializeGame()
     {
-        /*
-        target = null;
-        particles = StructureInitialization.residues_structure;
-
-        bonds = StructureInitialization.bonds_structure;
-
-        n_mol = StructureInitialization.n_mol;
-        sequence = StructureInitialization.sequence;
-        */
-
-        //counter = ((n_mol * 2) - 1);
-        //counter = 1;
-
         initializeParameters();
 
-        /*
-        for (var i = 0; i < 1000; i++)
-        {
-            Physics.Simulate(Time.fixedDeltaTime);
-            Debug.Log("Step");
-        }
-        */
-
-        //Physics.autoSimulation = true;
-
-        //calculatePotentialEnergy();
-        //calculateRg();
-        //setScoreText();
-        //setParametersText();
         refreshScoreboard();
+        
         // Insert the first state of the structure in the moves list
         insertState();
         setInitialPosition();
+        
         // Activate the player interaction
         reticle_pointer.SetActive(true);
         select_mode = true;
     }
+
 
     /// <summary>
     /// Initializes the structures parameters. 
     /// </summary>
     private void initializeParameters()
     {
-        // New Game initialization
+        // New Game best_energy initialization
         if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.New_game)))
         {
             calculatePotentialEnergy();
             best_energy = potential_energy;
         }
 
-        //Physics.autoSimulation = true;
-
-        //first_energy = potential_energy;
-        //Physics.autoSimulation = false;
-        //Debug.Log("Pre Simulation Step!");
-        //var step = 0;
-        //counter = ((n_mol * 2) - 1);
-        //counter = 1;
-        /*
-        do
-        {         
-            best_energy = potential_energy;
-            Physics.Simulate(Time.fixedDeltaTime);
-            Debug.Log("Simulation Running");
-            calculatePotentialEnergy();
-            // Debug stuff
-            //calculateDistance();
-            Debug.Log("Step: " + ++step);
-            calculateResidueVariation(true);
-            //calculateBondVariation();            
-        } while (best_energy != potential_energy);
-        */
-        /*
-        do
-        {            
-            if ((counter % 2) != 0)
-            {
-                //particles[(counter / 2)].GetComponent<Rigidbody>().isKinematic = false;
-                particles[(counter / 2)].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                Debug.Log("Counter Res[" + (counter / 2) + "]");
-            }
-            if((counter % 2) == 0)
-            {
-                //bonds[(counter / 2) - 1].GetComponent<Rigidbody>().isKinematic = false;
-                bonds[(counter / 2) - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                Debug.Log("Counter Bond[" + (counter / 2 - 1) + "]");
-            }          
-            if (counter > n_mol)
-            {
-                //bonds[counter - n_mol - 1].GetComponent<Rigidbody>().isKinematic = false;
-                bonds[counter - n_mol - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                Debug.Log("Counter Bond[" + (counter - n_mol - 1) + "]");
-            }
-            else if (counter <= n_mol)
-            {
-                //particles[counter - 1].GetComponent<Rigidbody>().isKinematic = false;
-                particles[counter - 1].GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                Debug.Log("Counter Res[" + (counter - 1) + "]");             
-            }
-            //counter--;
-            //counter++;          
-            for (var i = 0; i < 20; i++)
-            {
-                Physics.Simulate(Time.fixedDeltaTime);
-                Debug.Log("Step: " + ++step);
-            }           
-            do
-            {
-                best_energy = potential_energy;
-                for (var i = 0; i < 1; i++)
-                    Physics.Simulate(Time.fixedDeltaTime);
-                //calculatePotentialEnergy();
-                refreshScoreboard();
-                Debug.Log("Step: " + ++step);
-            } while (best_energy != potential_energy);
-            //refreshScoreboard();
-        } while (counter > 0);
-        //} while (counter < n_mol * 2);
-        */
-        //Physics.autoSimulation = true;
-        //calculateRg();
-        //best_energy = first_energy;
-        /*
-        for (var i = 0; i < n_mol; i++)
-            particles[i].GetComponent<Rigidbody>().isKinematic = false;
-        for (var i = 0; i < n_mol - 1; i++)
-            bonds[i].GetComponent<Rigidbody>().isKinematic = false;
-      
-        foreach (var residue in StructureInitialization.residues_structure)
-            //residue.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-            residue.GetComponent<Rigidbody>().isKinematic = false;
-
-        foreach (var bond in StructureInitialization.bonds_structure)
-            //bond.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-            bond.GetComponent<Rigidbody>().isKinematic = false;
-         */
-
         unlockStructure();
 
         var energy = 0.0f;
         calculatePotentialEnergy();
-        var step = 0;
+        //var step = 0;
 
+        // Stabilization routine
         do
         {
             energy = potential_energy;
             Physics.Simulate(Time.fixedDeltaTime);
             calculatePotentialEnergy();
-            Debug.Log("Step: " + ++step);           
+            //Debug.Log("Step: " + ++step);           
         } while (energy != potential_energy);
         //} while (!Mathf.Approximately(energy - potential_energy, Mathf.Epsilon));
 
         Physics.autoSimulation = true;    
 
         Debug.Log("initializeParameters() Finished");
-        Debug.Log("Best Energy = " + best_energy.ToString("F12"));        
-        Debug.Log("Potential Energy = " + potential_energy.ToString("F12"));
-
-        //best_energy = potential_energy;        
+        //Debug.Log("Best Energy = " + best_energy.ToString("F12"));        
+        //Debug.Log("Potential Energy = " + potential_energy.ToString("F12"));       
     }
 
-    // Test function
-    private void calculateBestEnergy()
-    {
-        Vector3[] particles = StructureInitialization.residues_coords;
-        float u_bond = 0.0f;
-        float u_torsion = 0.0f;
-        float u_LJ = 0.0f;
-        float r_ij;
-        float u_LJ_pair;
-        Vector3 dr1, dr2, dr3;
-        // Bond (partial) and Tosion Energy.
-        for (var i = 0; i < n_mol - 3; i++)
-        {
-            dr1 = particles[i + 1] - particles[i];
-            dr2 = particles[i + 2] - particles[i + 1];
-            dr3 = particles[i + 3] - particles[i + 2];
-
-            u_bond += Vector3.Dot(dr1, dr2);
-            u_torsion += (-0.5f) * Vector3.Dot(dr1, dr3);
-        }
-        // Remaining Bond Energy.
-        dr1 = particles[n_mol - 2] - particles[n_mol - 3];
-        dr2 = particles[n_mol - 1] - particles[n_mol - 2];
-        u_bond += Vector3.Dot(dr1, dr2);
-        //Lennard-Jones Energy.
-        for (var i = 0; i < n_mol - 2; i++)
-        {
-            for (var j = i + 2; j < n_mol; j++)
-            {
-                r_ij = Vector3.Distance(particles[i], particles[j]);
-                u_LJ_pair = 4.0f * (Mathf.Pow(r_ij, -12.0f) - Mathf.Pow(r_ij, -6.0f));
-                if (sequence[i] != 'A' || sequence[j] != 'A')
-                {
-                    u_LJ_pair = 0.5f * u_LJ_pair;
-                }
-                u_LJ += u_LJ_pair;
-            }
-        }
-        //best_energy = u_bond + u_torsion + u_LJ;
-        Debug.Log("Calc Best Energy = " + (u_bond + u_torsion + u_LJ).ToString("F12"));
-        Debug.Log("Is Equal? " + string.Equals(best_energy.ToString(), (u_bond + u_torsion + u_LJ).ToString()));
-    }
 
     // To process the non-playable interaction
     private void Update()
@@ -356,15 +206,15 @@ public class PlayerController : MonoBehaviour
             // If a residues is being gazed and the action button has being pressed
             if (target != null && Input.GetButtonDown("C"))
             {
-                Debug.Log("SELECT: CLICK key was pressed");
+                //Debug.Log("SELECT: CLICK key was pressed");
                 // Get the residue own color
                 color_aux = target_color;
                 //Set the auxiliar color transparency to blink
                 color_aux.a = 0.1f;
                 select_mode = false;
                 move_mode = true;
-                Debug.Log("Select mode: " + select_mode);
-                Debug.Log("Move mode: " + move_mode);
+                //Debug.Log("Select mode: " + select_mode);
+                //Debug.Log("Move mode: " + move_mode);
                 reticle_pointer.SetActive(false);
                 refreshScoreboard();              
             }
@@ -402,12 +252,10 @@ public class PlayerController : MonoBehaviour
                 keyboard_container.transform.Rotate(30, 0, 0);
 
                 // Get the camera positioning to restore it when load a game
-                //camera_position = Camera.main.transform.localPosition;
-                //camera_rotation = Camera.main.transform.localRotation;
                 camera_position = Camera.main.transform.position;
                 camera_rotation = Camera.main.transform.rotation;
-                Debug.Log("Camera position is equal? " + Equals(camera_position, Camera.main.transform.position));
-                Debug.Log("Camera rotation is equal? " + Equals(camera_rotation, Camera.main.transform.rotation));          
+                //Debug.Log("Camera position is equal? " + Equals(camera_position, Camera.main.transform.position));
+                //Debug.Log("Camera rotation is equal? " + Equals(camera_rotation, Camera.main.transform.rotation));          
             }
         }
 
@@ -418,7 +266,7 @@ public class PlayerController : MonoBehaviour
             // If the action button was pressed, return to select mode
             if (Input.GetButtonDown("C"))
             {
-                print("MOVE: CLICK key was pressed");
+                //Debug.Log("MOVE: CLICK key was pressed");
                 // Reset the residue own color
                 target.GetComponent<Renderer>().material.color = target_color;
                 target = null;
@@ -427,12 +275,12 @@ public class PlayerController : MonoBehaviour
                 setCameraPivot();               
                 select_mode = true;
                 move_mode = false;
-                print("Select mode: " + select_mode);
-                print("Move mode: " + move_mode);
+                //Debug.Log("Select mode: " + select_mode);
+                //Debug.Log("Move mode: " + move_mode);
             }
         }
 
-        //***********************************************************************************************
+        /*-------------------------------------------------------------
         // Debug Stuff
         // Refresh the score and show the residues and bonds positions
         if (Input.GetKeyDown("p"))
@@ -441,8 +289,10 @@ public class PlayerController : MonoBehaviour
             //calculateBondVariation(false);
             refreshScoreboard();
             calculateBestEnergy();
-        }    
+        }
+        */
     }
+
 
     // Process the camera movements.
     private void LateUpdate()
@@ -454,14 +304,12 @@ public class PlayerController : MonoBehaviour
             if (Input.GetAxis("Horizontal") != 0)
             {
                 transform.RotateAround(camera_pivot.transform.position, transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
-                //transform.RotateAround(camera_pivot.transform.position, Camera.main.transform.up, rotation_angle * Time.deltaTime * -Input.GetAxis("Horizontal"));
                 //transform.Rotate(0.0f, 0.0f, rotation_angle * 2 * Time.deltaTime * -Input.GetAxis("Horizontal"));
             }
             // Movement in vertical axis with joystick
             if (Input.GetAxis("Vertical") != 0)
             {
                 transform.RotateAround(camera_pivot.transform.position, transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
-                //transform.RotateAround(camera_pivot.transform.position, Camera.main.transform.right, rotation_angle * Time.deltaTime * Input.GetAxis("Vertical"));
             }
             // Zoom in/out with joystick buttons
             if (Input.GetAxis("Z-axis") != 0)
@@ -471,6 +319,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
     // Process the residue movements.
     private void FixedUpdate()
     {
@@ -479,7 +328,6 @@ public class PlayerController : MonoBehaviour
         // Manipulate a residues position using the joystick input
         if (move_mode)
         {
-            //moved_flag = false;
             // Movement in horizontal axis (X axis)
             if (Input.GetAxisRaw("Horizontal") != 0)
             {
@@ -515,7 +363,6 @@ public class PlayerController : MonoBehaviour
                     undo_list.RemoveRange(undo_index, (undo_list.Count - undo_index));
                 }                              
                 // Saves actual structure state
-                //insertState();
                 if (!updating_score)
                 {
                     StartCoroutine("updateScore");
@@ -531,7 +378,7 @@ public class PlayerController : MonoBehaviour
                 if (undo_index > 1)
                 {
                     undo_index--;
-                    Debug.Log("Undo index: " + undo_index);
+                    //Debug.Log("Undo index: " + undo_index);
                     // Return the strucutre to the previous configuration
                     loadPlayState(undo_list[undo_index - 1]);
                     lockStructure();
@@ -547,7 +394,7 @@ public class PlayerController : MonoBehaviour
                 {
                     // Reapply the current movement                  
                     loadPlayState(undo_list[undo_index]);
-                    Debug.Log("Redo index: " + undo_index);
+                    //Debug.Log("Redo index: " + undo_index);
                     undo_index++;
                     lockStructure();
                     stabilizeStructure();
@@ -557,6 +404,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }  
+
 
     /// <summary>
     /// Locks the residues and bonds setting the Rigidbody components as kinematic. 
@@ -570,6 +418,7 @@ public class PlayerController : MonoBehaviour
             bond.GetComponent<Rigidbody>().isKinematic = true;
     }
 
+
     /// <summary>
     /// Unlocks the residues and bonds setting the Rigidbody components as non-kinematic. 
     /// </summary>
@@ -581,6 +430,7 @@ public class PlayerController : MonoBehaviour
         foreach (var bond in bonds)
             bond.GetComponent<Rigidbody>().isKinematic = false;
     }
+
 
     /// <summary>
     /// Stabilizes the structure residues positions, adds states to the undo/redo list and updates the scoreboard.
@@ -606,6 +456,7 @@ public class PlayerController : MonoBehaviour
         insertState();
     }
 
+
     /// <summary>
     /// Runs simulation steps until the structure energy is stabilized.
     /// </summary>
@@ -615,37 +466,23 @@ public class PlayerController : MonoBehaviour
         Physics.autoSimulation = false;
         var energy = 0.0f;
         calculatePotentialEnergy();
-        var step = 0;
+        //var step = 0;
         do
         {
             energy = potential_energy;
             Physics.Simulate(Time.fixedDeltaTime);
             calculatePotentialEnergy();
-            Debug.Log("Step: " + ++step);
+            //Debug.Log("Step: " + ++step);
         } while (energy != potential_energy);
 
         Physics.autoSimulation = true;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="axis"></param>
-    /// <param name="direction"></param>
-    private void moveWithInput(string axis, Vector3 direction)
-    {
-        if (Input.GetAxisRaw(axis) != 0)
-        {
-            Vector3 translation = direction * delta * Input.GetAxisRaw(axis) * Time.deltaTime;
-            target.transform.Translate(translation, Camera.main.transform);
-            insertState();
-        }
-    }
 
     /// <summary>
-    /// 
+    /// Loads the Undo/Redo state to the structure objects.
     /// </summary>
-    /// <param name="state"></param>
+    /// <param name="state">Structure state.</param>
     private void loadPlayState(PlayState state)
     {
         for (var i = 0; i < n_mol; i++)
@@ -660,8 +497,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
     /// <summary>
-    /// 
+    /// Insert a structure state in the Undo/Redo list.
     /// </summary>
     private void insertState()
     {
@@ -677,7 +515,7 @@ public class PlayerController : MonoBehaviour
             // Insert the positions state to the list (at the last list index used)
             undo_list.Insert(undo_index, getPlayState());
             undo_index++;
-            Debug.Log("Insert index: " + undo_index);
+            //Debug.Log("Insert index: " + undo_index);
         }
         // List is full
         else
@@ -687,14 +525,15 @@ public class PlayerController : MonoBehaviour
             // Get the residues and bonds current postions
             // Add the positions state to the list (in the top of the stack)
             undo_list.Add(getPlayState());
-            Debug.Log("Insert index: " + undo_index);
+            //Debug.Log("Insert index: " + undo_index);
         }
     }
 
+
     /// <summary>
-    /// 
+    /// Gets the state of the structure, to be stored in the Undo/Redo list.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A PlayState object with the structure data.</returns>
     private PlayState getPlayState()
     {
         // Auxiliar arrays to get the residues and bonds positions and rotations
@@ -716,17 +555,19 @@ public class PlayerController : MonoBehaviour
         return new PlayState(residues_positon, bonds_position, residues_rotation, bonds_rotation);
     }
 
+
     /// <summary>
     /// Blinks residue color periodically.
     /// </summary>
-    /// <param name="rend">Residue renderer reference</param>
-    /// <param name="target_color">Start color</param>
-    /// <param name="color_blink">Final color</param>
+    /// <param name="rend">Residue renderer reference.</param>
+    /// <param name="target_color">Start color.</param>
+    /// <param name="color_blink">Final color.</param>
     private void blinkResidue(Renderer rend, Color target_color, Color color_blink)
     {
         float lerp = Mathf.PingPong(Time.time, blink_duration) / blink_duration;
         rend.material.color = Color.Lerp(target_color, color_blink, lerp);
     }
+
 
     /// <summary>
     /// Updates the structures parameters.
@@ -738,6 +579,7 @@ public class PlayerController : MonoBehaviour
         setScoreText();
         setParametersText();
     }
+
 
     /// <summary>
     /// Calculates the Potential Energy using the 3D AB off-lattice model.
@@ -797,6 +639,7 @@ public class PlayerController : MonoBehaviour
         lj_energy = u_LJ;
     }
 
+
     /// <summary>
     /// Calculates the Radius of Gyration parameters.
     /// </summary>
@@ -853,6 +696,7 @@ public class PlayerController : MonoBehaviour
         center_mass = avg;
     }
 
+
     /// <summary>
     /// Sets the player's graphical score.
     /// </summary>
@@ -861,7 +705,7 @@ public class PlayerController : MonoBehaviour
         // A good score must be a positive value.
         score = best_energy - potential_energy;
         //if (Mathf.Approximately(score, Mathf.Epsilon))
-        if (score.ToString("F3").Equals("0,000"))
+        if (score.ToString("F3").Equals("0,000") || score.ToString("F3").Equals("0.000"))
         {
             score = 0.0f;
             score_text.color = Color.black;
@@ -871,13 +715,9 @@ public class PlayerController : MonoBehaviour
             // Conditional expression. Orange if score is negative, green if score is positive.
             score_text.color = Mathf.Sign(score) < 0 ? orange_color : Color.green;
         }
-        //score_text.text = "Score: " + score.ToString();
         score_text.text = "Score: " + score.ToString("F3");
-
-        //Debug.Log("Score Text:");
-        //Debug.Log("Best Energy = " + best_energy.ToString("F12"));
-        //Debug.Log("Potential Energy = " + potential_energy.ToString("F12"));
     }
+
 
     /// <summary>
     /// Sets the player's graphichal structures parameters.
@@ -891,6 +731,7 @@ public class PlayerController : MonoBehaviour
         parameters_text.text = p_energy + "\n" + rg_a + "\n" + r_h + "\n" + r_p;
     }
 
+
     /// <summary>
     /// Sets the camera pivot (center of rotation in camera movement).
     /// </summary>
@@ -902,8 +743,6 @@ public class PlayerController : MonoBehaviour
             avg += particles[i].transform.position;
         }
         center_mass = avg / n_mol;
-        //Debug.Log("Camera center mass: " + center_mass);
-        //camera_pivot.transform.position = center_mass * Time.deltaTime * pivot_smooth;
         camera_pivot.transform.position = center_mass;
     }
 
@@ -944,14 +783,14 @@ public class PlayerController : MonoBehaviour
                     closer_residue = particles[i].transform.position;
                 }
             }
+            
             // Calculate the perpendicular direction
             Vector3 player_position = Vector3.Cross(further_residue, closer_residue);
             player_position = player_position.normalized * further * 2.0f;
-            //Debug.Log("Player position vector: " + player_position);
-            //Debug.Log("Camera center mass: " + center_mass);
+            
             // Move the position of the player (camera) to the calculated position
             transform.Translate(player_position);
-            //Debug.Log("Camera transform before: " + Camera.main.transform.rotation);
+            
             //Move the field of vision to see the structure
             transform.LookAt(camera_pivot.transform);
             Camera.main.transform.LookAt(camera_pivot.transform);
@@ -960,23 +799,21 @@ public class PlayerController : MonoBehaviour
         // Load Game camera initialization
         else if (!string.IsNullOrEmpty(PlayerPrefs.GetString(GameFilesHandler.Saved_game)))
         {
-            /*
-            Camera.main.transform.SetPositionAndRotation(camera_position, camera_rotation);
-            Camera.main.transform.localPosition = camera_position;
-            Camera.main.transform.localRotation = camera_rotation;
-            */
             gameObject.transform.SetPositionAndRotation(camera_position, camera_rotation);
-            Debug.Log("Camera position: " + camera_position);
-            Debug.Log("Camera rotation: " + camera_rotation);
-            Debug.Log("Camera position is equal? " + Equals(camera_position, gameObject.transform.position));
-            Debug.Log("Camera rotation is equal? " + Equals(camera_rotation, gameObject.transform.rotation));
+            //Debug.Log("Camera position: " + camera_position);
+            //Debug.Log("Camera rotation: " + camera_rotation);
+            //Debug.Log("Camera position is equal? " + Equals(camera_position, gameObject.transform.position));
+            //Debug.Log("Camera rotation is equal? " + Equals(camera_rotation, gameObject.transform.rotation));
             Debug.Log("LOAD GAME set initial position complete.");
         }
     }
 
 
-    // DEBUD STUFF
 
+    //--- End of the game methods ----------------------------------------------------------------------------------------------------------------
+
+    // DEBUD STUFF
+    /*
     // Calculates the distance between two consecutive residues
     void calculateDistance()
     {
@@ -998,7 +835,7 @@ public class PlayerController : MonoBehaviour
         //Debug.Log("Redidue " + (n_mol - 1).ToString() + " = " + particles[n_mol - 1].transform.position.ToString("F8"));
     }
 
-    // Calculates the position variation of a residue or a bond, between its initial and actual position 
+    // Calculates the position variation of a residue, between its initial and actual position 
     void calculateResidueVariation(bool single)
     {
         Debug.Log("CALCULATE RESIDUES VARIATION:");
@@ -1028,7 +865,8 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
+    
+    // Calculates the position variation of a bond, between its initial and actual position
     void calculateBondVariation(bool single)
     {
         Debug.Log("CALCULATE BONDS VARIATION:");
@@ -1059,5 +897,50 @@ public class PlayerController : MonoBehaviour
         }        
     }
 
-// End of PlayerController
+    // Calculates the Energy of the structure
+    private void calculateBestEnergy()
+    {
+        Vector3[] particles = StructureInitialization.residues_coords;
+        float u_bond = 0.0f;
+        float u_torsion = 0.0f;
+        float u_LJ = 0.0f;
+        float r_ij;
+        float u_LJ_pair;
+        Vector3 dr1, dr2, dr3;
+        // Bond (partial) and Tosion Energy.
+        for (var i = 0; i < n_mol - 3; i++)
+        {
+            dr1 = particles[i + 1] - particles[i];
+            dr2 = particles[i + 2] - particles[i + 1];
+            dr3 = particles[i + 3] - particles[i + 2];
+
+            u_bond += Vector3.Dot(dr1, dr2);
+            u_torsion += (-0.5f) * Vector3.Dot(dr1, dr3);
+        }
+        // Remaining Bond Energy.
+        dr1 = particles[n_mol - 2] - particles[n_mol - 3];
+        dr2 = particles[n_mol - 1] - particles[n_mol - 2];
+        u_bond += Vector3.Dot(dr1, dr2);
+        //Lennard-Jones Energy.
+        for (var i = 0; i < n_mol - 2; i++)
+        {
+            for (var j = i + 2; j < n_mol; j++)
+            {
+                r_ij = Vector3.Distance(particles[i], particles[j]);
+                u_LJ_pair = 4.0f * (Mathf.Pow(r_ij, -12.0f) - Mathf.Pow(r_ij, -6.0f));
+                if (sequence[i] != 'A' || sequence[j] != 'A')
+                {
+                    u_LJ_pair = 0.5f * u_LJ_pair;
+                }
+                u_LJ += u_LJ_pair;
+            }
+        }
+        //best_energy = u_bond + u_torsion + u_LJ;
+        Debug.Log("Calc Best Energy = " + (u_bond + u_torsion + u_LJ).ToString("F12"));
+        Debug.Log("Is Equal? " + string.Equals(best_energy.ToString(), (u_bond + u_torsion + u_LJ).ToString()));
+    }
+    */
+
+
+    //----- End of PlayerController -------------------------------------------------------------------------------
 }

@@ -210,78 +210,17 @@ public class GameFilesHandler : MonoBehaviour
         folderCheck(settings_folder);
         folderCheck(tutorials_folder);
 
-        // Check if files in Streaming Assets have already been copied to the Inputs folder
-        /*
-        // Read the string with the names of the pre-loaded structures
-        string string_file = readFromStreamingAssets("Default_Input_File_Names.txt");
-        Debug.Log(string_file);
-
-        // Split the names of the input files in Default_Input_File_Names to a string array
-        string[] input_files = string_file.Split(new char[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-        Debug.Log("Default_Input_File_Names.txt string[] size: " + input_files.Length);
-        
-        foreach (string input in input_files)
-        {
-            Debug.Log(input);
-        }
-        
-
-        // Check if there are files in Inputs folder
-        DirectoryInfo inputs_directory = new DirectoryInfo(inputs_folder);
-        //FileInfo[] info = inputs_directory.GetFiles("*.*");
-        FileInfo[] info = inputs_directory.GetFiles("*.txt");
-        Debug.Log("Inputs folder size: " + info.Length);
-        
-        // Debug stuff
-        foreach (FileInfo f in info)
-        {
-            Debug.Log(f.Name);
-        }
-
-        // If Inputs folder empty: copy the standard new game structures to Inputs folder
-        if (info.Length == 0)
-        {
-            Debug.Log("Inputs empty!");
-
-            // Copy the files in StreamingAssets > Inputs to GameFiles > Inputs 
-            foreach (string input in input_files)
-            {
-                copyToInputs(input);            
-            }
-        }
-        
-        // Else, if Inputs folder not empty: verify if the standards new game structures exists
-        else
-        {
-            Debug.Log("Inputs NOT empty!");
-
-            // Verify if the inputs_folder has all the standard input files in StreamingAssets
-            foreach (string input in input_files)
-            {
-                bool flag = false;
-                Debug.Log("Searching: " + input);              
-                foreach (FileInfo file in info)
-                {
-                    if (file.Name.Equals(input))
-                    {
-                        flag = true;
-                        Debug.Log("Found: " + file.Name);
-                    }
-                }
-                if (!flag)
-                {
-                    copyToInputs(input);
-                }
-            }
-        }
-        */
         initializeFolderFiles(inputs_folder, "Default_Input_File_Names.txt");
         initializeFolderFiles(tutorials_folder, "Default_Tutorial_File_Names.txt");
 
         Debug.Log("GameFilesHandler: Initialization END!!!");
     }
 
-
+    /// <summary>
+    /// Initializes the folder that have default files, like Inputs and Tutorials.
+    /// </summary>
+    /// <param name="folder_path"></param>
+    /// <param name="default_folder_file_names"></param>
     private void initializeFolderFiles(string folder_path, string default_folder_file_names)
     {
         // Read the string with the names of the default folder file names
@@ -291,8 +230,8 @@ public class GameFilesHandler : MonoBehaviour
         
         // Split the names of the file names in default folder file names to a string array
         string[] default_files = string_file.Split(new char[] { '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-        Debug.Log("Default_Input_File_Names.txt string[] size: " + default_files.Length);
-        
+
+        // Debug stuff
         foreach (string input in default_files)
         {
             Debug.Log(input);
@@ -314,14 +253,14 @@ public class GameFilesHandler : MonoBehaviour
         {
             Debug.Log("Folder path's empty!");
 
-            // Copy the files in StreamingAssets > Inputs to GameFiles > Inputs 
+            // Copy the files in StreamingAssets > folder_path to GameFiles > folder_path 
             foreach (string file in default_files)
             {
                 copyFileToFolder(file, folder_path);
             }
         }
 
-        // Else, if Inputs folder not empty: verify if the standards new game structures exists
+        // Else, if the folder's not empty: verify if the default structures exists
         else
         {
             Debug.Log("Folder path's NOT empty!");
@@ -341,7 +280,6 @@ public class GameFilesHandler : MonoBehaviour
                 }
                 if (!flag)
                 {
-                    //copyToInputs(file_name);
                     copyFileToFolder(file_name, folder_path);
                 }
             }
@@ -357,7 +295,7 @@ public class GameFilesHandler : MonoBehaviour
     {
         // Copy input to GameFile > Inputs folder                 
         string new_input_file = readFromStreamingAssets(file);
-        //Debug.Log(new_input_file);
+ 
         string new_input_file_path = Path.Combine(inputs_folder, file);
 
         Debug.Log("Saving: " + new_input_file_path + " in " + inputs_folder);
@@ -392,8 +330,6 @@ public class GameFilesHandler : MonoBehaviour
     {
         string file_path = Path.Combine(Application.streamingAssetsPath, "Inputs", file_name);
         Debug.Log("Reading From Streaming Assets");
-    
-        //var file_path = Path.Combine(Application.streamingAssetsPath, file_name);
 
         Debug.Log("File path: " + file_path);
 
@@ -432,7 +368,7 @@ public class GameFilesHandler : MonoBehaviour
 
 
     /// <summary>
-    /// Reads a Text file into a string, only for files in StreamingAssets > Inputs folder/Tutorials folder.
+    /// Reads a Text file into a string, only for files in StreamingAssets > Inputs/Tutorials folder.
     /// </summary>
     /// <param name="file_name">File name to be read in Streaming Assets.</param>
     /// <param name="file_folder">Folder where the file is stored.</param>
@@ -441,8 +377,6 @@ public class GameFilesHandler : MonoBehaviour
     {
         string file_path = Path.Combine(Application.streamingAssetsPath, file_folder, file_name);
         Debug.Log("Reading " + file_name + " From Streaming Assets");
-
-        //var file_path = Path.Combine(Application.streamingAssetsPath, file_name);
 
         Debug.Log("File path: " + file_path);
 
@@ -818,10 +752,6 @@ public class GameFilesHandler : MonoBehaviour
         // Write Json string to a file
         File.WriteAllText(save_file, json);
 
-
-        // DEBUG
-        //printSaveData("SAVE", save_slot);
-        //Debug.Log(json);
     }
 
     /// <summary>
@@ -943,10 +873,10 @@ public class GameFilesHandler : MonoBehaviour
         SettingsData save_slot = new SettingsData();
         save_slot.score_position = PlayerController.score_display.GetComponent<RectTransform>().localPosition;
         save_slot.score_rotation = PlayerController.score_display.GetComponent<RectTransform>().localRotation;
-        save_slot.score_toogle = PlayerController.score_toggle.GetComponent<Toggle>().isOn;
+        save_slot.score_toogle = PlayerController.score_toggle_button.GetComponent<Toggle>().isOn;
         save_slot.parameters_postiton = PlayerController.parameters_display.GetComponent<RectTransform>().localPosition;
         save_slot.parameters_rotation = PlayerController.parameters_display.GetComponent<RectTransform>().localRotation;
-        save_slot.parameters_toogle = PlayerController.parameters_toggle.GetComponent<Toggle>().isOn;
+        save_slot.parameters_toogle = PlayerController.parameters_toggle_button.GetComponent<Toggle>().isOn;
 
         // Convert to Json format
         string json = JsonUtility.ToJson(save_slot);
@@ -974,10 +904,10 @@ public class GameFilesHandler : MonoBehaviour
 
             PlayerController.score_display.GetComponent<RectTransform>().localPosition = load_slot.score_position;
             PlayerController.score_display.GetComponent<RectTransform>().localRotation = load_slot.score_rotation;
-            PlayerController.score_toggle.GetComponent<Toggle>().isOn = load_slot.score_toogle;
+            PlayerController.score_toggle_button.GetComponent<Toggle>().isOn = load_slot.score_toogle;
             PlayerController.parameters_display.GetComponent<RectTransform>().localPosition = load_slot.parameters_postiton;
             PlayerController.parameters_display.GetComponent<RectTransform>().localRotation = load_slot.parameters_rotation;
-            PlayerController.parameters_toggle.GetComponent<Toggle>().isOn = load_slot.parameters_toogle;
+            PlayerController.parameters_toggle_button.GetComponent<Toggle>().isOn = load_slot.parameters_toogle;
         }
         else
         {

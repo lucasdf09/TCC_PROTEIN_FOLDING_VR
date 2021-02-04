@@ -20,7 +20,7 @@ public class CoroutineRecenterMainView : MonoBehaviour
     }
 
     /// <summary>
-    /// Waits until the MENU button press to recenter the game viewpoint.
+    /// Waits until the D button press to recenter the game viewpoint.
     /// </summary>
     /// <returns>Always null.</returns>
     private IEnumerator recenterMainView()

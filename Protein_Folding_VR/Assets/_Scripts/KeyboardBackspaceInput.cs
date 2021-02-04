@@ -25,7 +25,7 @@ public class KeyboardBackspaceInput : MonoBehaviour
     {
         if(text_input.text.Length > 0)
         {
-            Debug.Log("Character: " + gameObject.GetComponentInChildren<Text>().text);
+            //Debug.Log("Character: " + gameObject.GetComponentInChildren<Text>().text);
             // Remotion of the last character
             text_input.text = text_input.text.Remove(text_input.text.Length - 1);
             // Caret position update

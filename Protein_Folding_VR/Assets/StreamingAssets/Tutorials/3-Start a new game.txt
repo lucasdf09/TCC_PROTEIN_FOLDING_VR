@@ -1,2 +1,2 @@
 To start a new game, click the New Game button in Main Menu.
-Select in the New Game list a protein structure and click.
+Then, select a protein structure, clicking it in the New Game list.

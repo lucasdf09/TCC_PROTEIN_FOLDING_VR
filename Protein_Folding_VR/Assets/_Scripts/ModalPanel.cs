@@ -32,6 +32,7 @@ public class ModalPanel : MonoBehaviour
         return modal_panel;
     }
 
+
     /// <summary>
     /// Set the confirm panel question text and ok/cancel buttons operations.
     /// </summary>
@@ -58,6 +59,7 @@ public class ModalPanel : MonoBehaviour
         ok_button.gameObject.SetActive(true);
         cancel_button.gameObject.SetActive(true);
     }
+
 
     /// <summary>
     /// Set the confirm panel question text and ok/cancel buttons operations before a notify panel.
@@ -86,6 +88,7 @@ public class ModalPanel : MonoBehaviour
         cancel_button.gameObject.SetActive(true);
     }
 
+
     /// <summary>
     /// Set the notify window message and ok button operation. 
     /// </summary>
@@ -108,6 +111,7 @@ public class ModalPanel : MonoBehaviour
         cancel_button.gameObject.SetActive(false);
     }
 
+
     /// <summary>
     /// Close the modal panel.
     /// </summary>
@@ -116,6 +120,7 @@ public class ModalPanel : MonoBehaviour
         modal_panel_obj.SetActive(false);
     }
 
+
     /// <summary>
     /// Open the modal panel.
     /// </summary>
@@ -123,6 +128,7 @@ public class ModalPanel : MonoBehaviour
     {
         StartCoroutine(waiter());
     }
+
 
     /// <summary>
     /// Waits for a time between the on/off of the modal panel.

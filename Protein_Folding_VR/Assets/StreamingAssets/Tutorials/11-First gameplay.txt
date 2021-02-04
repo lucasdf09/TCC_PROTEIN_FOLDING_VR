@@ -9,6 +9,6 @@ Basic instructions to begin a gameplay:
 8-A good punctuation must be positive (green)
 9-Use B/A joystick buttons to Undo/Redo operations
 10-Press C joystick button to exit Move Mode and enter Select Mode
-11-Adjust the camera the thumbstick and front buttons
-12-Access the Game Menu using the D joystick button
+11-Adjust the camera with the thumbstick and front buttons
+12-Access the Game Menu using the joystick button D
 13-Read the other tutorials for further informations
