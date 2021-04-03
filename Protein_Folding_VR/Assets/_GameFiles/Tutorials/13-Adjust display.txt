@@ -1,0 +1,6 @@
+To adjust the Score and Parameters display enter in Game Menu.
+Click the Options button and then Display Settings.
+Choose in the check boxes which display to shown.
+In the Adjust Score and Adjust Parameters buttons adjust the position of these in the screen.
+Click in Return to exit to Options Menu.
+Save the changes, in settings, if you want.

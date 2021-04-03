@@ -1,0 +1,5 @@
+The Undo and Redo operations can be done only in Select Mode.
+The Undo/Redo operations have and predetermined amount of movements stored.
+So, it's possible to return only a fixed amount of movements.
+To Undo, use the B joystick button.
+To Redo, use the A joystick button.
