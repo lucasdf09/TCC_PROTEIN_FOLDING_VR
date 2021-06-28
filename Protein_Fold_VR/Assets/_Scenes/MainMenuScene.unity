@@ -193,7 +193,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.015e-42, y: 3.0943432, z: 1.015e-42, w: 4.3377113}
+  m_BoundingSphereOverride: {x: 2048, y: 1.9721532e-31, z: 9.403955e-38, w: 2.3509887e-38}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -4048,7 +4048,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Protein Folding VR
+  m_Text: Protein Fold VR
 --- !u!222 &1991623872
 CanvasRenderer:
   m_ObjectHideFlags: 0

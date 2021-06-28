@@ -1,4 +1,4 @@
-Protein Folding VR
+Protein Fold VR
 Version 1.0
 Author: Lucas D. Fabri
 Contact: lucasfabri@alunos.utfpr.edu.br
