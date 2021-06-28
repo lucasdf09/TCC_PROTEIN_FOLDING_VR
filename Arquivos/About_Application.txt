@@ -1,0 +1,8 @@
+Protein Folding VR
+Version 1.0
+Author: Lucas D. Fabri
+Contact: lucasfabri@alunos.utfpr.edu.br
+Made with Unity 
+Unity version: 2019.2
+Contributors: LABIC UTFPR-CT
+Contact: http://labic.utfpr.edu.br/

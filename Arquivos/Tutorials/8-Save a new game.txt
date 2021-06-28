@@ -1,0 +1,3 @@
+When playing, press the D joystick button to enter in Game Menu.
+Click the Save button and then New Save button.
+Enter a name to the save file and then click Ok or Enter.

@@ -1,0 +1,2 @@
+To load a saved game, in Main Menu, click the Load Game button.
+In Load Menu, select a saved game in the list and then click to load.
