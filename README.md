@@ -7,6 +7,8 @@ Autor: Lucas Destefani Fabri
 
 Orientador: Prof. Dr. César Manuel Vargas Benítez
 
+Versão Unity 2019.2 - Unity version 2019.2
+
 **********
 
 Repositório para os códigos do projeto:
